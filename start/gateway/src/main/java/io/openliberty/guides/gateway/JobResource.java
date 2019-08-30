@@ -12,8 +12,6 @@
 // end::copyright[]
 package io.openliberty.guides.gateway;
 
-import java.util.concurrent.CompletionStage;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -24,8 +22,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.openliberty.guides.gateway.client.JobClient;
-import io.openliberty.guides.models.JobList;
 import io.openliberty.guides.models.Job;
+import io.openliberty.guides.models.JobList;
 import io.openliberty.guides.models.JobResult;
 
 @RequestScoped
