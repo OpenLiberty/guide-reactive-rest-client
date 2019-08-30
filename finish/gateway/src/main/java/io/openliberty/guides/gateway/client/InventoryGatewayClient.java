@@ -26,7 +26,7 @@ import io.openliberty.guides.models.InventoryList;
 
 @RegisterRestClient(baseUri = "http://inventory-service:9080")
 @Path("/inventory")
-public interface InventoryClient {
+public interface InventoryGatewayClient {
 
     @GET
     @Path("systems")

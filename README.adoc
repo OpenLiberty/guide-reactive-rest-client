@@ -81,13 +81,13 @@ First, you will make the job client interface methods asynchronous.
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Replace the `JobClient` interface.#
-`gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java`
+#Replace the `JobGatewayClient` interface.#
+`gateway/src/main/java/io/openliberty/guides/gateway/client/JobGatewayClient.java`
 ----
-JobClient.java
+JobGatewayClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobGatewayClient.java[]
 ----
 
 The changes involves changing the return types of the [hotspot=getJobs file=0]`getJobs`, [hotspot=getJob file=0]`getJob`, and [hotspot=createJob file=0]`createJob` methods to return `CompletionStage<T>` types. Also, chain the [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=0]`rx()` method to invoke the reactive client. Since the methods now have a return type of `CompletionStage<T>`, you won’t be able to directly manipulate the inner type. As you will see in the next section, you will be able to indirectly use the inner object by chaining callbacks.
@@ -100,13 +100,13 @@ JAX-RS resources can also have asynchronous methods. So instead of returning a `
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Replace the `JobResource` class.#
-`gateway/src/main/java/io/openliberty/guides/gateway/JobResource.java`
+#Replace the `JobGatewayResource` class.#
+`gateway/src/main/java/io/openliberty/guides/gateway/JobGatewayResource.java`
 ----
-JobResource.java
+JobGatewayResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/JobResource.java[]
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/JobGatewayResource.java[]
 ----
 
 Similar to the synchronous approach, if we successfully get the completed jobs from the `job` microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs. Finally, return the `CompletionStage<JobsListModel>` you built up using the [hotspot=thenApplyAsync file=0]`thenApplyAsync()`.

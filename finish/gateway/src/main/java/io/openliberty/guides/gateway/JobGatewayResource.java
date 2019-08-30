@@ -23,17 +23,17 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import io.openliberty.guides.gateway.client.JobClient;
+import io.openliberty.guides.gateway.client.JobGatewayClient;
 import io.openliberty.guides.models.JobList;
 import io.openliberty.guides.models.Job;
 import io.openliberty.guides.models.JobResult;
 
 @RequestScoped
 @Path("/jobs")
-public class JobResource {
+public class JobGatewayResource {
 
     @Inject
-    private JobClient jobClient;
+    private JobGatewayClient jobClient;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
