@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019 IBM Corporation and others.
+// Copyright (c) 2019 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -17,7 +17,7 @@
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Java EE']
 :page-permalink: /guides/{projectid}
-:page-related-guides: ['microprofile-rest-client']
+:page-related-guides: ['microprofile-rest-client', 'microprofile-rest-client-async']
 :common-includes: ../guides-common/
 :imagesdir: /img/guide
 :source-highlighter: prettify
@@ -35,7 +35,7 @@ Learn how to use JAX-RS Reactive Client to invoke RESTful microservices over HTT
 
 You will learn how to use the JAX-RS reactive client to access remote RESTful services using asynchronous method calls. You'll update an existing usage of the client to call the `rx()` method while will wrap your response in a `CompletionStage`. A `CompletionStage` is an interface that will allow you to use the result of your remote service call at some point in the future.
 
-=== What is asynchronous programming?
+*What is asynchronous programming?*
 
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
 
@@ -160,7 +160,7 @@ Next, use the provided script to start the application in docker containers. The
 
 You can access the application by making requests to the `gateway` job endpoints.
 
-[options="header"]
+[options="header", role="wrap_table"]
 |===
 |Description |Endpoint |Sample Output
 |Get completed jobs |GET http://localhost:8080/api/jobs[http://localhost:8080/api/jobs^] |`{"count":0,"results":[]}`
