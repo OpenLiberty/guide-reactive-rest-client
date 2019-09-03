@@ -12,8 +12,8 @@
 :page-guide-category: microprofile
 :page-essential: false
 :page-description: Learn how to use JAX-RS reactive Rest client to invoke RESTful microservices over HTTP asynchronously.
-:page-seo-title: Consuming REST services asynchronously
-:page-seo-description: A tutorial on how to consume REST services asynchronously with the reactive JAX-RS client.
+:page-seo-title: Consuming Rest services asynchronously
+:page-seo-description: A tutorial on how to consume Rest services asynchronously with the reactive JAX-RS client.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Java EE']
 :page-permalink: /guides/{projectid}
@@ -172,7 +172,7 @@ You can use `curl -X POST \http://localhost:8080/api/jobs` command if available 
 
 The completed jobs JSON output has `averageResult` that is the average sleep time of all the jobs, a count for the number of jobs and the list of the jobs. Each job JSON output has a job ID and a sleep time as the result for this job.
 
-Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While MicroProfile REST Client makes a request, the thread can handle other work.
+Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While MicroProfile Rest Client makes a request, the thread can handle other work.
 
 // =================================================================================================
 // Testing
