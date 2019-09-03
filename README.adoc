@@ -11,7 +11,7 @@
 :page-releasedate: 2019-09-13
 :page-guide-category: microprofile
 :page-essential: false
-:page-description: Learn how to use JAX-RS Reactive Rest Client to invoke RESTful microservices over HTTP asynchronously.
+:page-description: Learn how to use JAX-RS reactive Rest client to invoke RESTful microservices over HTTP asynchronously.
 :page-seo-title: Consuming REST services asynchronously
 :page-seo-description: A tutorial on how to consume REST services asynchronously with the reactive JAX-RS client.
 :guide-author: Open Liberty
@@ -29,7 +29,7 @@
 [.hidden]
 NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].
 
-Learn how to use JAX-RS Reactive Client to invoke RESTful microservices over HTTP asynchronously.
+Learn how to use JAX-RS reactive client to invoke RESTful microservices over HTTP asynchronously.
 
 == What you'll learn
 
@@ -40,7 +40,7 @@ Asynchronous programming can be thought of as a restaurant. After being seated, 
 
 Asynchronous methods allow you to perform a lengthy operation, such as input/output (IO) asynchronously. This means that the IO occurs in the background and the caller is notified via a callback to continue with their computation once it’s complete. The benefit is that this frees up the original thread to handle other work rather than waiting on IO to complete. Going back to the restaurant analogy, food is prepared asynchronously in the kitchen and your waiter is freed up to attend to other tables. Since they’re free, the waiter can take more orders from other tables, or serve food to other tables.
 
-In the context of the JAX-RS Reactive Client, making HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
+In the context of the JAX-RS reactive client, making HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
 
 The application you will be working with is a job manager that maintains an inventory of available systems.
 It consists of four microservices `gateway`, `job`, `system`, and `inventory`.
