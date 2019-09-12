@@ -15,7 +15,7 @@
 :page-seo-title: Consuming Rest services asynchronously
 :page-seo-description: A tutorial on how to consume Rest services asynchronously with the reactive JAX-RS client.
 :guide-author: Open Liberty
-:page-tags: ['MicroProfile', 'Java EE']
+:page-tags: ['MicroProfile', 'Java EE', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
 :page-related-guides: ['microprofile-rest-client', 'microprofile-rest-client-async']
 :common-includes: ../guides-common/
