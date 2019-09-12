@@ -73,7 +73,7 @@ public class SystemEndpointTest {
         .withEnv("ALLOW_ANONYMOUS_LOGIN", "yes");
 
     @Rule
-    public FixedHostPortGenericContainer kafka = new FixedHostPortGenericContainer<>("bitnami/kafka:kafka:2.3.0-debian-9-r68")
+    public FixedHostPortGenericContainer kafka = new FixedHostPortGenericContainer<>("bitnami/kafka:2.3.0-debian-9-r68")
         .withFixedExposedPort(9092, 9092)
         .withNetwork(network)
         .withNetworkAliases("kafka")
