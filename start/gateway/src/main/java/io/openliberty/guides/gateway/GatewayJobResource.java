@@ -12,42 +12,49 @@
 // end::copyright[]
 package io.openliberty.guides.gateway;
 
-import java.util.Properties;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import io.openliberty.guides.gateway.client.InventoryGatewayClient;
-import io.openliberty.guides.models.InventoryList;
-import io.openliberty.guides.models.SystemData;
+import io.openliberty.guides.gateway.client.JobClient;
+import io.openliberty.guides.models.Job;
+import io.openliberty.guides.models.JobList;
+import io.openliberty.guides.models.JobResult;
 
 @RequestScoped
-@Path("/systems")
-public class InventoryGatewayResource {
+@Path("/jobs")
+public class GatewayJobResource {
 
     @Inject
-    @RestClient
-    private InventoryGatewayClient inventoryClient;
+    private JobClient jobClient;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public InventoryList getSystems() {
-        return inventoryClient.getInventory();
+    public JobList getJobs() {
+        try {
+            return new JobList(jobClient.getJobs().getResults());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // Respond with empty list on error
+            return new JobList();
+        }
     }
 
     @GET
-    @Path("{hostname}")
+    @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public SystemData getSystem(@PathParam("hostname") String hostname) {
-        Properties properties = inventoryClient.getProperties(hostname);
-        return new SystemData(hostname, properties);
+    public JobResult getJob(@PathParam("jobId") String jobId) {
+        return jobClient.getJob(jobId);
     }
 
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Job createJob() {
+        return jobClient.createJob();
+    }
 }

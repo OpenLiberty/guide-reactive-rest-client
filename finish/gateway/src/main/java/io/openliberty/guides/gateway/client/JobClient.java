@@ -29,7 +29,7 @@ import io.openliberty.guides.models.JobResult;
 import io.openliberty.guides.models.Jobs;
 
 @RequestScoped
-public class JobGatewayClient {
+public class JobClient {
 
     @Inject
     @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://job-service:9080")
@@ -37,7 +37,7 @@ public class JobGatewayClient {
 
     private WebTarget target;
 
-    public JobGatewayClient() {
+    public JobClient() {
         this.target = null;
     }
 

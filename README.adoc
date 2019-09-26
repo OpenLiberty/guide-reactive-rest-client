@@ -80,32 +80,32 @@ First, you will make the job client interface methods asynchronous.
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Replace the `JobGatewayClient` interface.#
-`gateway/src/main/java/io/openliberty/guides/gateway/client/JobGatewayClient.java`
+#Replace the `JobClient` interface.#
+`gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java`
 ----
-JobGatewayClient.java
+JobClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobGatewayClient.java[]
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
 The changes involves changing the return types of the [hotspot=getJobs file=0]`getJobs`, [hotspot=getJob file=0]`getJob`, and [hotspot=createJob file=0]`createJob` methods to return `CompletionStage<T>` types. Also, chain the [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=0]`rx()` method to invoke the reactive client. Since the methods now have a return type of `CompletionStage<T>`, you won’t be able to directly manipulate the inner type. As you will see in the next section, you will be able to indirectly use the inner object by chaining callbacks.
 
 Instead of using a `CompletionStage` return type, JAX-RS API allows you to use a type from a third-party library such as https://github.com/ReactiveX/RxJava[RxJava^]. You can achieve this by passing the custom type into your call to `rx()`.
 
-== Responding asynchronously to an HTTP request
+== responding asynchronously to an HTTP request
 
 JAX-RS resources can also have asynchronous methods. So instead of returning a `JobsListModel` type, you may return a `CompletionStage<JobsListModel>` type. Completion stages can be chained together using the [hotspot=thenApplyAsync file=0]`thenApplyAsync()` method.
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Replace the `JobGatewayResource` class.#
-`gateway/src/main/java/io/openliberty/guides/gateway/JobGatewayResource.java`
+#Replace the `GatewayJobResource` class.#
+`gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java`
 ----
-JobGatewayResource.java
+GatewayJobResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/JobGatewayResource.java[]
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
 
 Similar to the synchronous approach, if we successfully get the completed jobs from the `job` microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs. Finally, return the `CompletionStage<JobsListModel>` you built up using the [hotspot=thenApplyAsync file=0]`thenApplyAsync()`.
@@ -167,6 +167,7 @@ You can access the application by making requests to the `gateway` job endpoints
 |Create a job |POST \http://localhost:8080/api/jobs |`{"jobId":"661891cb-ad36-4ef4-9bb3-641f973f2964"}`
 |Get a specific job |GET \http://localhost:8080/api/jobs/{jobId} |`{"jobId":"661891cb-ad36-4ef4-9bb3-641f973f2964","result":5}`
 |===
+Before any jobs are created, the output will be simply `{"count":0,"results":[]}`, representing that no jobs have been created.
 
 You can use `curl -X POST \http://localhost:8080/api/jobs` command if available on the system to create a job. The Postman application can also be used. The request will take some time for the job results to return.
 
@@ -184,8 +185,8 @@ A few tests are included for you to test the basic functionality of the `gateway
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Create the `JobGatewayEndpointTest` class.#
-`gateway/src/test/java/it/io/openliberty/guides/gateway/JobGatewayEndpointTest.java`
+#Create the `GatewayJobEndpointIT` class.#
+`gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java`
 ----
 
 See the following descriptions of the test cases:
@@ -194,10 +195,10 @@ See the following descriptions of the test cases:
 
 * [hotspot=testGetJobs file=0]`testGetJobs()` verifies that the gateway service communicates with an upstream service to get all jobs and transforms them appropriately to a `JobListModel`.
 
-JobGatewayEndpointTest.java
+GatewayJobEndpointIT.java
 [source, Java, linenums, role='code_column hide_tags=copyright,javadoc']
 ----
-include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/JobGatewayEndpointTest.java[]
+include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java[]
 ----
 
 // =================================================================================================
@@ -220,10 +221,10 @@ When the tests succeed, you will see output similar to the following.
 -------------------------------------------------------
  T E S T S
 -------------------------------------------------------
-Running it.io.openliberty.guides.gateway.InventoryGatewayEndpointTest
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.InventoryGatewayEndpointTest
-Running it.io.openliberty.guides.gateway.JobGatewayEndpointTest
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.455 s - in it.io.openliberty.guides.gateway.JobGatewayEndpointTest
+Running it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
+Running it.io.openliberty.guides.gateway.GatewayJobEndpointIT
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.455 s - in it.io.openliberty.guides.gateway.GatewayJobEndpointIT
 
 Results:
 
