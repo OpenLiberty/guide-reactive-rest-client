@@ -23,6 +23,16 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import java.util.List;
+import java.util.LinkedList;
+import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvoker;
+import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvokerProvider;
+
+import io.reactivex.rxjava3.core.*;
+import io.reactivex.Observable;
+//import io.reactivex.rxjava3.core.Observable;
+
+import javax.ws.rs.client.Client;
 
 import io.openliberty.guides.models.Job;
 import io.openliberty.guides.models.JobResult;
@@ -42,10 +52,13 @@ public class JobClient {
     }
 
     // tag::getJobs[]
-    public CompletionStage<Jobs> getJobs() {
+    //public CompletionStage<Jobs> getJobs() {
+    public Observable<Jobs> getJobs() {
+        List<Object> providers = new LinkedList<>();
+        providers.add(new ObservableRxInvokerProvider());
         return iBuilder(webTarget())
             // tag::rxGetJobs[]
-            .rx()
+            .rx(ObservableRxInvoker.class)
             // end::rxGetJobs[]
             .get(Jobs.class);
     }

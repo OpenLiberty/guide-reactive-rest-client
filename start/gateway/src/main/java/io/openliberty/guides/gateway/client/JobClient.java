@@ -12,6 +12,8 @@
 // end::copyright[]
 package io.openliberty.guides.gateway.client;
 
+import java.util.concurrent.CompletionStage;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -39,20 +41,35 @@ public class JobClient {
         this.target = null;
     }
 
-    public Jobs getJobs() {
+    // tag::getJobs[]
+    public CompletionStage<Jobs> getJobs() {
         return iBuilder(webTarget())
+            // tag::rxGetJobs[]
+            .rx()
+            // end::rxGetJobs[]
             .get(Jobs.class);
     }
+    // end::getJobs[]
 
-    public JobResult getJob(String jobId) {
+    // tag::getJob[]
+    public CompletionStage<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
+            // tag::rxGetJob[]
+            .rx()
+            // end::rxGetJob[]
             .get(JobResult.class);
     }
+    // end::getJob[]
 
-    public Job createJob() {
+    // tag::createJob[]
+    public CompletionStage<Job> createJob() {
         return iBuilder(webTarget())
+            // tag::rxCreateJob[]
+            .rx()
+            // end::rxCreateJob[]
             .post(null, Job.class);
     }
+    // end::createJob[]
 
     private Invocation.Builder iBuilder(WebTarget target) {
         return target

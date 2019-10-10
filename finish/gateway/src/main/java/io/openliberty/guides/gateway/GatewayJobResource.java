@@ -23,6 +23,17 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import java.util.List;
+import java.util.LinkedList;
+import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvoker;
+import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvokerProvider;
+
+import io.reactivex.rxjava3.core.*;
+import io.reactivex.Observable;
+//import io.reactivex.rxjava3.core.Observable;
+
+import javax.ws.rs.client.Client;
+
 import io.openliberty.guides.gateway.client.JobClient;
 import io.openliberty.guides.models.JobList;
 import io.openliberty.guides.models.Job;
@@ -35,7 +46,7 @@ public class GatewayJobResource {
     @Inject
     private JobClient jobClient;
 
-    @GET
+    /*@GET
     @Produces(MediaType.APPLICATION_JSON)
     public CompletionStage<JobList> getJobs() {
         return jobClient
@@ -51,6 +62,15 @@ public class GatewayJobResource {
                 return new JobList();
             });
             // end::exceptionally[]
+    }*/
+    @GET
+    @Produces
+    public Observable<JobList> getJobs() {
+        return jobClient
+            .getJobs()
+            .subscribe(jobs -> {
+                return new JobList(jobs.getResults());
+            });
     }
 
     @GET

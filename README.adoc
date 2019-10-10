@@ -11,7 +11,7 @@
 :page-releasedate: 2019-09-13
 :page-guide-category: microprofile
 :page-essential: false
-:page-description: Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
+:page-description: Learn how to use JAX-RS reactive client to invoke RESTful microservices over HTTP asynchronously.
 :page-seo-title: Consuming RESTful services using reactive JAX-RS client
 :page-seo-description: A tutorial on how to consume RESTful services asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client.
 :guide-author: Open Liberty
@@ -62,7 +62,7 @@ service to get the completed jobs.
 The implementations of the application and its services are provided for you in the `start/src` directory.
 The application also uses the Apache Kafka and ZooKeeper services to distribute the job results and system status.
 
-If you want to learn more about MicroProfile Rest Client, you can read the https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
+//If you want to learn more about MicroProfile Rest Client, you can read the https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
 
 
 // =================================================================================================

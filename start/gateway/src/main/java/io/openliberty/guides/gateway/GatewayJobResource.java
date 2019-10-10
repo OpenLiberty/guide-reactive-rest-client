@@ -12,6 +12,8 @@
 // end::copyright[]
 package io.openliberty.guides.gateway;
 
+import java.util.concurrent.CompletionStage;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -35,26 +37,32 @@ public class GatewayJobResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JobList getJobs() {
-        try {
-            return new JobList(jobClient.getJobs().getResults());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            // Respond with empty list on error
-            return new JobList();
-        }
+    public CompletionStage<JobList> getJobs() {
+        return jobClient
+            .getJobs()
+            // tag::thenApplyAsync[]
+            .thenApplyAsync((jobs) -> {
+                return new JobList(jobs.getResults());
+            })
+            // end::thenApplyAsync[]
+            // tag::exceptionally[]
+            .exceptionally((ex) -> {
+                // Respond with empty list on error
+                return new JobList();
+            });
+            // end::exceptionally[]
     }
 
     @GET
     @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public JobResult getJob(@PathParam("jobId") String jobId) {
+    public CompletionStage<JobResult> getJob(@PathParam("jobId") String jobId) {
         return jobClient.getJob(jobId);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Job createJob() {
+    public CompletionStage<Job> createJob() {
         return jobClient.createJob();
     }
 }
