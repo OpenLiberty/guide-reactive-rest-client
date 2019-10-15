@@ -30,6 +30,10 @@ import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvokerProvider;
 
 import io.reactivex.rxjava3.core.*;
 import io.reactivex.Observable;
+//import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.ResourceSubscriber;
 //import io.reactivex.rxjava3.core.Observable;
 
 import javax.ws.rs.client.Client;
@@ -38,6 +42,7 @@ import io.openliberty.guides.gateway.client.JobClient;
 import io.openliberty.guides.models.JobList;
 import io.openliberty.guides.models.Job;
 import io.openliberty.guides.models.JobResult;
+import io.openliberty.guides.models.Jobs;
 
 @RequestScoped
 @Path("/jobs")
@@ -64,25 +69,55 @@ public class GatewayJobResource {
             // end::exceptionally[]
     }*/
     @GET
-    @Produces
-    public Observable<JobList> getJobs() {
-        return jobClient
-            .getJobs()
-            .subscribe(jobs -> {
-                return new JobList(jobs.getResults());
+    @Produces(MediaType.APPLICATION_JSON)
+    public JobList getJobs() {
+        Observable<Jobs> obs = jobClient.getJobs();
+            obs
+                .observeOn(Schedulers.computation(), true)
+                .subscribe((v) -> {
+                    ((Jobs)v).getResults();
             });
+            return new JobList();
+        
     }
 
-    @GET
+    /*@GET
     @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
     public CompletionStage<JobResult> getJob(@PathParam("jobId") String jobId) {
         return jobClient.getJob(jobId);
+    }*/
+
+    @GET
+    @Path("{jobId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Observable<JobResult> getJob(@PathParam("jobId") String jobId) {
+        return Observable.defer(() -> {
+            try {
+                //return Observable.just(jobClient.getJob(jobId));  
+                return jobClient.getJob(jobId);    
+            }
+            catch (Exception e){
+                return;
+            }
+        });
     }
 
-    @POST
+    /*@POST
     @Produces(MediaType.APPLICATION_JSON)
     public CompletionStage<Job> createJob() {
         return jobClient.createJob();
+    }*/
+    @Produces(MediaType.APPLICATION_JSON)
+    public Observable<Job> createJob() {
+        return Observable.defer(() -> {
+            try {
+                //return Observable.just(jobClient.createJob());
+                return jobClient.createJob();
+            }
+            catch (Exception e) {
+                return;
+            }
+        });
     }
 }
