@@ -37,32 +37,26 @@ public class GatewayJobResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<JobList> getJobs() {
-        return jobClient
-            .getJobs()
-            // tag::thenApplyAsync[]
-            .thenApplyAsync((jobs) -> {
-                return new JobList(jobs.getResults());
-            })
-            // end::thenApplyAsync[]
-            // tag::exceptionally[]
-            .exceptionally((ex) -> {
-                // Respond with empty list on error
-                return new JobList();
-            });
-            // end::exceptionally[]
+    public JobList getJobs() {
+        try {
+            return new JobList(jobClient.getJobs().getResults());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // Respond with empty list on error
+            return new JobList();
+        }
     }
 
     @GET
     @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<JobResult> getJob(@PathParam("jobId") String jobId) {
+    public JobResult getJob(@PathParam("jobId") String jobId) {
         return jobClient.getJob(jobId);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<Job> createJob() {
+    public ob createJob() {
         return jobClient.createJob();
     }
 }
