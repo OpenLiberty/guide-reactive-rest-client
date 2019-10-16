@@ -42,22 +42,31 @@ public class JobClient {
     }
 
     // tag::getJobs[]
-    public Jobs getJobs() {
+    public CompletionStage<Jobs> getJobs() {
         return iBuilder(webTarget())
+            // tag::rxGetJobs[]
+            .rx()
+            // end::rxGetJobs[]
             .get(Jobs.class);
     }
     // end::getJobs[]
 
     // tag::getJob[]
-    public JobResult getJob(String jobId) {
+    public CompletionStage<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
+            // tag::rxGetJob[]
+            .rx()
+            // end::rxGetJob[]
             .get(JobResult.class);
     }
     // end::getJob[]
 
     // tag::createJob[]
-    public Job createJob() {
+    public CompletionStage<Job> createJob() {
         return iBuilder(webTarget())
+            // tag::rxCreateJob[]
+            .rx()
+            // end::rxCreateJob[]
             .post(null, Job.class);
     }
     // end::createJob[]

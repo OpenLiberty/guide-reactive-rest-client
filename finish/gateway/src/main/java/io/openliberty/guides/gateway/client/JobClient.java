@@ -23,8 +23,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import javax.ws.rs.core.GenericType;
-
 import java.util.List;
 import java.util.LinkedList;
 import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvoker;
@@ -58,32 +56,31 @@ public class JobClient {
     public Observable<Jobs> getJobs() {
         List<Object> providers = new LinkedList<>();
         providers.add(new ObservableRxInvokerProvider());
-        Observable<Jobs> obs = iBuilder(webTarget())
+        return iBuilder(webTarget())
             // tag::rxGetJobs[]
             .rx(ObservableRxInvoker.class)
             // end::rxGetJobs[]
-            .get(new GenericType<Jobs>(){});
-        return obs;
+            .get(Jobs.class);
     }
     // end::getJobs[]
 
     // tag::getJob[]
-    public Observable<JobResult> getJob(String jobId) {
+    public CompletionStage<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
             // tag::rxGetJob[]
-            .rx(ObservableRxInvoker.class)
+            .rx()
             // end::rxGetJob[]
-            .get(new GenericType<JobResult>(){});
+            .get(JobResult.class);
     }
     // end::getJob[]
 
     // tag::createJob[]
-    public Observable<Job> createJob() {
+    public CompletionStage<Job> createJob() {
         return iBuilder(webTarget())
             // tag::rxCreateJob[]
-            .rx(ObservableRxInvoker.class)
+            .rx()
             // end::rxCreateJob[]
-            .post(null, new GenericType<Job>(){});
+            .post(null, Job.class);
     }
     // end::createJob[]
 
