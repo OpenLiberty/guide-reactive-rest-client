@@ -29,17 +29,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import java.util.List;
-import java.util.LinkedList;
 
 import rx.Observable;
-
-//import io.reactivex.Observable;
-//import io.reactivex.Scheduler;
-//import io.reactivex.schedulers.Schedulers;
-//import io.reactivex.subscribers.ResourceSubscriber;
-
-import javax.ws.rs.client.Client;
-//import javax.xml.ws.Holder;
 
 import io.openliberty.guides.gateway.client.JobClient;
 import io.openliberty.guides.models.JobList;
@@ -83,9 +74,6 @@ public class GatewayJobResource {
                     holder.value = ((Jobs)v).getResults();
                     System.out.println(holder.value.toString());
                     cdLatch.countDown();
-            },
-            throwable -> {
-                //cdLatch.countDown();
             });
 
             //Wait for results to be available
@@ -129,7 +117,6 @@ public class GatewayJobResource {
         return holder.value;
     }
 
-
     /*@POST
     @Produces(MediaType.APPLICATION_JSON)
     public CompletionStage<Job> createJob() {
@@ -140,7 +127,7 @@ public class GatewayJobResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Job createJob() throws InterruptedException {
         final Holder<Job> holder = new Holder<Job>();
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1); //Countdown one other thread
         Observable<Job> obs = jobClient.createJob();
         obs
             .subscribe((v) -> {
@@ -154,7 +141,6 @@ public class GatewayJobResource {
         }
         return holder.value;
     }
-
 
     private class Holder<T> {
         public volatile T value;

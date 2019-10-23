@@ -31,12 +31,6 @@ import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
 import rx.Observable;
 
 import java.util.List;
-import java.util.LinkedList;
-
-//import io.reactivex.rxjava3.core.*;
-//import io.reactivex.Observable;
-
-import javax.ws.rs.client.Client;
 
 import io.openliberty.guides.models.Job;
 import io.openliberty.guides.models.JobResult;
