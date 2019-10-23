@@ -106,17 +106,38 @@
                 <version>1.8.0-beta2</version>
                 <scope>test</scope>
             </dependency>
-            <!--<dependency>
-                <groupId>io.reactivex.rxjava3</groupId>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>2.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.rx</groupId>
+            <artifactId>jersey-rx-client-rxjava</artifactId>
+            <version>2.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.rx</groupId>
+            <artifactId>jersey-rx-client-rxjava2</artifactId>
+            <version>2.27</version>
+        </dependency>
+            <dependency>
+                <groupId>io.reactivex.rxjava2</groupId>
                 <artifactId>rxjava</artifactId>
-                <version>3.0.0-RC3</version>
-            </dependency>-->
+                <version>2.2.2</version>
+            </dependency>
             <!-- Support for JDK 9 and above -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
             </dependency>
+            <!-- Support for JDK 11-->
         </dependencies>
     </dependencyManagement>
 
@@ -131,6 +152,19 @@
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                         <packagingExcludes>pom.xml</packagingExcludes>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>1.6</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>net.wasdev.wlp.maven.plugins</groupId>

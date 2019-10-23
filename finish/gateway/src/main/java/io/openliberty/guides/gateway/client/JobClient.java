@@ -25,14 +25,16 @@ import javax.ws.rs.core.MediaType;
 
 import javax.ws.rs.core.GenericType;
 
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
+
+import rx.Observable;
+
 import java.util.List;
 import java.util.LinkedList;
-import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvoker;
-import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvokerProvider;
 
-import io.reactivex.rxjava3.core.*;
-import io.reactivex.Observable;
-//import io.reactivex.rxjava3.core.Observable;
+//import io.reactivex.rxjava3.core.*;
+//import io.reactivex.Observable;
 
 import javax.ws.rs.client.Client;
 
@@ -53,39 +55,76 @@ public class JobClient {
         this.target = null;
     }
 
-    // tag::getJobs[]
-    //public CompletionStage<Jobs> getJobs() {
+    /*// tag::getJobs[]
+    public CompletionStage<Jobs> getJobs() {
+        return iBuilder(webTarget())
+            // tag::rxGetJobs[]
+            .rx()
+            // end::rxGetJobs[]
+            .get(Jobs.class);
+    }
+    // end::getJobs[]*/
+    
     public Observable<Jobs> getJobs() {
-        List<Object> providers = new LinkedList<>();
-        providers.add(new ObservableRxInvokerProvider());
+        return iBuilder(webTarget())
+            .rx(RxObservableInvoker.class)
+            .get(new GenericType<Jobs>() {});
+    }
+
+    // tag::getJobs[]
+    /*public Observable<Jobs> getJobs() {
+        //List<Object> providers = new LinkedList<>();
+        //providers.add(new ObservableRxInvokerProvider());
         Observable<Jobs> obs = iBuilder(webTarget())
+        //return iBuilder(webTarget())
             // tag::rxGetJobs[]
             .rx(ObservableRxInvoker.class)
             // end::rxGetJobs[]
             .get(new GenericType<Jobs>(){});
         return obs;
-    }
+    }*/
     // end::getJobs[]
+
+    /*// tag::getJob[]
+    public CompletionStage<JobResult> getJob(String jobId) {
+        return iBuilder(webTarget().path(jobId))
+            // tag::rxGetJob[]
+            .rx()
+            // end::rxGetJob[]
+            .get(JobResult.class);
+    }
+    // end::getJob[]*/
 
     // tag::getJob[]
     public Observable<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
             // tag::rxGetJob[]
-            .rx(ObservableRxInvoker.class)
+            .rx(RxObservableInvoker.class)
             // end::rxGetJob[]
             .get(new GenericType<JobResult>(){});
     }
     // end::getJob[]
 
+    /*// tag::createJob[]
+    public CompletionStage<Job> createJob() {
+        return iBuilder(webTarget())
+            // tag::rxCreateJob[]
+            .rx()
+            // end::rxCreateJob[]
+            .post(null, Job.class);
+    }
+    // end::createJob[]*/
+
     // tag::createJob[]
     public Observable<Job> createJob() {
         return iBuilder(webTarget())
             // tag::rxCreateJob[]
-            .rx(ObservableRxInvoker.class)
+            .rx(RxObservableInvoker.class)
             // end::rxCreateJob[]
             .post(null, new GenericType<Job>(){});
     }
     // end::createJob[]
+
 
     private Invocation.Builder iBuilder(WebTarget target) {
         return target
@@ -98,6 +137,7 @@ public class JobClient {
             this.target = ClientBuilder
                 .newClient()
                 .target(baseUri)
+                .register(RxObservableInvokerProvider.class)
                 .path("/jobs");
         }
 

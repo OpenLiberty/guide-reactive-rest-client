@@ -23,20 +23,23 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import java.util.List;
 import java.util.LinkedList;
-import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvoker;
-import org.apache.cxf.jaxrs.rx2.client.ObservableRxInvokerProvider;
 
-import io.reactivex.rxjava3.core.*;
-import io.reactivex.Observable;
-//import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subscribers.ResourceSubscriber;
-//import io.reactivex.rxjava3.core.Observable;
+import rx.Observable;
+
+//import io.reactivex.Observable;
+//import io.reactivex.Scheduler;
+//import io.reactivex.schedulers.Schedulers;
+//import io.reactivex.subscribers.ResourceSubscriber;
 
 import javax.ws.rs.client.Client;
+//import javax.xml.ws.Holder;
 
 import io.openliberty.guides.gateway.client.JobClient;
 import io.openliberty.guides.models.JobList;
@@ -68,17 +71,34 @@ public class GatewayJobResource {
             });
             // end::exceptionally[]
     }*/
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JobList getJobs() {
+    public JobList getJobs() throws InterruptedException {
+        final Holder<List<JobResult>> holder = new Holder<List<JobResult>>();
+        CountDownLatch cdLatch =  new CountDownLatch(1);
         Observable<Jobs> obs = jobClient.getJobs();
             obs
-                .observeOn(Schedulers.computation(), true)
                 .subscribe((v) -> {
-                    ((Jobs)v).getResults();
+                    holder.value = ((Jobs)v).getResults();
+                    System.out.println(holder.value.toString());
+                    cdLatch.countDown();
+            },
+            throwable -> {
+                //cdLatch.countDown();
             });
-            return new JobList();
-        
+
+            //Wait for results to be available
+            try {
+                //if (!cdLatch.await(1, TimeUnit.SECONDS)) {
+                //    System.out.println("Waiting or do something else");
+               // }
+                cdLatch.await();
+            } catch (InterruptedException e) {
+                //return new JobList(holder.value);
+                System.out.println("uhoh");
+            }
+            return new JobList(holder.value);
     }
 
     /*@GET
@@ -91,33 +111,52 @@ public class GatewayJobResource {
     @GET
     @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Observable<JobResult> getJob(@PathParam("jobId") String jobId) {
-        return Observable.defer(() -> {
-            try {
-                //return Observable.just(jobClient.getJob(jobId));  
-                return jobClient.getJob(jobId);    
-            }
-            catch (Exception e){
-                return;
-            }
-        });
+    public JobResult getJob(@PathParam("jobId") String jobId) throws InterruptedException {
+        final Holder<JobResult> holder = new Holder<JobResult>();
+        CountDownLatch cdLatch = new CountDownLatch(1);
+        Observable<JobResult> obs = jobClient.getJob(jobId);
+        obs
+            .subscribe((v) -> {
+                holder.value = v;
+                //cdLatch.countDown();
+            });
+        //Wait to get the job
+        try {
+            cdLatch.await();
+        } catch (InterruptedException e) {
+
+        }
+        return holder.value;
     }
+
 
     /*@POST
     @Produces(MediaType.APPLICATION_JSON)
     public CompletionStage<Job> createJob() {
         return jobClient.createJob();
     }*/
+
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Observable<Job> createJob() {
-        return Observable.defer(() -> {
-            try {
-                //return Observable.just(jobClient.createJob());
-                return jobClient.createJob();
-            }
-            catch (Exception e) {
-                return;
-            }
-        });
+    public Job createJob() throws InterruptedException {
+        final Holder<Job> holder = new Holder<Job>();
+        CountDownLatch latch = new CountDownLatch(1);
+        Observable<Job> obs = jobClient.createJob();
+        obs
+            .subscribe((v) -> {
+                holder.value = v;
+                latch.countDown();
+            });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            
+        }
+        return holder.value;
+    }
+
+
+    private class Holder<T> {
+        public volatile T value;
     }
 }
