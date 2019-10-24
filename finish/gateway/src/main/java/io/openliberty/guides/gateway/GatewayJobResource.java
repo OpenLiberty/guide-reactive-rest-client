@@ -100,9 +100,8 @@ public class GatewayJobResource {
         obs
             .subscribe((v) -> {
                 holder.value = v;
-                //cdLatch.countDown();
+                cdLatch.countDown();
             });
-        //Wait to get the job
         try {
             cdLatch.await();
         } catch (InterruptedException e) {
