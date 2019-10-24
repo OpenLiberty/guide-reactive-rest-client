@@ -58,26 +58,15 @@ public class JobClient {
             .get(Jobs.class);
     }
     // end::getJobs[]*/
-    
-    public Observable<Jobs> getJobs() {
-        return iBuilder(webTarget())
-            .rx(RxObservableInvoker.class)
-            .get(new GenericType<Jobs>() {});
-    }
 
     // tag::getJobs[]
-    /*public Observable<Jobs> getJobs() {
-        //List<Object> providers = new LinkedList<>();
-        //providers.add(new ObservableRxInvokerProvider());
-        Observable<Jobs> obs = iBuilder(webTarget())
-        //return iBuilder(webTarget())
+    public Observable<Jobs> getJobs() {
+        return iBuilder(webTarget())
             // tag::rxGetJobs[]
-            .rx(ObservableRxInvoker.class)
+            .rx(RxObservableInvoker.class)
             // end::rxGetJobs[]
-            .get(new GenericType<Jobs>(){});
-        return obs;
-    }*/
-    // end::getJobs[]
+            .get(new GenericType<Jobs>() {});
+    }
 
     /*// tag::getJob[]
     public CompletionStage<JobResult> getJob(String jobId) {

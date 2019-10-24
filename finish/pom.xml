@@ -106,21 +106,21 @@
                 <version>1.8.0-beta2</version>
                 <scope>test</scope>
             </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>2.27</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.rx</groupId>
-            <artifactId>jersey-rx-client-rxjava</artifactId>
-            <version>2.27</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.rx</groupId>
-            <artifactId>jersey-rx-client-rxjava2</artifactId>
-            <version>2.27</version>
-        </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>2.27</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.ext.rx</groupId>
+                <artifactId>jersey-rx-client-rxjava</artifactId>
+                <version>2.27</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.ext.rx</groupId>
+                <artifactId>jersey-rx-client-rxjava2</artifactId>
+                <version>2.27</version>
+            </dependency>
             <dependency>
                 <groupId>io.reactivex.rxjava2</groupId>
                 <artifactId>rxjava</artifactId>
@@ -132,7 +132,6 @@
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
             </dependency>
-            <!-- Support for JDK 11-->
         </dependencies>
     </dependencyManagement>
 

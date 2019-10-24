@@ -72,20 +72,14 @@ public class GatewayJobResource {
             obs
                 .subscribe((v) -> {
                     holder.value = ((Jobs)v).getResults();
-                    System.out.println(holder.value.toString());
                     cdLatch.countDown();
             });
 
             //Wait for results to be available
             try {
-                //if (!cdLatch.await(1, TimeUnit.SECONDS)) {
-                //    System.out.println("Waiting or do something else");
-               // }
                 cdLatch.await();
-            } catch (InterruptedException e) {
-                //return new JobList(holder.value);
-                System.out.println("uhoh");
-            }
+            } catch (InterruptedException e) {}
+
             return new JobList(holder.value);
     }
 
@@ -127,15 +121,15 @@ public class GatewayJobResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Job createJob() throws InterruptedException {
         final Holder<Job> holder = new Holder<Job>();
-        CountDownLatch latch = new CountDownLatch(1); //Countdown one other thread
+        CountDownLatch cdLatch = new CountDownLatch(1); //Countdown one other thread
         Observable<Job> obs = jobClient.createJob();
         obs
             .subscribe((v) -> {
                 holder.value = v;
-                latch.countDown();
+                cdLatch.countDown();
             });
         try {
-            latch.await();
+            cdLatch.await();
         } catch (InterruptedException e) {
             
         }
