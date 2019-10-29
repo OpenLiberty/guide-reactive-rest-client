@@ -1,15 +1,3 @@
-// tag::copyright[]
-/*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - Initial implementation
- *******************************************************************************/
-// end::copyright[]
 package io.openliberty.guides.gateway.client;
 
 import java.util.concurrent.CompletionStage;
@@ -41,26 +29,23 @@ public class JobClient {
         this.target = null;
     }
 
-    // tag::getJobs[]
-    public Jobs getJobs() {
+    public CompletionStage<Jobs> getJobs() {
         return iBuilder(webTarget())
+            .rx()
             .get(Jobs.class);
     }
-    // end::getJobs[]
 
-    // tag::getJob[]
-    public JobResult getJob(String jobId) {
+    public CompletionStage<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
+            .rx()
             .get(JobResult.class);
     }
-    // end::getJob[]
 
-    // tag::createJob[]
-    public Job createJob() {
+    public CompletionStage<Job> createJob() {
         return iBuilder(webTarget())
+            .rx()
             .post(null, Job.class);
     }
-    // end::createJob[]
 
     private Invocation.Builder iBuilder(WebTarget target) {
         return target
