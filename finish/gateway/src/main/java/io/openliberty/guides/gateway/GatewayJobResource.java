@@ -45,90 +45,58 @@ public class GatewayJobResource {
     @Inject
     private JobClient jobClient;
 
-    /*@GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<JobList> getJobs() {
-        return jobClient
-            .getJobs()
-            // tag::thenApplyAsync[]
-            .thenApplyAsync((jobs) -> {
-                return new JobList(jobs.getResults());
-            })
-            // end::thenApplyAsync[]
-            // tag::exceptionally[]
-            .exceptionally((ex) -> {
-                // Respond with empty list on error
-                return new JobList();
-            });
-            // end::exceptionally[]
-    }*/
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JobList getJobs() throws InterruptedException {
         final Holder<List<JobResult>> holder = new Holder<List<JobResult>>();
-        CountDownLatch cdLatch =  new CountDownLatch(1);
+        CountDownLatch countdownLatch =  new CountDownLatch(1);
         Observable<Jobs> obs = jobClient.getJobs();
             obs
                 .subscribe((v) -> {
                     holder.value = ((Jobs)v).getResults();
-                    cdLatch.countDown();
-            });
+                    countdownLatch.countDown();
+                });
 
-            //Wait for results to be available
             try {
-                cdLatch.await();
+                countdownLatch.await();
             } catch (InterruptedException e) {}
 
             return new JobList(holder.value);
     }
-
-    /*@GET
-    @Path("{jobId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<JobResult> getJob(@PathParam("jobId") String jobId) {
-        return jobClient.getJob(jobId);
-    }*/
 
     @GET
     @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
     public JobResult getJob(@PathParam("jobId") String jobId) throws InterruptedException {
         final Holder<JobResult> holder = new Holder<JobResult>();
-        CountDownLatch cdLatch = new CountDownLatch(1);
+        CountDownLatch countdownLatch = new CountDownLatch(1);
         Observable<JobResult> obs = jobClient.getJob(jobId);
         obs
             .subscribe((v) -> {
                 holder.value = v;
-                cdLatch.countDown();
+                countdownLatch.countDown();
             });
         try {
-            cdLatch.await();
+            countdownLatch.await();
         } catch (InterruptedException e) {
 
         }
         return holder.value;
     }
 
-    /*@POST
-    @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<Job> createJob() {
-        return jobClient.createJob();
-    }*/
-
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Job createJob() throws InterruptedException {
         final Holder<Job> holder = new Holder<Job>();
-        CountDownLatch cdLatch = new CountDownLatch(1); //Countdown one other thread
+        CountDownLatch countdownLatch = new CountDownLatch(1);
         Observable<Job> obs = jobClient.createJob();
         obs
             .subscribe((v) -> {
                 holder.value = v;
-                cdLatch.countDown();
+                countdownLatch.countDown();
             });
         try {
-            cdLatch.await();
+            countdownLatch.await();
         } catch (InterruptedException e) {
             
         }

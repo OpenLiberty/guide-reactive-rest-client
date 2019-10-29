@@ -49,16 +49,6 @@ public class JobClient {
         this.target = null;
     }
 
-    /*// tag::getJobs[]
-    public CompletionStage<Jobs> getJobs() {
-        return iBuilder(webTarget())
-            // tag::rxGetJobs[]
-            .rx()
-            // end::rxGetJobs[]
-            .get(Jobs.class);
-    }
-    // end::getJobs[]*/
-
     // tag::getJobs[]
     public Observable<Jobs> getJobs() {
         return iBuilder(webTarget())
@@ -67,16 +57,6 @@ public class JobClient {
             // end::rxGetJobs[]
             .get(new GenericType<Jobs>() {});
     }
-
-    /*// tag::getJob[]
-    public CompletionStage<JobResult> getJob(String jobId) {
-        return iBuilder(webTarget().path(jobId))
-            // tag::rxGetJob[]
-            .rx()
-            // end::rxGetJob[]
-            .get(JobResult.class);
-    }
-    // end::getJob[]*/
 
     // tag::getJob[]
     public Observable<JobResult> getJob(String jobId) {
@@ -87,16 +67,6 @@ public class JobClient {
             .get(new GenericType<JobResult>(){});
     }
     // end::getJob[]
-
-    /*// tag::createJob[]
-    public CompletionStage<Job> createJob() {
-        return iBuilder(webTarget())
-            // tag::rxCreateJob[]
-            .rx()
-            // end::rxCreateJob[]
-            .post(null, Job.class);
-    }
-    // end::createJob[]*/
 
     // tag::createJob[]
     public Observable<Job> createJob() {
