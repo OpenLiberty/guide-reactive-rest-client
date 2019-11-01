@@ -64,7 +64,6 @@ The application also uses the Apache Kafka and ZooKeeper services to distribute 
 
 //If you want to learn more about MicroProfile Rest Client, you can read the https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
 
-
 // =================================================================================================
 // Getting started
 // =================================================================================================
@@ -72,11 +71,33 @@ The application also uses the Apache Kafka and ZooKeeper services to distribute 
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
-== Changing the client to use reactive JAX-RS client
+== Using the default reactive JAX-RS client
 
 Navigate to the `start` directory to begin.
 
-First, you will make the job client interface methods asynchronous.
+An implementation of the default JAX-RS client is already provided for you. The application functions similarly to the one created in our https://openliberty.io/guides/microprofile-rest-client-async.html[template interfaces guide]. The classes changed are `JobClient` and `GatewayJobResource` which now implement the default JAX-RS reactive client.
+In both classes, notice how each method (getJobs(), getJob(), createJob()) returns a `CompletionStage<T>`. This interface represents a unit or stage of a computation. Once the associated computation completes, the value contained can then be retrieved. Alternatively, the CompletionStage can be chained with additional stages using the `thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the `exceptionally()` method. The `thenApplyAsync()` and `exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a CompletionStage in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the CompletionStage has completed.
+
+In the `JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods all contain an `rx()` call. This is the default reactive invoker for CompletionStage and this method is what retrieves the `CompletionStageRxInvoker` and allows for these methods to fucntion correctly with the CompletionStage return type.
+
+In the `GatewayJobResource` class, the desired return type is returned in the `thenApplyAsync()` method.
+
+Similarly to the synchronous approach, if we successfully get the completed jobs from the job microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs.
+
+
+== Updating the client to support third-party objects
+
+JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^], and can allow for client configurations that are different from the default one.
+
+By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[ReactiveX^] objects instead of only CompletionStage types.
+
+pom.xml
+[source,xml,linenums,role="code_column"]
+----
+include::finish/pom.xml[]
+----
+
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot=defaultHttpPort hotspot=defaultHttpsPort hotspot=appContextRoot file=1]`pom.xml` file. Look for the depedencies with `rxjava`, `jersey-client`, `jersey-rx-client-rxjava` and `jersey-rx-client-rxjava2`respectively as their artidactIDs.
 
 [role="code_command hotspot", subs="quotes"]
 ----
@@ -89,13 +110,13 @@ JobClient.java
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
-The changes involves changing the return types of the [hotspot=getJobs file=0]`getJobs`, [hotspot=getJob file=0]`getJob`, and [hotspot=createJob file=0]`createJob` methods to return `CompletionStage<T>` types. Also, chain the [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=0]`rx()` method to invoke the reactive client. Since the methods now have a return type of `CompletionStage<T>`, you won’t be able to directly manipulate the inner type. As you will see in the next section, you will be able to indirectly use the inner object by chaining callbacks.
+The changes involve changing the return types of `getJobs()`, `getJob()` and `createJob()` from `CompletionStage<T>` to `Observable<T>`. The `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` type is an object that is part of ReactiveX and, as will be seen later, is a more flexible data type than the CompletionStage.
+The `rx()` invoker also contains `RxObservableInvoker.class` as an argument; This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the `webTarget()` method the `register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
-Instead of using a `CompletionStage` return type, JAX-RS API allows you to use a type from a third-party library such as https://github.com/ReactiveX/RxJava[RxJava^]. You can achieve this by passing the custom type into your call to `rx()`.
 
-== responding asynchronously to an HTTP request
+== Updating the JAX resources
 
-JAX-RS resources can also have asynchronous methods. So instead of returning a `JobsListModel` type, you may return a `CompletionStage<JobsListModel>` type. Completion stages can be chained together using the [hotspot=thenApplyAsync file=0]`thenApplyAsync()` method.
+Now that the client methods return `Observable<T>`, you must update the resource to accomodate these changes. Instead of using `thenApplyAsync()`, observables use the `subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in this method; In this case, it is simply saving the data in the temporary holder.
 
 [role="code_command hotspot", subs="quotes"]
 ----
@@ -108,9 +129,7 @@ GatewayJobResource.java
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
 
-Similar to the synchronous approach, if we successfully get the completed jobs from the `job` microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs. Finally, return the `CompletionStage<JobsListModel>` you built up using the [hotspot=thenApplyAsync file=0]`thenApplyAsync()`.
-
-The `CompletionStage` interface represents a unit of computation. Once that computation completes, it can either be finished or chained with more completion stages using [hotspot=thenApplyAsync file=0]`thenApplyAsync()` to perform more computations. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=0]`exceptionally()` method, which functionally behaves similar to a catch block. When you return a `CompletionStage` in the resource, it doesn’t necessarily mean that the computation has completed and the response has been built. The service will respond to the caller once the `CompletionStage` has completed.
+A temporary holder is used to store the value returned from the client because values cannot be returned inside `subscribe()`. The `countdownLatch.await()` will ensure that the function will only return a value once the required item (i.e Job, JobResult, JobList) is ready. The `CountdownLatch` will countdown towards 0 after the completion of a thread via the `countdownLatch.countdown()` call. This means that the value will only return once the thread in charge of retrieving said value is complete. While waiting for this countdown to occur, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
 
 // =================================================================================================
 // Building the application
