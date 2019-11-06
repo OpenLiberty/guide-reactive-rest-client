@@ -97,7 +97,7 @@ pom.xml
 include::finish/pom.xml[]
 ----
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot=defaultHttpPort hotspot=defaultHttpsPort hotspot=appContextRoot file=1]`pom.xml` file. Look for the depedencies with `rxjava`, `jersey-client`, `jersey-rx-client-rxjava` and `jersey-rx-client-rxjava2`respectively as their artidactIDs.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your `pom.xml` file. Look for the depedencies with `rxjava`, `jersey-client`, `jersey-rx-client-rxjava` and `jersey-rx-client-rxjava2`respectively as their artidactIDs.
 
 [role="code_command hotspot", subs="quotes"]
 ----
