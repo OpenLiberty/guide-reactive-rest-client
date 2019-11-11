@@ -29,23 +29,35 @@ public class JobClient {
         this.target = null;
     }
 
+    // tag::getJobsCompletionStage[]
     public CompletionStage<Jobs> getJobs() {
         return iBuilder(webTarget())
+            // tag::rxGetJobsCompletionStage[]
             .rx()
+            // end::rxGetJobsCompletionStage[]
             .get(Jobs.class);
     }
+    // end::getJobsCompletionStage[]
 
+    // tag::getJobCompletionStage[]
     public CompletionStage<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
+            // tag::rxGetJobCompletionStage[]
             .rx()
+            // end::rxGetJobCompletionStage[]
             .get(JobResult.class);
     }
+    // end::getJobCompletionStage[]
 
+    // tag::createJobCompletionStage[]
     public CompletionStage<Job> createJob() {
         return iBuilder(webTarget())
+            // tag::rxCreateJobCompletionStage[]
             .rx()
+            // end::rxCreateJobCompletionStage[]
             .post(null, Job.class);
     }
+    // tag::createJobCompletionStage[]
 
     private Invocation.Builder iBuilder(WebTarget target) {
         return target

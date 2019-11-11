@@ -33,7 +33,8 @@ Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTT
 
 == What you'll learn
 
-You will learn how to use reactive JAX-RS client to access remote RESTful services using asynchronous method calls. You'll update an existing usage of the client to call the `rx()` method while will wrap your response in a `CompletionStage`. A `CompletionStage` is an interface that will allow you to use the result of your remote service call at some point in the future.
+//Mention more third party stuff
+You will learn how to use reactive JAX-RS client to access remote RESTful services using asynchronous method calls. You'll update an existing usage of the client to call the `rx()` method which will wrap your response in a `CompletionStage`. A `CompletionStage` is an interface that will allow you to use the result of your remote service call at some point in the future.
 
 *What is asynchronous programming?* +
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
@@ -62,8 +63,6 @@ service to get the completed jobs.
 The implementations of the application and its services are provided for you in the `start/src` directory.
 The application also uses the Apache Kafka and ZooKeeper services to distribute the job results and system status.
 
-//If you want to learn more about MicroProfile Rest Client, you can read the https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
-
 // =================================================================================================
 // Getting started
 // =================================================================================================
@@ -75,10 +74,10 @@ include::{common-includes}/gitclone.adoc[]
 
 Navigate to the `start` directory to begin.
 
-An implementation of the default JAX-RS client is already provided for you. The application functions similarly to the one created in our https://openliberty.io/guides/microprofile-rest-client-async.html[template interfaces guide]. The classes changed are `JobClient` and `GatewayJobResource` which now implement the default JAX-RS reactive client.
-In both classes, notice how each method (getJobs(), getJob(), createJob()) returns a `CompletionStage<T>`. This interface represents a unit or stage of a computation. Once the associated computation completes, the value contained can then be retrieved. Alternatively, the CompletionStage can be chained with additional stages using the `thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the `exceptionally()` method. The `thenApplyAsync()` and `exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a CompletionStage in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the CompletionStage has completed.
+An implementation of the default JAX-RS client is already provided for you. The application functions similarly to the one created in our https://openliberty.io/guides/microprofile-rest-client-async.html[Consuming RESTful services asynchronously with template interfaces] guide. The classes changed are `JobClient` and `GatewayJobResource` which now implement the default JAX-RS reactive client.
+In both classes, notice how the [hotspot = getJobsCompletionStage file = !!!]`getJobs()`, [hotspot = getJobCompletionStage file = !!!]`getJob()` and [hotspot = createJobCompletionStage file = !!!]`createJob()` returns a `CompletionStage<T>`. This interface represents a unit or stage of a computation. Once the associated computation completes, the value contained can then be retrieved. Alternatively, the CompletionStage can be chained with additional stages using the `thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the `exceptionally()` method. The `thenApplyAsync()` and `exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a CompletionStage in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the CompletionStage has completed.
 
-In the `JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods all contain an `rx()` call. This is the default reactive invoker for CompletionStage and this method is what retrieves the `CompletionStageRxInvoker` and allows for these methods to fucntion correctly with the CompletionStage return type.
+In the `JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods all contain an [hotspot=rxGetJobsCompletionStage hotspot=rxGetJobCompletionStage hotspot=rxCreateJobsCompletionStage file = !!!]`rx()` call. This is the default reactive invoker for CompletionStage and this method is what retrieves the `CompletionStageRxInvoker` and allows for these methods to fucntion correctly with the CompletionStage return type.
 
 In the `GatewayJobResource` class, the desired return type is returned in the `thenApplyAsync()` method.
 
@@ -91,7 +90,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[ReactiveX^] objects instead of only CompletionStage types.
 
-pom.xml
+//pom.xml
 [source,xml,linenums,role="code_column"]
 ----
 include::finish/pom.xml[]

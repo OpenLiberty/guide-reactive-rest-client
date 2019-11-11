@@ -57,6 +57,7 @@ public class JobClient {
             // end::rxGetJobs[]
             .get(new GenericType<Jobs>() {});
     }
+    // end::getJobs[]
 
     // tag::getJob[]
     public Observable<JobResult> getJob(String jobId) {
