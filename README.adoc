@@ -104,7 +104,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only CompletionStage types.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=2]`pom.xml` file. Look for the dependencies with [hotspot=111 file=0]`rxjava`, [hotspot=116 file=0]`jersey-client`, [hotspot=121 file=0]`jersey-rx-client-rxjava` and [hotspot=126 file=2]`jersey-rx-client-rxjava2` respectively as their artidactIDs.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=2]`pom.xml` file. Look for the dependencies with [hotspot=111 file=0]`rxjava`, [hotspot=116 file=0]`jersey-client`, [hotspot=121 file=0]`jersey-rx-client-rxjava` and [hotspot=126 file=0]`jersey-rx-client-rxjava2` respectively as their artidactIDs.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
