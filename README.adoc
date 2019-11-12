@@ -90,7 +90,7 @@ Navigate to the `start` directory to begin.
 An implementation of the default JAX-RS client is already provided for you. The application functions similarly to the one created in our https://openliberty.io/guides/microprofile-rest-client-async.html[Consuming RESTful services asynchronously with template interfaces] guide. The classes changed are [hotspot file=0]`JobClient` and [hotspot file=1]`GatewayJobResource` which now implement the default JAX-RS reactive client.
 In the client, notice how the [hotspot = getJobsCompletionStage file = 0]`getJobs()`, [hotspot = getJobCompletionStage file = 0]`getJob()` and [hotspot = createJobCompletionStage file = 0]`createJob()` return a `CompletionStage<T>`. This interface represents a unit or stage of a computation. Once the associated computation completes, the value contained can then be retrieved. Alternatively, the CompletionStage can be chained with additional stages using the `thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the `exceptionally()` method. The `thenApplyAsync()` and `exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a CompletionStage in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the CompletionStage has completed.
 
-In the [hotspot file=0]`JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods all contain an [hotspot=rxGetJobsCompletionStage hotspot=rxGetJobCompletionStage hotspot=rxCreateJobsCompletionStage file = !!!]`rx()` call. This is the default reactive invoker for CompletionStage and this method is what retrieves the `CompletionStageRxInvoker` and allows for these methods to fucntion correctly with the CompletionStage return type.
+In the [hotspot file=0]`JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods all contain an [hotspot=rxGetJobsCompletionStage hotspot=rxGetJobCompletionStage hotspot=rxCreateJobsCompletionStage file = 0]`rx()` call. This is the default reactive invoker for CompletionStage and this method is what retrieves the `CompletionStageRxInvoker` and allows for these methods to fucntion correctly with the CompletionStage return type.
 
 In the [hotspot file=1]`GatewayJobResource` class, the desired return type is returned in the `thenApplyAsync()` method.
 
@@ -104,7 +104,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only CompletionStage types.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`pom.xml` file. Look for the depedencies with [hotspot=111 file=0]`rxjava`, [hotspot=116 file=0]`jersey-client`, [hotspot=121 file=0]`jersey-rx-client-rxjava` and [hotspot=126 file=0]`jersey-rx-client-rxjava2`respectively as their artidactIDs.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=2]`pom.xml` file. Look for the depedencies with [hotspot=111 file=2]`rxjava`, [hotspot=116 file=2]`jersey-client`, [hotspot=121 file=2]`jersey-rx-client-rxjava` and [hotspot=126 file=2]`jersey-rx-client-rxjava2` respectively as their artidactIDs.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -112,8 +112,7 @@ pom.xml
 include::finish/pom.xml[tags=**]
 ----
 
-//TODO
-//Modify the
+Update the client to accommodate the custom object types you are trying to return. Also register the type of object you want inside the `webTarget`.
 
 [role="code_command hotspot", subs="quotes"]
 ----
@@ -126,13 +125,13 @@ JobClient.java
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
-The changes involve changing the return types of `getJobs()`, `getJob()` and `createJob()` from `CompletionStage<T>` to `Observable<T>`. The `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` type is an object that is part of ReactiveX and, as will be seen later, is a more flexible data type than the CompletionStage.
-The `rx()` invoker also contains `RxObservableInvoker.class` as an argument; This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the `webTarget()` method the `register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+The changes involve changing the return types of [hotspot=getJobs file=3]`getJobs()`, [hotspot=getJob file=3]`getJob()` and [hotspot=createJob file=3]`createJob()` from `CompletionStage<T>` to `Observable<T>`. The `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` type is an object that is part of ReactiveX and, as will be seen later, is a more flexible data type than the CompletionStage.
+The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=createJob file=3]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument; This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the `webTarget()` method the `register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
 
 == Updating the JAX resources
 
-Now that the client methods return `Observable<T>`, you must update the resource to accommodate these changes. Instead of using `thenApplyAsync()`, observables use the `subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in this method; In this case, it is simply saving the data in the temporary holder.
+Now that the client methods return `Observable<T>`, you must update the resource to accommodate these changes. Instead of using `thenApplyAsync()`, observables use the `subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the `subscribe()` call; In this case, it is simply saving the data in the temporary holder.
 
 [role="code_command hotspot", subs="quotes"]
 ----

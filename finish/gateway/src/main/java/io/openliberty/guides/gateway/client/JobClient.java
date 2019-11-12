@@ -86,16 +86,19 @@ public class JobClient {
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
     }
 
+    // tag::webTarget[]
     private WebTarget webTarget() {
         if (this.target == null) {
             this.target = ClientBuilder
                 .newClient()
                 .target(baseUri)
+                // tag::register[]
                 .register(RxObservableInvokerProvider.class)
+                // end::register[]
                 .path("/jobs");
         }
 
         return this.target;
     }
-
+    // end::webTarget[]
 }
