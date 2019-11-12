@@ -104,7 +104,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only CompletionStage types.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=2]`pom.xml` file. Look for the depedencies with [hotspot=111 file=2]`rxjava`, [hotspot=116 file=2]`jersey-client`, [hotspot=121 file=2]`jersey-rx-client-rxjava` and [hotspot=126 file=2]`jersey-rx-client-rxjava2` respectively as their artidactIDs.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=2]`pom.xml` file. Look for the depedencies with [hotspot=111 file=0]`rxjava`, [hotspot=116 file=0]`jersey-client`, [hotspot=121 file=0]`jersey-rx-client-rxjava` and [hotspot=126 file=0]`jersey-rx-client-rxjava2` respectively as their artidactIDs.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -125,8 +125,8 @@ JobClient.java
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
-The changes involve changing the return types of [hotspot=getJobs file=3]`getJobs()`, [hotspot=getJob file=3]`getJob()` and [hotspot=createJob file=3]`createJob()` from `CompletionStage<T>` to `Observable<T>`. The `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` type is an object that is part of ReactiveX and, as will be seen later, is a more flexible data type than the CompletionStage.
-The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=3]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument; This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the `webTarget()` method the `register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+The changes involve changing the return types of [hotspot=getJobs file=0]`getJobs()`, [hotspot=getJob file=0]`getJob()` and [hotspot=createJob file=0]`createJob()` from `CompletionStage<T>` to `Observable<T>`. The `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` type is an object that is part of ReactiveX and, as will be seen later, is a more flexible data type than the CompletionStage.
+The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=0]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument; This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the `webTarget()` method the `register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
 
 == Updating the JAX resources
