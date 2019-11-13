@@ -28,13 +28,17 @@ public class GatewayJobResource {
     public CompletionStage<JobList> getJobs() {
         return jobClient
             .getJobs()
+            // tag::thenApplyAsync[]
             .thenApplyAsync((jobs) -> {
                 return new JobList(jobs.getResults());
             })
+            // end::thenApplyAsync[]
+            // tag::exceptionally[]
             .exceptionally((ex) -> {
                 // Respond with empty list on error
                 return new JobList();
             });
+            // end::exceptionally[]
     }
 
     @GET
