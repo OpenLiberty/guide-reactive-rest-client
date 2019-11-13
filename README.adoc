@@ -120,7 +120,7 @@ include::finish/pom.xml[tags=**]
 `gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java`
 ----
 JobClient.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, Java, linenums, role='code_column' hide_tags=copyright']
 ----
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
@@ -139,7 +139,7 @@ Now that the client methods return `Observable<T>`, you must update the resource
 `gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java`
 ----
 GatewayJobResource.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, Java, linenums, role='code_column' hide_tags=copyright']
 ----
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
