@@ -114,7 +114,7 @@ include::finish/pom.xml[tags=**]
 
 Update the client to accommodate the custom object types you are trying to return. Also register the type of object you want inside the client invokation.
 
-[role="code_command hotspot hotspot=1", subs="quotes"]
+[role="code_command hotspot=1", subs="quotes"]
 ----
 #Replace the `JobClient` interface.#
 `gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java`
