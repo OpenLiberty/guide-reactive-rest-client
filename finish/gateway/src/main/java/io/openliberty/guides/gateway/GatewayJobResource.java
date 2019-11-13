@@ -57,11 +57,15 @@ public class GatewayJobResource {
                     // tag::getJobsHolder[]
                     holder.value = ((Jobs)v).getResults();
                     // end::getJobsHolder[]
+                    // tag::getJobsCountDown[]
                     countdownLatch.countDown();
+                    // end::getJobsCountDown[]
                 });
                 // end::getJobsSubscribe[]
             try {
+                // tag::getJobsAwait[]
                 countdownLatch.await();
+                // end::getJobsAwait[]
             } catch (InterruptedException e) {}
 
             return new JobList(holder.value);
@@ -80,11 +84,15 @@ public class GatewayJobResource {
                 // tag::getJobHolder[]
                 holder.value = v;
                 // end::getJobHolder[]
+                // tag::getJobCountDown[]
                 countdownLatch.countDown();
+                // end::getJobCountDown[]
             });
             // end::getJobSubscribe[]
         try {
+            // tag::getJobAwait[]
             countdownLatch.await();
+            // end::getJobAwait[]
         } catch (InterruptedException e) {
 
         }
@@ -103,11 +111,15 @@ public class GatewayJobResource {
                 // tag::createJobHolder[]
                 holder.value = v;
                 // end::createJobHolder[]
+                // tag::createJobCountDown[]
                 countdownLatch.countDown();
+                // end::createJobCountDown[]
             });
             // end::createJobSubscribe[]
         try {
+            // tag::createJobAwait[]
             countdownLatch.await();
+            // end::createJobAwait[]
         } catch (InterruptedException e) {
             
         }

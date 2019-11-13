@@ -57,7 +57,7 @@ public class JobClient {
             // end::rxCreateJobCompletionStage[]
             .post(null, Job.class);
     }
-    // tag::createJobCompletionStage[]
+    // end::createJobCompletionStage[]
 
     private Invocation.Builder iBuilder(WebTarget target) {
         return target
