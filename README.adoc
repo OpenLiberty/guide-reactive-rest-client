@@ -35,7 +35,7 @@ Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTT
 
 //Mention more third party stuff
 
-You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. The default client uses `CompletionStage` and a basic invoker method `rx()` to perform its tasks. You will then update this client to use third party libraries to become more customizable. Instead of using `CompletionStage`, which are single use, you will instead use `Observable` which supports streams and is thus more powerful. You will also update the default invoker with the associated `RxObservableInvoker`.
+You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. The default client uses `CompletionStage` and a basic invoker method `rx()` to perform its tasks. You will then update this client to use third party libraries to become more customizable. Instead of using `CompletionStage`, which are single use, you will instead use `Observable` which supports streams and is thus more powerful. You will also update the default invoker with the associated `RxObservableInvoker` so that the client knows to call for an `Observable`.
 
 *What is asynchronous programming?* +
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
@@ -74,13 +74,13 @@ include::{common-includes}/gitclone.adoc[]
 == Using the default reactive JAX-RS client
 
 JobClient.java
-[source,Java,linenums,role='code_column hide_tags=copyright']
+[source,Java,linenums,role='code_column' hide_tags=copyright']
 ----
 include::start/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
 GatewayJobResource.java
-[source,Java,linenums,role='code_column hide_tags=copyright']
+[source,Java,linenums,role='code_column' hide_tags=copyright']
 ----
 include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
