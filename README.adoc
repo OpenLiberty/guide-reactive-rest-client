@@ -137,7 +137,7 @@ Now that the client methods return `Observable<T>`, you must update the resource
 `gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java`
 ----
 GatewayJobResource.java
-[source, Java, linenums, role='code_column' hide_tags='copyright,javadoc']
+[source, Java, linenums, role='code_column' hide_tags=copyright]
 ----
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
@@ -228,7 +228,7 @@ See the following descriptions of the test cases:
 * [hotspot=testGetJobs file=0]`testGetJobs()` verifies that the gateway service communicates with an upstream service to get all jobs and transforms them appropriately to a `JobListModel`.
 
 GatewayJobEndpointIT.java
-[source, Java, linenums, role='code_column hide_tags='copyright,javadoc']
+[source, Java, linenums, role='code_column hide_tags=copyright,javadoc]
 ----
 include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java[]
 ----
