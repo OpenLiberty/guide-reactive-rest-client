@@ -51,23 +51,23 @@ public class GatewayJobResource {
         final Holder<List<JobResult>> holder = new Holder<List<JobResult>>();
         CountDownLatch countdownLatch =  new CountDownLatch(1);
         Observable<Jobs> obs = jobClient.getJobs();
-            obs
-                // tag::getJobsSubscribe[]
-                .subscribe((v) -> {
-                    // tag::getJobsHolder[]
-                    holder.value = ((Jobs)v).getResults();
-                    // end::getJobsHolder[]
-                    // tag::getJobsCountDown[]
-                    countdownLatch.countDown();
-                    // end::getJobsCountDown[]
-                });
-                // end::getJobsSubscribe[]
+            // tag::getJobsSubscribe[]
+            obs.subscribe((v) -> {
+                // tag::getJobsHolder[]
+                holder.value = ((Jobs)v).getResults();
+                // end::getJobsHolder[]
+                // tag::getJobsCountDown[]
+                countdownLatch.countDown();
+                // end::getJobsCountDown[]
+            });
+            // end::getJobsSubscribe[]
             try {
                 // tag::getJobsAwait[]
                 countdownLatch.await();
                 // end::getJobsAwait[]
-            } catch (InterruptedException e) {}
-
+            } catch (InterruptedException e) {
+                // TODO: Handle the exception
+            }
             return new JobList(holder.value);
     }
 
@@ -78,23 +78,22 @@ public class GatewayJobResource {
         final Holder<JobResult> holder = new Holder<JobResult>();
         CountDownLatch countdownLatch = new CountDownLatch(1);
         Observable<JobResult> obs = jobClient.getJob(jobId);
-        obs
-            // tag::getJobSubscribe[]
-            .subscribe((v) -> {
-                // tag::getJobHolder[]
-                holder.value = v;
-                // end::getJobHolder[]
-                // tag::getJobCountDown[]
-                countdownLatch.countDown();
-                // end::getJobCountDown[]
-            });
-            // end::getJobSubscribe[]
+        // tag::getJobSubscribe[]
+        obs.subscribe((v) -> {
+            // tag::getJobHolder[]
+            holder.value = v;
+            // end::getJobHolder[]
+            // tag::getJobCountDown[]
+            countdownLatch.countDown();
+            // end::getJobCountDown[]
+        });
+        // end::getJobSubscribe[]
         try {
             // tag::getJobAwait[]
             countdownLatch.await();
             // end::getJobAwait[]
         } catch (InterruptedException e) {
-
+            // TODO: Handle the exception
         }
         return holder.value;
     }
@@ -105,23 +104,22 @@ public class GatewayJobResource {
         final Holder<Job> holder = new Holder<Job>();
         CountDownLatch countdownLatch = new CountDownLatch(1);
         Observable<Job> obs = jobClient.createJob();
-        obs
-            // tag::createJobSubscribe[]
-            .subscribe((v) -> {
-                // tag::createJobHolder[]
-                holder.value = v;
-                // end::createJobHolder[]
-                // tag::createJobCountDown[]
-                countdownLatch.countDown();
-                // end::createJobCountDown[]
-            });
-            // end::createJobSubscribe[]
+        // tag::createJobSubscribe[]
+        obs.subscribe((v) -> {
+            // tag::createJobHolder[]
+            holder.value = v;
+            // end::createJobHolder[]
+            // tag::createJobCountDown[]
+            countdownLatch.countDown();
+            // end::createJobCountDown[]
+        });
+        // end::createJobSubscribe[]
         try {
             // tag::createJobAwait[]
             countdownLatch.await();
             // end::createJobAwait[]
         } catch (InterruptedException e) {
-            
+            // TODO: Handle the exception
         }
         return holder.value;
     }
