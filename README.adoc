@@ -68,7 +68,7 @@ The application also uses the Apache Kafka and ZooKeeper services to distribute 
 
 - *Docker*: Docker is a tool that you can use to deploy and run applications with containers. You can think of Docker like a virtual machine that runs various applications. However, unlike a typical virtual machine, you can run these applications simultaneously on a single system and independent of one another.
 
-Install Docker by following the instructions on the https://docs.docker.com/engine/installation[official page^].
+Install Docker by following the instructions in the https://docs.docker.com/engine/installation[official Docker documentation^].
 
 Learn more about containers on the https://www.docker.com/resources/what-container[official Docker website^]
 
