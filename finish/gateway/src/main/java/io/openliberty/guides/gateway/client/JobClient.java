@@ -23,13 +23,21 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import javax.ws.rs.core.GenericType;
+
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
+
+import rx.Observable;
+
+import java.util.List;
 
 import io.openliberty.guides.models.Job;
 import io.openliberty.guides.models.JobResult;
 import io.openliberty.guides.models.Jobs;
 
 @RequestScoped
-public class JobGatewayClient {
+public class JobClient {
 
     @Inject
     @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://job-service:9080")
@@ -37,39 +45,40 @@ public class JobGatewayClient {
 
     private WebTarget target;
 
-    public JobGatewayClient() {
+    public JobClient() {
         this.target = null;
     }
 
     // tag::getJobs[]
-    public CompletionStage<Jobs> getJobs() {
+    public Observable<Jobs> getJobs() {
         return iBuilder(webTarget())
             // tag::rxGetJobs[]
-            .rx()
+            .rx(RxObservableInvoker.class)
             // end::rxGetJobs[]
-            .get(Jobs.class);
+            .get(new GenericType<Jobs>() {});
     }
     // end::getJobs[]
 
     // tag::getJob[]
-    public CompletionStage<JobResult> getJob(String jobId) {
+    public Observable<JobResult> getJob(String jobId) {
         return iBuilder(webTarget().path(jobId))
             // tag::rxGetJob[]
-            .rx()
+            .rx(RxObservableInvoker.class)
             // end::rxGetJob[]
-            .get(JobResult.class);
+            .get(new GenericType<JobResult>(){});
     }
     // end::getJob[]
 
     // tag::createJob[]
-    public CompletionStage<Job> createJob() {
+    public Observable<Job> createJob() {
         return iBuilder(webTarget())
             // tag::rxCreateJob[]
-            .rx()
+            .rx(RxObservableInvoker.class)
             // end::rxCreateJob[]
-            .post(null, Job.class);
+            .post(null, new GenericType<Job>(){});
     }
     // end::createJob[]
+
 
     private Invocation.Builder iBuilder(WebTarget target) {
         return target
@@ -77,15 +86,19 @@ public class JobGatewayClient {
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
     }
 
+    // tag::webTarget[]
     private WebTarget webTarget() {
         if (this.target == null) {
             this.target = ClientBuilder
                 .newClient()
                 .target(baseUri)
+                // tag::register[]
+                .register(RxObservableInvokerProvider.class)
+                // end::register[]
                 .path("/jobs");
         }
 
         return this.target;
     }
-
+    // end::webTarget[]
 }
