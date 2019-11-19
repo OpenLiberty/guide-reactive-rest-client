@@ -33,7 +33,9 @@ Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTT
 
 == What you'll learn
 
-You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. The reactive client uses `CompletionStage` and a basic invoker method `rx()` to perform its tasks. You will then update this client to use third party libraries to become more customizable. Instead of using `CompletionStage`, which is single use, you will use `Observable` which supports streams and is thus more powerful. You will also update the invoker with the associated `RxObservableInvoker` so that the client knows to call for an `Observable`.
+You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. The reactive client uses `CompletionStage` and a basic invoker method `rx()` to perform its tasks. You will then update this client to use third party libraries to become more customizable. Instead of using `CompletionStage`, which is single use, you will use `Observable` which supports streams and a larger set of operators that are packaged with RxJava.
+You will also update the default invoker with the associated `RxObservableInvoker` so that the client knows to call for an `Observable`. If you don't do this, the default invoker will be expecting a `CompletionStage` instead of `Observable`.
+You will also need to pass an `RxObservableInvoker` into the `rx()` call. This is to update the invoker so it knows to expect an `Observable` instead of a `CompletionStage`.
 
 *What is asynchronous programming?* +
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
@@ -61,6 +63,14 @@ service to get the completed jobs.
 
 The implementations of the application and its services are provided for you in the `start/src` directory.
 The application also uses the Apache Kafka and ZooKeeper services to distribute the job results and system status.
+
+== Additional Prerequisites
+
+- *Docker*: Docker is a tool that you can use to deploy and run applications with containers. You can think of Docker like a virtual machine that runs various applications. However, unlike a typical virtual machine, you can run these applications simultaneously on a single system and independent of one another.
+
+Install Docker by following the instructions on the https://docs.docker.com/engine/installation[official page^].
+
+Learn more about containers on the https://www.docker.com/resources/what-container[official Docker website^]
 
 // =================================================================================================
 // Getting started
@@ -124,7 +134,7 @@ include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobCl
 ----
 
 The changes involve changing the return types of [hotspot=getJobs file=1]`getJobs()`, [hotspot=getJob file=1]`getJob()` and [hotspot=createJob file=1]`createJob()` from `CompletionStage<T>` to `Observable<T>`. The `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` type is an object that is part of ReactiveX and, as will be seen later, is a more flexible data type than the CompletionStage.
-The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object that you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the Observable class provided by Jersey. The invoker depends on the type of object that you wish to return, if you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
 
 == Updating the JAX resources
