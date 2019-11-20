@@ -12,35 +12,29 @@
 // end::copyright[]
 package io.openliberty.guides.gateway.client;
 
-import java.util.concurrent.CompletionStage;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import javax.ws.rs.core.GenericType;
-
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
-
-import rx.Observable;
-
-import java.util.List;
 
 import io.openliberty.guides.models.Job;
 import io.openliberty.guides.models.JobResult;
 import io.openliberty.guides.models.Jobs;
+import rx.Observable;
 
 @RequestScoped
 public class JobClient {
 
     @Inject
-    @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://job-service:9080")
+    @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://localhost:9082")
     private String baseUri;
 
     private WebTarget target;

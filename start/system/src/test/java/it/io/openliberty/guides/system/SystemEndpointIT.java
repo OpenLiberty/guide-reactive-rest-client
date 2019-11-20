@@ -50,9 +50,10 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-public class SystemEndpointTest {
+public class SystemEndpointIT {
 
-    private final String BASE_URL = "http://localhost:9080/system/properties";
+    private final String port = System.getProperty("http.port");
+    private final String BASE_URL = "http://localhost:" + port + "/system/properties";
     private final String KAFKA_SERVER = "localhost:9092";
     private final String CONSUMER_OFFSET_RESET = "earliest";
     private final long POLL_TIMEOUT = 120000;
@@ -144,7 +145,7 @@ public class SystemEndpointTest {
                 String jobId = node.get("jobId").asText();
 
                 assertEquals("my-job", jobId);
-                assertTrue(String.format("Result (%s) must be between 5 and 10 (inclusive)", result), result >= 5 && result <= 10);
+                assertTrue(String.format("Result (%s) must be between 10 and 20 (inclusive)", result), result >= 10 && result <= 20);
                 recordsProcessed++;
             }
 

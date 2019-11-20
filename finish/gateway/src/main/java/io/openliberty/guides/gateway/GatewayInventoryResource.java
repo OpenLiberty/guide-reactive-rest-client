@@ -14,7 +14,7 @@ package io.openliberty.guides.gateway;
 
 import java.util.Properties;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,7 +28,7 @@ import io.openliberty.guides.gateway.client.InventoryClient;
 import io.openliberty.guides.models.InventoryList;
 import io.openliberty.guides.models.SystemData;
 
-@RequestScoped
+@ApplicationScoped
 @Path("/systems")
 public class GatewayInventoryResource {
 

@@ -47,6 +47,8 @@ docker run -d \
 	job:1.0-SNAPSHOT
 
 docker run -d \
+	-e inventoryClient_mp_rest_url=http://inventory-service:9080 \
+	-e GATEWAY_JOB_BASE_URI=http://job-service:9080 \
 	--name=gateway \
 	--hostname=gateway \
 	-p 8080:9080 \

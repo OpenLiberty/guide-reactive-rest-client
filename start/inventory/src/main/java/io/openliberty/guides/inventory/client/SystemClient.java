@@ -27,13 +27,13 @@ import java.net.URI;
 public class SystemClient {
 
   // Constants for building URI to the system service.
-  private final int DEFAULT_PORT = Integer.valueOf(System.getProperty("default.http.port"));
+	private final int SYSTEM_PORT = Integer.valueOf(System.getProperty("system.http.port", "9080"));
   private final String SYSTEM_PROPERTIES = "/system/properties";
   private final String PROTOCOL = "http";
 
   // Wrapper function that gets properties
   public Properties getProperties(String hostname) {
-    String url = buildUrl(PROTOCOL, hostname, DEFAULT_PORT, SYSTEM_PROPERTIES);
+    String url = buildUrl(PROTOCOL, hostname, SYSTEM_PORT, SYSTEM_PROPERTIES);
     Builder clientBuilder = buildClientBuilder(url);
     return getPropertiesHelper(clientBuilder);
   }
