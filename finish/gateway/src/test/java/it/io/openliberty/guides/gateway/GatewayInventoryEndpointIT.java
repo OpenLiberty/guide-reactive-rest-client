@@ -33,7 +33,8 @@ import org.mockserver.model.HttpResponse;
 
 public class GatewayInventoryEndpointIT {
 
-    private final String BASE_URL = "http://localhost:9080/api/systems";
+    private final String port = System.getProperty("http.port");
+    private final String BASE_URL = "http://localhost:" + port + "/api/systems";
 
     private Client client;
     private Response response;

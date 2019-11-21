@@ -29,11 +29,11 @@ public class SystemStartup {
     private ManagedExecutorService executorService;
 
     @Inject
-    @ConfigProperty(name = "KAFKA_SERVER")
+    @ConfigProperty(name = "KAFKA_SERVER", defaultValue="localhost:9092")
     private String kafkaServer;
 
     @Inject
-    @ConfigProperty(name = "GROUP_ID")
+    @ConfigProperty(name = "GROUP_ID", defaultValue="system-client-group")
     private String groupId;
 
     private void init(@Observes @Initialized(ApplicationScoped.class) Object x) {

@@ -24,7 +24,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import io.openliberty.guides.models.InventoryList;
 
-@RegisterRestClient(baseUri = "http://inventory-service:9080")
+@RegisterRestClient(configKey="inventoryClient", baseUri = "http://localhost:9082")
 @Path("/inventory")
 public interface InventoryClient {
 

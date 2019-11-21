@@ -33,7 +33,7 @@ public class InventoryManager {
     Properties props = new Properties();
     props.setProperty("os.name", systemProps.getProperty("os.name"));
     props.setProperty("user.name", systemProps.getProperty("user.name"));
-    props.setProperty("system.busy", systemProps.getProperty("system.busy"));
+    props.setProperty("system.busy", systemProps.getProperty("system.busy", "false"));
 
     SystemData system = new SystemData(hostname, props);
     if (!systems.contains(system)) {

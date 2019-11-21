@@ -164,11 +164,12 @@ The `gateway`, `job`, `system`, and `inventory` microservices will be built in a
 
 Start your Docker environment.
 
-To build the application, run the Maven `install` goal from the command line in the `start` directory.
+To build the application, run the following Maven goals from the command line in the `start` directory.
 
 [role='command']
 ```
-mvn clean install
+mvn -pl models install
+mvn package
 ```
 
 Run the following commands to build and containerize the application:
@@ -219,6 +220,30 @@ The completed jobs JSON output has an `averageResult` attribute that is the aver
 
 Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While the client request is being handled, the thread can handle other work.
 
+== Stopping the application
+
+Navigate back to the `start` directory.
+
+Finally, use the script to stop the application.
+
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/stop-app
+```
+--
+
+[.tab_content.windows_section]
+--
+[role='command']
+```
+.\scripts\stop-app.bat
+```
+--
+
 // =================================================================================================
 // Testing
 // =================================================================================================
@@ -245,6 +270,7 @@ GatewayJobEndpointIT.java
 include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java[]
 ----
 
+
 // =================================================================================================
 // Running the tests
 // =================================================================================================
@@ -255,7 +281,7 @@ Navigate to the `gateway` directory, then verify that the tests pass using the M
 
 [role='command']
 ```
-mvn verify
+mvn liberty:start failsafe:integration-test liberty:stop
 ```
 
 When the tests succeed, you will see output similar to the following.
@@ -274,30 +300,6 @@ Results:
 
 Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 ----
-
-== Teardown
-
-Navigate back to the `start` directory.
-
-Finally, use the script to stop the application.
-
-include::{common-includes}/os-tabs.adoc[]
-
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/stop-app
-```
---
-
-[.tab_content.windows_section]
---
-[role='command']
-```
-.\scripts\stop-app.bat
-```
---
 
 == Great work! You're done!
 

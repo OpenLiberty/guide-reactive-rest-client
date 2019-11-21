@@ -52,7 +52,7 @@ public class SystemRunnable implements Runnable {
         this.consumer = new KafkaConsumer<>(props);
         this.consumer.subscribe(Arrays.asList("job-topic"));
 
-        producer = new SystemProducer();
+        producer = new SystemProducer(kafkaServer);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class SystemRunnable implements Runnable {
             for (Job job : jobs) {
                 producer.sendMessage("system-topic", jsonb.toJson(getProperties(true)));
 
-                int sleepTimeSeconds = rand.nextInt(5) + 5; // 5 to 10
+                int sleepTimeSeconds = rand.nextInt(10) + 10; // 10 to 20 seconds
                 int result = sleepTimeSeconds;
 
                 try {

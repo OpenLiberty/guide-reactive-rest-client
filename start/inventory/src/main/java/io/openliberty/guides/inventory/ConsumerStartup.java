@@ -33,11 +33,11 @@ public class ConsumerStartup {
   private InventoryManager manager;
 
   @Inject
-  @ConfigProperty(name = "KAFKA_SERVER")
+  @ConfigProperty(name = "KAFKA_SERVER", defaultValue="localhost:9092")
   private String kafkaServer;
 
   @Inject
-  @ConfigProperty(name = "GROUP_ID_PREFIX")
+  @ConfigProperty(name = "GROUP_ID_PREFIX", defaultValue="system-properties")
   private String groupIdPrefix;
 
   private void init(@Observes @Initialized(ApplicationScoped.class) Object x) {

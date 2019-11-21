@@ -10,20 +10,14 @@
  *     IBM Corporation - Initial implementation
  *******************************************************************************/
 // end::copyright[]
-package it.io.openliberty.guides.inventory;
+package it.io.openliberty.guides.job;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Properties;
 
-import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.ws.rs.client.Client;
@@ -42,13 +36,13 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-public class InventoryEndpointTest {
+public class JobEndpointIT {
 
-    private final String BASE_URL = "http://localhost:9080/inventory/systems";
+    private final String port = System.getProperty("http.port");
+    private final String BASE_URL = "http://localhost:" + port + "/jobs";
     private final String KAFKA_SERVER = "localhost:9092";
-    private final int RETRIES = 8;
+    private final int RETRIES = 5;
     private final int BACKOFF_MULTIPLIER = 2;
-    private final int BASE_BACKOFF = 500;
 
     private Client client;
     private Response response;
@@ -99,102 +93,52 @@ public class InventoryEndpointTest {
     }
 
     @Test
-    public void testConsumeSystem() throws InterruptedException, IOException {
-        // Get size of inventory
+    public void testCreateJob() {
         this.response = client
             .target(BASE_URL)
             .request()
-            .get();
+            .post(null);
 
         assertEquals(200, response.getStatus());
 
         JsonObject obj = response.readEntity(JsonObject.class);
-        int initialTotal = obj.getInt("total");
+        String jobId = obj.getString("jobId");
+        assertTrue("jobId not returned from service", jobId.matches("^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$"));
+    }
 
-        // Add a system to the inventory via kafka
-        String props = getResource("props.json");
-        producer.send(new ProducerRecord<String,String>("system-topic", props));
+    @Test
+    public void testJobNotExists() {
         this.response = client
-            .target(BASE_URL)
+            .target(String.format("%s/%s", BASE_URL, "my-job-id"))
             .request()
             .get();
 
+        assertEquals(404, response.getStatus());
+    }
 
-        obj = response.readEntity(JsonObject.class);
-        int total = obj.getInt("total");
-
-        int backoff = BASE_BACKOFF;
-        for (int i = 0; i < RETRIES && (total <= initialTotal); i++) {
-            Thread.sleep(backoff);
-            backoff *= BACKOFF_MULTIPLIER;
-
-            this.response = client
-                .target(BASE_URL)
-                .request()
-                .get();
-
-            obj = response.readEntity(JsonObject.class);
-            total = obj.getInt("total");
-        }
-
-        assertTrue(String.format("Total (%s) is not greater than inital total (%s)", total, initialTotal), total > initialTotal);
-
-        // Make system busy
-        String busyProps = getResource("props.busy.json");
-        producer.send(new ProducerRecord<String, String>("system-topic", busyProps));
-
+    @Test
+    public void testConsumeJob() throws InterruptedException {
+        producer.send(new ProducerRecord<String,String>("job-result-topic", "{ \"jobId\": \"my-produced-job-id\", \"result\": 7 }"));
         this.response = client
-            .target(BASE_URL)
+            .target(String.format("%s/%s", BASE_URL, "my-produced-job-id"))
             .request()
             .get();
 
-        obj = response.readEntity(JsonObject.class);
-        JsonArray systems = obj.getJsonArray("systems");
-
-        backoff = BASE_BACKOFF;
-        for (int i = 0; i < RETRIES && !getPropertyFromJsonArray("myhost", "system.busy", systems).equals("true"); i++) {
-            Thread.sleep(backoff);
-            backoff *= BACKOFF_MULTIPLIER;
-
+        int backoff = 500;
+        for (int i = 0; i < RETRIES && this.response.getStatus() != 200; i++) {
             this.response = client
-                .target(BASE_URL)
+                .target(String.format("%s/%s", BASE_URL, "my-produced-job-id"))
                 .request()
                 .get();
 
-            obj = response.readEntity(JsonObject.class);
-            systems = obj.getJsonArray("systems");
+            Thread.sleep(backoff);
+            backoff *= BACKOFF_MULTIPLIER;
         }
 
-        assertEquals("true", getPropertyFromJsonArray("myhost", "system.busy", systems));
-    }
+        assertEquals(200, response.getStatus());
 
-    private String getResource(String filename) throws IOException {
-        ClassLoader loader = getClass().getClassLoader();
-        File file = new File(loader.getResource(filename).getFile());
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-
-        StringBuilder builder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            builder.append(line).append("\n");
-        }
-
-        reader.close();
-        return builder.toString();
-    }
-
-    private String getPropertyFromJsonArray(String hostname, String property, JsonArray array) {
-        for (JsonValue v : array) {
-            JsonObject obj = v.asJsonObject();
-            String h = obj.getString("hostname");
-
-            if (h != null && h.equals(hostname)) {
-                String result = obj.getJsonObject("properties").getString(property);
-                if (result != null) return result;
-            }
-        }
-
-        return "";
+        JsonObject obj = response.readEntity(JsonObject.class);
+        assertEquals(7, obj.getInt("result"));
     }
 
 }
