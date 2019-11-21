@@ -220,7 +220,7 @@ The completed jobs JSON output has an `averageResult` attribute that is the aver
 
 Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While the client request is being handled, the thread can handle other work.
 
-== Teardown
+== Stopping the application
 
 Navigate back to the `start` directory.
 
