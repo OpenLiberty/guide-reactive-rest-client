@@ -220,6 +220,30 @@ The completed jobs JSON output has an `averageResult` attribute that is the aver
 
 Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While the client request is being handled, the thread can handle other work.
 
+== Teardown
+
+Navigate back to the `start` directory.
+
+Finally, use the script to stop the application.
+
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/stop-app
+```
+--
+
+[.tab_content.windows_section]
+--
+[role='command']
+```
+.\scripts\stop-app.bat
+```
+--
+
 // =================================================================================================
 // Testing
 // =================================================================================================
@@ -245,6 +269,7 @@ GatewayJobEndpointIT.java
 ----
 include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java[]
 ----
+
 
 // =================================================================================================
 // Running the tests
@@ -275,30 +300,6 @@ Results:
 
 Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 ----
-
-== Teardown
-
-Navigate back to the `start` directory.
-
-Finally, use the script to stop the application.
-
-include::{common-includes}/os-tabs.adoc[]
-
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/stop-app
-```
---
-
-[.tab_content.windows_section]
---
-[role='command']
-```
-.\scripts\stop-app.bat
-```
---
 
 == Great work! You're done!
 
