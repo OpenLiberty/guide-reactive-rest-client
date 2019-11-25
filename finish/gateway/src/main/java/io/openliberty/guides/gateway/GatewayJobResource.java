@@ -112,7 +112,6 @@ public class GatewayJobResource {
             countdownLatch.await();
             // end::createJobAwait[]
         } catch (InterruptedException e) {
-            // TODO: Handle the exception
         }
         return holder.value;
     }
