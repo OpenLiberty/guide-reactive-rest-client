@@ -37,16 +37,15 @@ You will learn how the default reactive JAX-RS client accesses remote RESTful se
 You will also update the default invoker with the associated `RxObservableInvoker` so that the client knows to call for an `Observable`. If you don't do this, the default invoker will be expecting a `CompletionStage` instead of `Observable`.
 You will also need to pass an `RxObservableInvoker` into the `rx()` call. This is to update the invoker so it knows to expect an `Observable` instead of a `CompletionStage`.
 
-*What is asynchronous programming?* +
+=== What is asynchronous programming? +
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
 
 Asynchronous methods allow you to perform a lengthy operation, such as input/output (I/O) asynchronously. This means that the I/O occurs in the background and the caller is notified via a callback to continue with their computation once it’s complete. The benefit is that this frees up the original thread to handle other work rather than waiting on I/O to complete. Going back to the restaurant analogy, food is prepared asynchronously in the kitchen and your waiter is freed up to attend to other tables. Since they’re free, the waiter can take more orders from other tables, or serve food to other tables.
 
 In the context of REST clients, making synchronous HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
 
-*What is reactive programming?*+
-
-Reactive programming takes the idea of asynchronous communication and builds on top of it. In its simplest form, reactive programming is utilizing asynchronous data streams. Inputs and outputs or transient data between different processes are processed as data streams.
+=== What is reactive programming? +
+Reactive programming takes the idea of asynchronous communication and builds on top of it. In its simplest form, reactive programming is utilizing asynchronous data streams. Inputs and outputs or transient data between different processes are processed as data streams. +
 A stream is a series of events ordered in time. It has three possible types of entries: an error, a flag for the end of the stream, or a value of a datatype. The value is the type of object that comprises the stream, an example of which could be a mouse-click or a form submission. These values, coupled with the fact that streams can be empty, allow for a lot of flexibility in your program as you can more easily deal with problems that would usually be annoying to deal with. Inconsistent load is simplified because streams can handle variable length. Errors are easy to handle because streams can emit errors that are easy to catch.
 Another benefit of reactive programming is that the usage of these streams lets you ignore a lot of implementation details that are otherwise tedious to handle. Instead of having to define the way that each sub-system has to communicate with one another, you need only to configure the streams that each system will consume from and output to.
 
