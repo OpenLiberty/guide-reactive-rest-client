@@ -82,13 +82,13 @@ include::{common-includes}/gitclone.adoc[]
 == Using the default reactive JAX-RS client
 
 JobClient.java
-[source,Java,linenums,role='code_column hide_tags=copyright']
+[source, Java, linenums, role='code_column hide_tags=copyright']
 ----
 include::start/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
 GatewayJobResource.java
-[source,Java,linenums,role='code_column hide_tags=copyright']
+[source, Java, linenums, role='code_column hide_tags=copyright']
 ----
 include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
