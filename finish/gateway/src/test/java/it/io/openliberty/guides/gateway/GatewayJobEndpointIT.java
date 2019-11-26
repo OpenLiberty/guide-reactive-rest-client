@@ -80,8 +80,8 @@ public class GatewayJobEndpointIT {
         client.close();
     }
     
-    // tag::testCreateJob[]
     @Test
+    // tag::testCreateJob[]
     public void testCreateJob() throws InterruptedException {
         this.response = client
             .target(BASE_URL)
@@ -96,8 +96,9 @@ public class GatewayJobEndpointIT {
     }
     // end::testCreateJob[]
 
-    // tag::testGetJobs[]
+
     @Test
+    // tag::testGetJobs[]
     public void testGetJobs() {
         this.response = client
             .target(BASE_URL)
