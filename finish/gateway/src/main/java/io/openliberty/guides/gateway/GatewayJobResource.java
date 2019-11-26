@@ -59,7 +59,7 @@ public class GatewayJobResource {
                 countdownLatch.await();
                 // end::getJobsAwait[]
             } catch (InterruptedException e) {
-                // TODO: Handle the exception
+                return new JobList();
             }
             return new JobList(holder.value);
     }
@@ -86,7 +86,7 @@ public class GatewayJobResource {
             countdownLatch.await();
             // end::getJobAwait[]
         } catch (InterruptedException e) {
-            // TODO: Handle the exception
+            return new JobResult();
         }
         return holder.value;
     }
@@ -112,6 +112,7 @@ public class GatewayJobResource {
             countdownLatch.await();
             // end::createJobAwait[]
         } catch (InterruptedException e) {
+            return new Job();
         }
         return holder.value;
     }
