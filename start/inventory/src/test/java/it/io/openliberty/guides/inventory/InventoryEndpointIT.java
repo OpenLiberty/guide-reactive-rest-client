@@ -12,8 +12,8 @@
 // end::copyright[]
 package it.io.openliberty.guides.inventory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,10 +34,10 @@ import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.After;
+import org.junit.jupiter.api.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.Network;
 
@@ -73,7 +73,7 @@ public class InventoryEndpointIT {
         .withEnv("ALLOW_PLAINTEXT_LISTENER", "yes")
         .withEnv("KAFKA_CFG_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
 
-    @Before
+    @BeforeEach
     public void setup() throws InterruptedException {
         response = null;
         client = ClientBuilder.newBuilder()
@@ -93,7 +93,7 @@ public class InventoryEndpointIT {
         this.producer = new KafkaProducer<>(properties);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         client.close();
     }
@@ -141,7 +141,7 @@ public class InventoryEndpointIT {
                 obj = response.readEntity(JsonObject.class);
                 total = obj.getInt("total");
             }
-            assertTrue(String.format("Total (%s) is not greater than 0", total), total > 0);
+            assertTrue(total > 0, String.format("Total (%s) is not greater than 0", total));
         }
 
 

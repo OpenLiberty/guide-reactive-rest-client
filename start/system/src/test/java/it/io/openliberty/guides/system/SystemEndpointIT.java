@@ -12,8 +12,8 @@
 // end::copyright[]
 package it.io.openliberty.guides.system;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -33,10 +33,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.After;
+import org.junit.jupiter.api.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.Network;
 
@@ -82,7 +82,7 @@ public class SystemEndpointIT {
         .withEnv("ALLOW_PLAINTEXT_LISTENER", "yes")
         .withEnv("KAFKA_CFG_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
 
-    @Before
+    @BeforeEach
     public void setup() throws InterruptedException {
         response = null;
         client = ClientBuilder.newBuilder()
@@ -110,7 +110,7 @@ public class SystemEndpointIT {
         this.consumer.subscribe(Arrays.asList("job-result-topic"));
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         client.close();
     }
@@ -145,7 +145,7 @@ public class SystemEndpointIT {
                 String jobId = node.get("jobId").asText();
 
                 assertEquals("my-job", jobId);
-                assertTrue(String.format("Result (%s) must be between 10 and 20 (inclusive)", result), result >= 10 && result <= 20);
+                assertTrue(result >= 10 && result <= 20, String.format("Result (%s) must be between 10 and 20 (inclusive)", result));
                 recordsProcessed++;
             }
 
@@ -153,7 +153,7 @@ public class SystemEndpointIT {
             consumer.commitAsync();
         }
 
-        assertTrue("No records processed", recordsProcessed > 0);
+        assertTrue(recordsProcessed > 0, "No records processed");
     }
 
 }

@@ -12,8 +12,8 @@
 // end::copyright[]
 package it.io.openliberty.guides.job;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Properties;
 
@@ -24,10 +24,10 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.apiAfter;
+import org.junit.jupiter.apiBefore;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.apiTest;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.Network;
 
@@ -67,7 +67,7 @@ public class JobEndpointIT {
         .withEnv("ALLOW_PLAINTEXT_LISTENER", "yes")
         .withEnv("KAFKA_CFG_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
 
-    @Before
+    @BeforeEach
     public void setup() throws InterruptedException {
         response = null;
         client = ClientBuilder.newBuilder()
@@ -87,7 +87,7 @@ public class JobEndpointIT {
         this.producer = new KafkaProducer<>(properties);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         client.close();
     }
@@ -103,7 +103,7 @@ public class JobEndpointIT {
 
         JsonObject obj = response.readEntity(JsonObject.class);
         String jobId = obj.getString("jobId");
-        assertTrue("jobId not returned from service", jobId.matches("^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$"));
+        assertTrue(jobId.matches("^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$"), "jobId not returned from service");
     }
 
     @Test
