@@ -15,32 +15,14 @@ package it.io.openliberty.guides.system;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.Properties;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Properties;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.junit.jupiter.api.After;
-import org.junit.jupiter.api.Before;
-import org.junit.Rule;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.FixedHostPortGenericContainer;
-import org.testcontainers.containers.Network;
-
-import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -49,56 +31,41 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.microshed.testing.SharedContainerConfig;
+import org.microshed.testing.jupiter.MicroShedTest;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.openliberty.guides.system.SystemResource;
+
+@MicroShedTest
+@SharedContainerConfig(AppContainerConfig.class)
 public class SystemEndpointIT {
 
-    private final String port = System.getProperty("http.port");
-    private final String BASE_URL = "http://localhost:" + port + "/system/properties";
-    private final String KAFKA_SERVER = "localhost:9092";
-    private final String CONSUMER_OFFSET_RESET = "earliest";
-    private final long POLL_TIMEOUT = 120000;
+    private static final String KAFKA_SERVER = "localhost:9092";
+    private static final String CONSUMER_OFFSET_RESET = "earliest";
+    private static final long POLL_TIMEOUT = 120000;
 
-    private Client client;
-    private Response response;
-    private KafkaProducer<String, String> producer;
-    private KafkaConsumer<String, String> consumer;
+    @Inject
+    public static SystemResource systemResource;
+    
+    private static KafkaProducer<String, String> producer;
+    private static KafkaConsumer<String, String> consumer;
 
-    @Rule
-    public Network network = Network.newNetwork();
-
-    @Rule
-    public FixedHostPortGenericContainer zookeeper = new FixedHostPortGenericContainer<>("bitnami/zookeeper:3")
-        .withFixedExposedPort(2181, 2181)
-        .withNetwork(network)
-        .withNetworkAliases("zookeeper")
-        .withEnv("ALLOW_ANONYMOUS_LOGIN", "yes");
-
-    @Rule
-    public FixedHostPortGenericContainer kafka = new FixedHostPortGenericContainer<>("bitnami/kafka:2.3.0-debian-9-r68")
-        .withFixedExposedPort(9092, 9092)
-        .withNetwork(network)
-        .withNetworkAliases("kafka")
-        .withEnv("KAFKA_CFG_ZOOKEEPER_CONNECT", "zookeeper:2181")
-        .withEnv("ALLOW_PLAINTEXT_LISTENER", "yes")
-        .withEnv("KAFKA_CFG_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
-
-    @BeforeEach
-    public void setup() throws InterruptedException {
-        response = null;
-        client = ClientBuilder.newBuilder()
-                    .hostnameVerifier(new HostnameVerifier() {
-                        public boolean verify(String hostname, SSLSession session) {
-                            return true;
-                        }
-                    })
-                    .register(JsrJsonpProvider.class)
-                    .build();
-
+    @BeforeAll
+    public static void setup() throws InterruptedException {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-        this.producer = new KafkaProducer<>(properties);
+        producer = new KafkaProducer<>(properties);
 
         properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
@@ -106,27 +73,19 @@ public class SystemEndpointIT {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, CONSUMER_OFFSET_RESET);
-        this.consumer = new KafkaConsumer<>(properties);
-        this.consumer.subscribe(Arrays.asList("job-result-topic"));
-    }
-
-    @AfterEach
-    public void teardown() {
-        client.close();
+        consumer = new KafkaConsumer<>(properties);
+        consumer.subscribe(Arrays.asList("job-result-topic"));
     }
 
     @Test
     public void testGetProperties() {
-        this.response = client
-            .target(BASE_URL)
-            .request()
-            .get();
-
+    	Response response = systemResource.getProperties();
         assertEquals(200, response.getStatus());
     }
 
     @Test
     public void testRunJob() throws JsonParseException, JsonMappingException, IOException, InterruptedException {
+
         producer.send(new ProducerRecord<String, String>("job-topic", "{ \"jobId\": \"my-job\" }"));
 
         int recordsProcessed = 0;
