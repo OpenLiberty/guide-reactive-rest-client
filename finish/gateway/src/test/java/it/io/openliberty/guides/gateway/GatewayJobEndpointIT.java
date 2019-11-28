@@ -26,17 +26,16 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.Rule;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.junit.jupiter.MockServerExtension;
-//import org.mockserver.junit.MockServerRule;
+import org.mockserver.junit.MockServerRule;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
-@ExtendWith(MockServerExtension.class)
-@MockServerSettings(ports = {9082})
 public class GatewayJobEndpointIT {
 
     private final String port = System.getProperty("http.port");
@@ -45,18 +44,10 @@ public class GatewayJobEndpointIT {
     private Client client;
     private Response response;
 
-    /* 
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this, 9082);
     
     private MockServerClient mockServerClient = mockServerRule.getClient(); 
-    */
-
-    @RegisterExtension
-    public MockServerExtension mockServerExtension = new MockServerExtension();
-
-    private MockServerClient mockServerClient = mockServerExtension.clientAndServerFactory;
-
 
     @BeforeEach
     public void setup() throws InterruptedException {
