@@ -49,9 +49,8 @@ import io.openliberty.guides.system.SystemResource;
 @SharedContainerConfig(AppContainerConfig.class)
 public class SystemEndpointIT {
 
-    private static final String KAFKA_SERVER = "localhost:9092";
     private static final String CONSUMER_OFFSET_RESET = "earliest";
-    private static final long POLL_TIMEOUT = 120000;
+    private static final long POLL_TIMEOUT = 60 * 1000;
 
     @Inject
     public static SystemResource systemResource;
@@ -61,6 +60,7 @@ public class SystemEndpointIT {
 
     @BeforeAll
     public static void setup() throws InterruptedException {
+        String KAFKA_SERVER = AppContainerConfig.kafka.getBootstrapServers();
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
@@ -85,7 +85,7 @@ public class SystemEndpointIT {
 
     @Test
     public void testRunJob() throws JsonParseException, JsonMappingException, IOException, InterruptedException {
-
+        
         producer.send(new ProducerRecord<String, String>("job-topic", "{ \"jobId\": \"my-job\" }"));
 
         int recordsProcessed = 0;
