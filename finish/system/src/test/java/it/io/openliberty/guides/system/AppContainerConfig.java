@@ -12,9 +12,11 @@
 // end::copyright[]
 package it.io.openliberty.guides.system;
 
+import org.microshed.testing.ApplicationEnvironment;
 import org.microshed.testing.SharedContainerConfiguration;
 import org.microshed.testing.testcontainers.MicroProfileApplication;
-import org.testcontainers.containers.GenericContainer;
+import org.microshed.testing.testcontainers.config.HollowTestcontainersConfiguration;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 
@@ -22,31 +24,28 @@ public class AppContainerConfig implements SharedContainerConfiguration {
 
 	private static Network network = Network.newNetwork();
 	
-	@Container
-    public static MicroProfileApplication app = new MicroProfileApplication()
-                    .withAppContextRoot("/")
-                    .withNetwork(network);
-
     @Container
-    public static GenericContainer<?> zookeeper = new GenericContainer<>("bitnami/zookeeper:3")
-                    .withNetworkAliases("zookeeper")
-                    .withNetwork(network)
-                    .withExposedPorts(2181)
-                    .withEnv("ALLOW_ANONYMOUS_LOGIN", "yes");
+    public static KafkaContainer kafka = new KafkaContainer()
+        .withNetworkAliases("kafka")
+        .withNetwork(network);
     
     @Container
-    public static GenericContainer<?> kafka = new GenericContainer<>("bitnami/kafka:2.3.0-debian-9-r68")
-                    .withNetworkAliases("kafka")
-                    .withNetwork(network)
-                    .withExposedPorts(9092)
-                    .withEnv("KAFKA_CFG_ZOOKEEPER_CONNECT", "zookeeper:2181")
-                    .withEnv("ALLOW_PLAINTEXT_LISTENER", "yes")
-                    .withEnv("KAFKA_CFG_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
+    public static MicroProfileApplication app = new MicroProfileApplication()
+                    .withAppContextRoot("/")
+                    .withReadinessPath("/system/properties")
+                    .withNetwork(network);
     
     @Override
     public void startContainers() {
-    	zookeeper.start();
-    	kafka.start();
+        // If talking to KafkaContainer from within Docker network we need to talk to the broker on port 9092
+        // If talking to KafkaContainer from outside of the Docker network we can talk to kafka directly on 9093
+        if (ApplicationEnvironment.load().getClass() == HollowTestcontainersConfiguration.class) {
+            app.withEnv("KAFKA_SERVER", "localhost:9093");
+        } else {
+            app.withEnv("KAFKA_SERVER", "kafka:9092");
+        }
+
+        kafka.start();
     	app.start();
     }
     
