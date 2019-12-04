@@ -19,72 +19,41 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
+import javax.inject.Inject;
 
-import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.FixedHostPortGenericContainer;
-import org.testcontainers.containers.Network;
+import org.microshed.testing.SharedContainerConfig;
+import org.microshed.testing.jupiter.MicroShedTest;
 
+import io.openliberty.guides.inventory.InventoryResource;
+import io.openliberty.guides.models.InventoryList;
+import io.openliberty.guides.models.SystemData;
+import it.io.openliberty.guides.inventory.AppContainerConfig;
+
+@MicroShedTest
+@SharedContainerConfig(AppContainerConfig.class)
 public class InventoryEndpointIT {
 
-    private final String port = System.getProperty("http.port");
-    private final String BASE_URL = "http://localhost:" + port + "/inventory/systems";
-    private final String KAFKA_SERVER = "localhost:9092";
     private final int RETRIES = 8;
     private final int BACKOFF_MULTIPLIER = 2;
     private final int BASE_BACKOFF = 500;
 
-    private Client client;
-    private Response response;
+    @Inject
+    public static InventoryResource inventoryResource;
+    
     private KafkaProducer<String, String> producer;
-
-    @Rule
-    public Network network = Network.newNetwork();
-
-    @Rule
-    public FixedHostPortGenericContainer zookeeper = new FixedHostPortGenericContainer<>("bitnami/zookeeper:3")
-        .withFixedExposedPort(2181, 2181)
-        .withNetwork(network)
-        .withNetworkAliases("zookeeper")
-        .withEnv("ALLOW_ANONYMOUS_LOGIN", "yes");
-
-    @Rule
-    public FixedHostPortGenericContainer kafka = new FixedHostPortGenericContainer<>("bitnami/kafka:2.3.0-debian-9-r68")
-        .withFixedExposedPort(9092, 9092)
-        .withNetwork(network)
-        .withNetworkAliases("kafka")
-        .withEnv("KAFKA_CFG_ZOOKEEPER_CONNECT", "zookeeper:2181")
-        .withEnv("ALLOW_PLAINTEXT_LISTENER", "yes")
-        .withEnv("KAFKA_CFG_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
 
     @BeforeEach
     public void setup() throws InterruptedException {
-        response = null;
-        client = ClientBuilder.newBuilder()
-                    .hostnameVerifier(new HostnameVerifier() {
-                        public boolean verify(String hostname, SSLSession session) {
-                            return true;
-                        }
-                    })
-                    .register(JsrJsonpProvider.class)
-                    .build();
-
+        String KAFKA_SERVER = AppContainerConfig.kafka.getBootstrapServers();
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
@@ -93,85 +62,49 @@ public class InventoryEndpointIT {
         this.producer = new KafkaProducer<>(properties);
     }
 
-    @AfterEach
-    public void teardown() {
-        client.close();
-    }
-
     @Test
+    @Order(1)
+    public void testReset() {
+    	inventoryResource.reset();
+    	InventoryList list = inventoryResource.listContents();
+        assertEquals(0, list.getTotal());
+    }
+    
+    @Test
+    @Order(2)
     public void testConsumeSystem() throws InterruptedException, IOException {
 
-        // Get size of inventory
-        this.response = client
-            .target(BASE_URL)
-            .request()
-            .get();
-        assertEquals(200, response.getStatus());
+        // Add a system to the inventory via kafka
+        String props = getResource("props.json");
+        producer.send(new ProducerRecord<String,String>("system-topic", props));
 
-        JsonObject obj = response.readEntity(JsonObject.class);
-        int initialTotal = obj.getInt("total");
-        boolean hasMyHost = false;
-        if (initialTotal > 0) {
-        	JsonArray systems = obj.getJsonArray("systems");
-        	hasMyHost = jsonArrayHasHost("myhost", systems);
+        // wait until total is greater than 0
+        InventoryList list = inventoryResource.listContents();
+        int total = list.getTotal();
+        int backoff = BASE_BACKOFF;
+        for (int i = 0; i < RETRIES && total == 0; i++) {
+            Thread.sleep(backoff);
+            backoff *= BACKOFF_MULTIPLIER;
+            list = inventoryResource.listContents();
+            total = list.getTotal();
         }
-
-        if (!hasMyHost) {
-            // Add a system to the inventory via kafka
-            String props = getResource("props.json");
-            producer.send(new ProducerRecord<String,String>("system-topic", props));
-            this.response = client
-                .target(BASE_URL)
-                .request()
-                .get();
-
-            obj = response.readEntity(JsonObject.class);
-            int total = obj.getInt("total");
-
-            int backoff = BASE_BACKOFF;
-            for (int i = 0; i < RETRIES && (total <= initialTotal); i++) {
-                Thread.sleep(backoff);
-                backoff *= BACKOFF_MULTIPLIER;
-
-                this.response = client
-                    .target(BASE_URL)
-                    .request()
-                    .get();
-
-                obj = response.readEntity(JsonObject.class);
-                total = obj.getInt("total");
-            }
-            assertTrue(total > 0, String.format("Total (%s) is not greater than 0", total));
-        }
-
+        assertTrue(total > 0, String.format("Total (%s) is not greater than 0", total));
 
         // Make system busy
         String busyProps = getResource("props.busy.json");
         producer.send(new ProducerRecord<String, String>("system-topic", busyProps));
 
-        this.response = client
-            .target(BASE_URL)
-            .request()
-            .get();
-
-        obj = response.readEntity(JsonObject.class);
-        JsonArray systems = obj.getJsonArray("systems");
-
-        int backoff = BASE_BACKOFF;
-        for (int i = 0; i < RETRIES && !getPropertyFromJsonArray("myhost", "system.busy", systems).equals("true"); i++) {
+        // wait until the system is busy
+        list = inventoryResource.listContents();
+        List<SystemData> systems = list.getSystems();
+        backoff = BASE_BACKOFF;
+        for (int i = 0; i < RETRIES && !getPropertyFromSystems("myhost", "system.busy", systems).equals("true"); i++) {
             Thread.sleep(backoff);
             backoff *= BACKOFF_MULTIPLIER;
-
-            this.response = client
-                .target(BASE_URL)
-                .request()
-                .get();
-
-            obj = response.readEntity(JsonObject.class);
-            systems = obj.getJsonArray("systems");
+            list = inventoryResource.listContents();
+            systems = list.getSystems();
         }
-
-        assertEquals("true", getPropertyFromJsonArray("myhost", "system.busy", systems));
+        assertEquals("true", getPropertyFromSystems("myhost", "system.busy", systems));
     }
 
     private String getResource(String filename) throws IOException {
@@ -188,26 +121,11 @@ public class InventoryEndpointIT {
         reader.close();
         return builder.toString();
     }
-
-    private boolean jsonArrayHasHost(String hostname, JsonArray array) {
-        for (JsonValue v : array) {
-            JsonObject obj = v.asJsonObject();
-            String h = obj.getString("hostname");
-
-            if (h != null && h.equals(hostname)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    private String getPropertyFromJsonArray(String hostname, String property, JsonArray array) {
-        for (JsonValue v : array) {
-            JsonObject obj = v.asJsonObject();
-            String h = obj.getString("hostname");
-
-            if (h != null && h.equals(hostname)) {
-                String result = obj.getJsonObject("properties").getString(property);
+  
+    private String getPropertyFromSystems(String hostname, String property, List<SystemData> systems) {
+        for (SystemData s : systems) {
+            if (s.getHostname().equals(hostname)) {
+                String result = s.getProperties().getProperty(property);
                 if (result != null) return result;
             }
         }
