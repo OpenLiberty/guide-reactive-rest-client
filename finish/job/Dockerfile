@@ -1,3 +1,4 @@
 FROM open-liberty
-
-ADD --chown=1001:0 target/job.tar.gz /opt/ol
+COPY src/main/liberty/config /config/
+RUN configure.sh
+ADD target/job.war /config/apps

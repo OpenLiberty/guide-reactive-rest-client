@@ -29,7 +29,7 @@ public class JobProducer {
   public JobProducer() {
     String kafkaServer = System.getenv("KAFKA_SERVER");
     if (kafkaServer == null)
-    	kafkaServer = "localhost:9092";
+    	kafkaServer = "localhost:9093";
     Properties properties = new Properties();
     properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
     properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");

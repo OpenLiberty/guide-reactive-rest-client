@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.microshed.testing.SharedContainerConfig;
@@ -36,30 +36,28 @@ import org.microshed.testing.jupiter.MicroShedTest;
 import io.openliberty.guides.inventory.InventoryResource;
 import io.openliberty.guides.models.InventoryList;
 import io.openliberty.guides.models.SystemData;
-import it.io.openliberty.guides.inventory.AppContainerConfig;
 
 @MicroShedTest
 @SharedContainerConfig(AppContainerConfig.class)
 public class InventoryEndpointIT {
 
-    private final int RETRIES = 8;
-    private final int BACKOFF_MULTIPLIER = 2;
-    private final int BASE_BACKOFF = 500;
+    private final static int RETRIES = 8;
+    private final static int BACKOFF_MULTIPLIER = 2;
+    private final static int BASE_BACKOFF = 500;
+
+    private static KafkaProducer<String, String> producer;
 
     @Inject
     public static InventoryResource inventoryResource;
     
-    private KafkaProducer<String, String> producer;
-
-    @BeforeEach
-    public void setup() throws InterruptedException {
+    @BeforeAll
+    public static void setup() throws InterruptedException {
         String KAFKA_SERVER = AppContainerConfig.kafka.getBootstrapServers();
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-
-        this.producer = new KafkaProducer<>(properties);
+        producer = new KafkaProducer<>(properties);
     }
 
     @Test
