@@ -15,6 +15,8 @@ package it.io.openliberty.guides.gateway;
 import org.microshed.testing.SharedContainerConfiguration;
 import org.microshed.testing.testcontainers.MicroProfileApplication;
 import org.mockserver.client.MockServerClient;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
 import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
@@ -33,7 +35,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
     @Container
     public static MicroProfileApplication gateway = new MicroProfileApplication()
                     .withAppContextRoot("/")
-                    .withReadinessPath("/health/ready")
+                    .withReadinessPath("/api/jobs")
                     .withNetwork(network)
                     .withEnv("inventoryClient_mp_rest_url", "http://mock-server:" + MockServerContainer.PORT)
                     .withEnv("GATEWAY_JOB_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
@@ -41,14 +43,18 @@ public class AppContainerConfig implements SharedContainerConfiguration {
     @Override
     public void startContainers() {
         mockServer.start();
-        gateway.start();
         mockClient = new MockServerClient(
   	          mockServer.getContainerIpAddress(),
   	          mockServer.getServerPort());
-        try {
-			Thread.sleep(20000);
-		} catch (InterruptedException e) {
-		}
+        mockClient
+            .when(HttpRequest.request()
+                .withMethod("GET")
+                .withPath("/jobs"))
+             .respond(HttpResponse.response()
+                .withStatusCode(200)
+                .withBody("{ \"results\": [ { \"jobId\": \"my-job-1\", \"result\": 7 }, { \"jobId\": \"my-job-2\", \"result\": 5 } ] } ")
+                .withHeader("Content-Type", "application/json"));
+        gateway.start();
     }
     
 }
