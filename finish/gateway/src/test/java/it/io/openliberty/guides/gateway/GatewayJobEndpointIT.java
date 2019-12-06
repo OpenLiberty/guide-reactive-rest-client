@@ -14,108 +14,65 @@ package it.io.openliberty.guides.gateway;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-import javax.json.JsonObject;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
+import javax.inject.Inject;
 
-import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.junit.jupiter.MockServerExtension;
-import org.mockserver.junit.MockServerRule;
+import org.microshed.testing.SharedContainerConfig;
+import org.microshed.testing.jupiter.MicroShedTest;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
+import io.openliberty.guides.gateway.GatewayJobResource;
+import io.openliberty.guides.models.Job;
+import io.openliberty.guides.models.JobList;
+import it.io.openliberty.guides.gateway.AppContainerConfig;
+
+@MicroShedTest
+@SharedContainerConfig(AppContainerConfig.class)
 public class GatewayJobEndpointIT {
 
-    private final String port = System.getProperty("http.port");
-    private final String BASE_URL = "http://localhost:" + port + "/api/jobs";
-
-    private Client client;
-    private Response response;
-
-    @Rule
-    public MockServerRule mockServerRule = new MockServerRule(this, 9082);
+    @Inject
+    public static GatewayJobResource jobResource;
     
-    private MockServerClient mockServerClient = mockServerRule.getClient(); 
+    @BeforeAll
+    public static void setup() throws InterruptedException {
+    	
+    	AppContainerConfig.mockClient
+            .when(HttpRequest.request()
+                .withMethod("GET")
+                .withPath("/jobs"))
+            .respond(HttpResponse.response()
+                .withStatusCode(200)
+                .withBody("{ \"results\": [ { \"jobId\": \"my-job-1\", \"result\": 7 }, { \"jobId\": \"my-job-2\", \"result\": 5 } ] } ")
+                .withHeader("Content-Type", "application/json"));
 
-    @BeforeEach
-    public void setup() throws InterruptedException {
-        response = null;
-        client = ClientBuilder.newBuilder()
-                    .hostnameVerifier(new HostnameVerifier() {
-                        public boolean verify(String hostname, SSLSession session) {
-                            return true;
-                        }
-                    })
-                    .register(JsrJsonpProvider.class)
-                    .build();
-
-        mockServerClient
-                    .when(HttpRequest.request()
-                        .withMethod("GET")
-                        .withPath("/jobs"))
-                    .respond(HttpResponse.response()
-                        .withStatusCode(200)
-                        .withBody("{ \"results\": [ { \"jobId\": \"my-job-1\", \"result\": 7 }, { \"jobId\": \"my-job-2\", \"result\": 5 } ] } ")
-                        .withHeader("Content-Type", "application/json"));
-
-        mockServerClient
-                    .when(HttpRequest.request()
-                        .withMethod("POST")
-                        .withPath("/jobs"))
-                    .respond(HttpResponse.response()
-                        .withStatusCode(200)
-                        .withBody("{ \"jobId\": \"my-job-id\" }")
-                        .withHeader("Content-Type", "application/json"));
-    }
-
-    @AfterEach
-    public void teardown() {
-        client.close();
+    	AppContainerConfig.mockClient
+            .when(HttpRequest.request()
+                .withMethod("POST")
+                .withPath("/jobs"))
+            .respond(HttpResponse.response()
+                .withStatusCode(200)
+                .withBody("{ \"jobId\": \"my-job-id\" }")
+                .withHeader("Content-Type", "application/json"));
     }
     
-    @Test
     // tag::testCreateJob[]
+    @Test
     public void testCreateJob() throws InterruptedException {
-        this.response = client
-            .target(BASE_URL)
-            .request()
-            .post(null);
-
-        assertEquals(200, response.getStatus());
-
-        JsonObject obj = response.readEntity(JsonObject.class);
-        String jobId = obj.getString("jobId");
-        assertEquals("my-job-id", jobId);
+    	Job j = jobResource.createJob();
+    	assertEquals("my-job-id", j.getJobId(), "Failed to create job.");
     }
     // end::testCreateJob[]
 
 
-    @Test
     // tag::testGetJobs[]
-    public void testGetJobs() {
-        this.response = client
-            .target(BASE_URL)
-            .request()
-            .get();
-
-        assertEquals(200, response.getStatus());
-
-        JsonObject obj = response.readEntity(JsonObject.class);
-        assertEquals(2, obj.getInt("count"));
-        assertEquals(6.0, obj.getJsonNumber("averageResult").doubleValue(), 0.01);
-        assertEquals(2, obj.getJsonArray("results").size());
+    @Test
+    public void testGetJobs() throws InterruptedException {
+    	JobList jobs = jobResource.getJobs();
+    	assertEquals(2,jobs.getCount());
+    	assertEquals(6.0, jobs.getAverageResult().getAsDouble(), 0.01);
+    	assertEquals(2,jobs.getResults().size());
     }
     // end::testGetJobs[]
 
