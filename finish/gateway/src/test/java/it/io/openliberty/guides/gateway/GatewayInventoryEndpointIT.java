@@ -14,11 +14,10 @@ package it.io.openliberty.guides.gateway;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.inject.Inject;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.microshed.testing.SharedContainerConfig;
+import org.microshed.testing.jaxrs.RESTClient;
 import org.microshed.testing.jupiter.MicroShedTest;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
@@ -26,13 +25,12 @@ import org.mockserver.model.HttpResponse;
 import io.openliberty.guides.gateway.GatewayInventoryResource;
 import io.openliberty.guides.models.InventoryList;
 import io.openliberty.guides.models.SystemData;
-import it.io.openliberty.guides.gateway.AppContainerConfig;
 
 @MicroShedTest
 @SharedContainerConfig(AppContainerConfig.class)
 public class GatewayInventoryEndpointIT {
 
-    @Inject
+    @RESTClient
     public static GatewayInventoryResource inventoryResource;
     
     @BeforeAll
