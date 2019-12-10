@@ -288,7 +288,7 @@ Navigate to the `gateway` directory, then verify that the tests pass using the M
 
 [role='command']
 ```
-mvn liberty:start failsafe:integration-test liberty:stop
+mvn verify
 ```
 
 When the tests succeed, you will see output similar to the following.
