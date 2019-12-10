@@ -12,99 +12,59 @@
 // end::copyright[]
 package it.io.openliberty.guides.gateway;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.json.JsonObject;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-
-import org.apache.cxf.jaxrs.provider.jsrjsonp.JsrJsonpProvider;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.junit.MockServerRule;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.microshed.testing.SharedContainerConfig;
+import org.microshed.testing.jaxrs.RESTClient;
+import org.microshed.testing.jupiter.MicroShedTest;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
+import io.openliberty.guides.gateway.GatewayInventoryResource;
+import io.openliberty.guides.models.InventoryList;
+import io.openliberty.guides.models.SystemData;
+
+@MicroShedTest
+@SharedContainerConfig(AppContainerConfig.class)
 public class GatewayInventoryEndpointIT {
 
-    private final String port = System.getProperty("http.port");
-    private final String BASE_URL = "http://localhost:" + port + "/api/systems";
-
-    private Client client;
-    private Response response;
-
-    @Rule
-    public MockServerRule mockServerRule = new MockServerRule(this, 9082);
+    @RESTClient
+    public static GatewayInventoryResource inventoryResource;
     
-    private MockServerClient mockServerClient = mockServerRule.getClient();
+    @BeforeAll
+    public static void setup() throws InterruptedException {
+    	AppContainerConfig.mockClient
+            .when(HttpRequest.request()
+                .withMethod("GET")
+                .withPath("/inventory/systems"))
+            .respond(HttpResponse.response()
+                .withStatusCode(200)
+                .withBody("{ \"systems\": [ { \"hostname\": \"banana\", \"properties\": { \"java.vendor\": \"you\", \"system.busy\": \"false\" } } ], \"total\": 1 }")
+                .withHeader("Content-Type", "application/json"));
 
-    @Before
-    public void setup() throws InterruptedException {
-        response = null;
-        client = ClientBuilder.newBuilder()
-                    .hostnameVerifier(new HostnameVerifier() {
-                        public boolean verify(String hostname, SSLSession session) {
-                            return true;
-                        }
-                    })
-                    .register(JsrJsonpProvider.class)
-                    .build();
-
-        mockServerClient
-                    .when(HttpRequest.request()
-                        .withMethod("GET")
-                        .withPath("/inventory/systems"))
-                    .respond(HttpResponse.response()
-                        .withStatusCode(200)
-                        .withBody("{ \"systems\": [ { \"hostname\": \"banana\", \"properties\": { \"java.vendor\": \"you\", \"system.busy\": \"false\" } } ], \"total\": 1 }")
-                        .withHeader("Content-Type", "application/json"));
-
-        mockServerClient
-                    .when(HttpRequest.request()
-                        .withMethod("GET")
-                        .withPath("/inventory/systems/coconut"))
-                    .respond(HttpResponse.response()
-                        .withStatusCode(200)
-                        .withBody("{ \"hostname\": \"coconut\", \"properties\": { \"java.vendor\": \"me\" } }")
-                        .withHeader("Content-Type", "application/json"));
-    }
-
-    @After
-    public void teardown() {
-        client.close();
+    	AppContainerConfig.mockClient
+            .when(HttpRequest.request()
+                .withMethod("GET")
+                .withPath("/inventory/systems/coconut"))
+            .respond(HttpResponse.response()
+                .withStatusCode(200)
+                .withBody("{ \"hostname\": \"coconut\", \"properties\": { \"java.vendor\": \"me\" } }")
+                .withHeader("Content-Type", "application/json"));
     }
     
     @Test
-    public void testAddSystem() throws InterruptedException {
-        this.response = client
-            .target(BASE_URL + "/coconut")
-            .request()
-            .get();
-
-        assertEquals(200, response.getStatus());
-
-        JsonObject obj = response.readEntity(JsonObject.class);
-        assertEquals("coconut", obj.getString("hostname"));
+    public void testAddSystem() {
+    	SystemData s = inventoryResource.getSystem("coconut");
+        assertEquals("coconut", s.getHostname());
     }
 
     @Test
     public void testGetSystems() {
-        this.response = client
-            .target(BASE_URL)
-            .request()
-            .get();
-
-        assertEquals(200, response.getStatus());
-
-        JsonObject obj = response.readEntity(JsonObject.class);
-        assertEquals(1, obj.getInt("total"));
-        assertEquals(1, obj.getJsonArray("systems").size());
+    	InventoryList systems = inventoryResource.getSystems();
+        assertEquals(1, systems.getTotal());
+        assertEquals(1, systems.getSystems().size());
     }
 
 }
