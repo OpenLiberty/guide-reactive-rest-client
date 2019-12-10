@@ -13,13 +13,15 @@
 package it.io.openliberty.guides.gateway;
 
 import org.microshed.testing.SharedContainerConfiguration;
-import org.microshed.testing.testcontainers.MicroProfileApplication;
+import org.microshed.testing.testcontainers.ApplicationContainer;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
+
+import io.openliberty.guides.gateway.client.InventoryClient;
 
 public class AppContainerConfig implements SharedContainerConfiguration {
 
@@ -33,11 +35,11 @@ public class AppContainerConfig implements SharedContainerConfiguration {
     public static MockServerClient mockClient;
   
     @Container
-    public static MicroProfileApplication gateway = new MicroProfileApplication()
+    public static ApplicationContainer gateway = new ApplicationContainer()
                     .withAppContextRoot("/")
                     .withReadinessPath("/api/jobs")
                     .withNetwork(network)
-                    .withEnv("inventoryClient_mp_rest_url", "http://mock-server:" + MockServerContainer.PORT)
+                    .withMpRestClient(InventoryClient.class, "http://mock-server:" + MockServerContainer.PORT)
                     .withEnv("GATEWAY_JOB_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
     
     @Override
