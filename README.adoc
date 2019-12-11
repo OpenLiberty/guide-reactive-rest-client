@@ -33,8 +33,10 @@ Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTT
 
 == What you'll learn
 
+
 You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects form third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
 You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. Doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
+
 
 === What is asynchronous programming? +
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
@@ -45,7 +47,7 @@ In the context of REST clients, making synchronous HTTP requests can be a time c
 
 === What is reactive programming? +
 Reactive programming is an extension to asynchronous programming and a paradigm where data availability controls execution that avoids overwhelming the consumer. In other words, execution advances when new information becomes available. Changes, once they occur, are propagated via data streams and this makes it generally easier to implement an asynchronous and non-blocking system. This allows you to be more efficient with the resources you use in your application.
-It also leverages the publisher-subscriber pipeline instead of the more traditional producer-consumer model. The former requires very little configuration required and thus has little overhead. This makes this model much simpler to implement, allowing you to have a more elegant solution. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration.
+It also leverages the publisher-subscriber pipeline instead of the more traditional producer-consumer model. The former requires very little configuration and thus has little overhead. This makes this model much simpler to implement, allowing you to have a more elegant solution. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration.
 The usage of reactive streams brings with it tools, among others, to handle data flow, backpressure, thread safety and error propagation. +
 
 The application you will be working with is a job manager that maintains an inventory of available systems.
@@ -288,7 +290,7 @@ Navigate to the `gateway` directory, then verify that the tests pass using the M
 
 [role='command']
 ```
-mvn liberty:start failsafe:integration-test liberty:stop
+mvn verify
 ```
 
 When the tests succeed, you will see output similar to the following.

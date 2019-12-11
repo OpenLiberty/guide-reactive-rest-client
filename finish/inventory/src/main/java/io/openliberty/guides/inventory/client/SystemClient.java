@@ -13,6 +13,7 @@
 package io.openliberty.guides.inventory.client;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation.Builder;
@@ -20,20 +21,25 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import java.util.Properties;
 import java.net.URI;
 
 @RequestScoped
 public class SystemClient {
 
-  // Constants for building URI to the system service.
-	private final int SYSTEM_PORT = Integer.valueOf(System.getProperty("system.http.port", "9080"));
   private final String SYSTEM_PROPERTIES = "/system/properties";
   private final String PROTOCOL = "http";
 
+  @Inject
+  @ConfigProperty(name = "SYSTEM_HTTP_PORT", defaultValue="9080")
+  private String systemHttpPort;
+  
   // Wrapper function that gets properties
   public Properties getProperties(String hostname) {
-    String url = buildUrl(PROTOCOL, hostname, SYSTEM_PORT, SYSTEM_PROPERTIES);
+    String url = buildUrl(PROTOCOL, hostname, Integer.valueOf(systemHttpPort), SYSTEM_PROPERTIES);
     Builder clientBuilder = buildClientBuilder(url);
     return getPropertiesHelper(clientBuilder);
   }

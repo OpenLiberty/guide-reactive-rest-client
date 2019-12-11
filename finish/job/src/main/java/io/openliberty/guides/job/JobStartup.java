@@ -32,7 +32,7 @@ public class JobStartup {
     private JobManager manager;
 
     @Inject
-    @ConfigProperty(name = "KAFKA_SERVER", defaultValue="localhost:9092")
+    @ConfigProperty(name = "KAFKA_SERVER", defaultValue="localhost:9093")
     private String kafkaServer;
 
     @Inject
