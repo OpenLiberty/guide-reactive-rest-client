@@ -180,6 +180,8 @@ mvn -pl models install
 mvn package
 ```
 
+This command will compile the project, package it into a `.jar` file and store it in our local maven repository.
+
 Run the following commands to build and containerize the application:
 
 [role='command']
