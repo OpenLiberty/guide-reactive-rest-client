@@ -31,12 +31,6 @@ NOTE: This repository contains the guide documentation source. To view the guide
 
 Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
 
-== What you'll learn
-
-
-You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects form third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
-You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. Doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
-
 
 === What is asynchronous programming? +
 Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
@@ -46,9 +40,12 @@ Asynchronous methods allow you to perform a lengthy operation, such as input/out
 In the context of REST clients, making synchronous HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
 
 === What is reactive programming? +
-Reactive programming is an extension to asynchronous programming and a paradigm where data availability controls execution that avoids overwhelming the consumer. In other words, execution advances when new information becomes available. Changes, once they occur, are propagated via data streams and this makes it generally easier to implement an asynchronous and non-blocking system. This allows you to be more efficient with the resources you use in your application.
-It also leverages the publisher-subscriber pipeline instead of the more traditional producer-consumer model. The former requires very little configuration and thus has little overhead. This makes this model much simpler to implement, allowing you to have a more elegant solution. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration.
-The usage of reactive streams brings with it tools, among others, to handle data flow, backpressure, thread safety and error propagation. +
+Reactive programming is an extension to asynchronous programming and a paradigm where data availability controls execution that avoids overwhelming the consumer. In other words, execution advances when new information becomes available. Once changes occur, they are propagated via data streams allowing for more efficient resource management in your application.
+Implementation is also much easier and lets you focus mainly on business logic instead of having to worry about implementation and configuration.
+The usage of reactive streams also brings with it tools, among others, to handle data flow, back pressure, thread safety and error propagation. +
+
+== What you'll learn
+You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will the learn how to update the client so that is uses custom objects from third-party libraries like http://reactivex.io/[ReactiveX^]. You will then learn how to use other libraries like http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^] to easily implement ReactiveX with your existing project. You will then update your resources to accommodate your new client. You will learn to implement a reactive system using asynchronous data streams as well as ReactiveX’s `Observable` class. This will introduce you to the benefits of using third-party libraries to develop with reactive programming.
 
 The application you will be working with is a job manager that maintains an inventory of available systems.
 It consists of four microservices, `gateway`, `job`, `system`, and `inventory`.
@@ -70,7 +67,7 @@ service to get the completed jobs.
 The implementations of the application and its services are provided for you in the `start/src` directory.
 The application also uses the Apache Kafka and ZooKeeper services to distribute the job results and system status.
 
-== Additional Prerequisites
+== Additional prerequisites
 
 - *Docker*: Docker is a tool that you can use to deploy and run applications with containers. You can think of Docker like a virtual machine that runs various applications. However, unlike a typical virtual machine, you can run these applications simultaneously on a single system and independent of one another.
 
@@ -101,25 +98,26 @@ include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobRes
 
 Navigate to the `start` directory to begin.
 
-An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`JobClient` and [hotspot file=1]`GatewayJobResource` which now implement the default JAX-RS reactive client.
-In the client, notice how the [hotspot=getJobsCompletionStage file=0]`getJobs()`, [hotspot=getJobCompletionStage file=0]`getJob()` and [hotspot=createJobCompletionStage file=0]`createJob()` return the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenApplyAsync file=1]`thenApplyAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
+We have provided for you a completed an application that has an implementation of the default JAX-RS reactive client. The default client only uses resources from JAX-RS and other packages that are included in the JDK.
 
+This implementation is found in the `gateway` directory. The important classes to look at are [hotspot file=0]`JobClient` and [hotspot file=1]`GatewayJobResource` which implement the default JAX-RS reactive client. One key interface used in these classes is the `CompletionStage` interface, which represents a unit or a stage of a computation. Once the associated computation completes, the value contained can be retrieved. The `CompletionStage` interface can be chained with additional stages using the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenApplyAsync file=1]`thenApplyAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
+
+When the application is running, HTTP requests are handled by the [hotspot file=1]`GatewayJobResource` class and the resource has methods that will invoke the [hotspot file=0]`JobClient` class. The client has the [hotspot=getJobsCompletionStage file=0]`getJobs()`, [hotspot=getJobCompletionStage file=0]`getJob()` and [hotspot=createJobCompletionStage file=0]`createJob()` methods to make requests to the `Job` service depending on the HTTP request made to the resource. Once the request is complete, the results of them are then returned to the resource.
 
 In the [hotspot file=0]`JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods contain an [hotspot=rxGetJobsCompletionStage hotspot=rxGetJobCompletionStage hotspot=rxCreateJobCompletionStage file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
 
 In the [hotspot file=1]`GatewayJobResource` class, whatever object you want to return is returned in the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method.
 
-Similarly to the synchronous approach, if we successfully get the completed jobs from the job microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs.
+If we successfully get the completed jobs from the job microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs.
 
+In short, this implementation provided to you is a basic reactive application that uses only the built-in reactive functions provided by JAX-RS.
 
-== Updating the client to use third-party objects
+== Updating the client to use RxJava's Observable class
 
-JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^], and can allow for client configurations that are different from the default one.
+Instead of just using JAX-RS, we can instead leverage third party libraries that were specifically designed for reactive programming. One of the more popular ones is http://reactivex.io/[ReactiveX^], and its Java implementation https://github.com/ReactiveX/RxJava[RxJava^]. This is an extensive reactive library which, among other things, provides objects like `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` which is more powerful than the `CompletionStage` interface. Basically, an `Observable` is a class that consumes and produces reactive dataflows, effectively taking in or spitting out data which can manipulated however you want. Since the data comes and goes in streams, `Observables are more scalable as these streams are flexible to accommodate changes in traffic. In contrast, the `CompletionStage` interface is single-use so scaling is more laborious. Given that RxJava is a library dedicated solely to reactive programming, it also provides an extensive set of http://reactivex.io/documentation/operators.html[operators^] making it extremely convenient to use.
+We are also using https://eclipse-ee4j.github.io/jersey[Jersey^], another third-party library to more easily integrate our RxJava objects into our project. Jersey is a JAX-RS implementation that provides tools to manipulate the `Observable` class. Combining these libraries allow for more elegant solutions as we need only access their provided tools.
 
-By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot.
-
-
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`gateway/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=60-64 file=0]`rxjava`, [hotspot=65-69 file=0]`jersey-client`, [hotspot=70-74 file=0]`jersey-rx-client-rxjava` and [hotspot=75-79 file=0]`jersey-rx-client-rxjava2`.
+The RxJava API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`gateway/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=60-64 file=0]`rxjava`, [hotspot=65-69 file=0]`jersey-client`, [hotspot=70-74 file=0]`jersey-rx-client-rxjava` and [hotspot=75-79 file=0]`jersey-rx-client-rxjava2`.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -140,13 +138,14 @@ JobClient.java
 include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
-The changes involve changing the return types of the [hotspot=getJobs file=1]`getJobs()`, [hotspot=getJob file=1]`getJob()` and [hotspot=createJob file=1]`createJob()` methods from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a class that is part of ReactiveX and, as will be seen later, is a more flexible data type than the `CompletionStage` interface.
-The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. The invoker depends on the type of object that you wish to return. If you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` object instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+The first important change is registering the provider to the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register()` call contains [hotspot=register file=1`RxObservableInvoker.class`. This is done so the client recognizes the `RxObservableInvoker` class. If we didn’t have this, when we try to invoke for the `Observable` class, the client would not recognize the class and would throw an error.
 
-Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using `backpressure` and `Flowables`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
+The other changes involve changing the return types of the [hotspot=getJobs file=1]`getJobs()`, [hotspot=getJob file=1]`getJob()` and [hotspot=createJob file=1]`createJob()` methods from a `CompletionStage<T>` interface to an `Observable<T>` object. The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. By default, `rx()` invokes for the `CompletionStage` interface, so we have to explicitly specify that we are invoking for the `Observable` class. If we wanted to pass a different object, we would have to update the invokers and their respective providers accordingly.
 
+Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, RxJava provides a method to address this issue using a concept called `backpressure` and `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^].
+Remember, if you pass a different object in your client methods, you will have to update your invoker and provider. So if you used `Flowable`, you would have to pass `RxFlowableInvoker.class` in your invoker and register `RxFlowableInvokerProvider.class` in your client.
 
-== Updating the JAX resources
+== Updating the REST resource to support requests with RxJava
 
 Now that the client methods return the `Observable<T>` class, you must update the resource to accommodate these changes.
 
@@ -169,7 +168,7 @@ Instead of using `thenApplyAsync()`, observables use the [hotspot=getJobsSubscri
 
 == Building and running the application
 
-The `gateway`, `job`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+The `gateway`, `job`, `system`, and `inventory` microservices will each be built inside a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
 Start your Docker environment.
 
@@ -226,8 +225,6 @@ Before any jobs are created, the output will be simply `{"count":0,"results":[]}
 You can use `curl -X POST \http://localhost:8080/api/jobs` command if available on the system to create a job. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
 
 The completed jobs JSON output has an `averageResult` attribute that is the average sleep time of all the jobs, a count for the number of jobs and the list of the jobs. The JSON output for each job has a job ID and a sleep time as the result for this job.
-
-Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While the client request is being handled, the thread can handle other work.
 
 == Stopping the application
 
@@ -312,6 +309,6 @@ Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 
 == Great work! You're done!
 
-You have just modified an application to make HTTP requests using reactive JAX-RS client with Open Liberty and Jersey.
+You have just modified an application to make HTTP requests using reactive JAX-RS client with Open Liberty, RxJava and Jersey.
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
