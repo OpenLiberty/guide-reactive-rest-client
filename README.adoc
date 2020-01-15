@@ -5,7 +5,7 @@
 //
 // Contributors:
 //   IBM Corporation
-:projectid: jaxrs-reactive-client
+:projectid: jax-rs-reactive-client
 :page-layout: guide-multipane
 :page-duration: 15 minutes
 :page-releasedate: 2019-09-13
@@ -19,7 +19,7 @@
 :page-permalink: /guides/{projectid}
 :page-related-guides: ['microprofile-rest-client', 'microprofile-rest-client-async']
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
-:imagesdir: /img/guide
+:imagesdir: /img/guide/{projectid}
 :source-highlighter: prettify
 :mac: MAC
 :win: WINDOWS
