@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,8 @@
 // end::copyright[]
 package it.io.openliberty.guides.system;
 
-import org.microshed.testing.ApplicationEnvironment;
 import org.microshed.testing.SharedContainerConfiguration;
-import org.microshed.testing.testcontainers.MicroProfileApplication;
-import org.microshed.testing.testcontainers.config.HollowTestcontainersConfiguration;
+import org.microshed.testing.testcontainers.ApplicationContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
@@ -30,23 +28,11 @@ public class AppContainerConfig implements SharedContainerConfiguration {
         .withNetwork(network);
     
     @Container
-    public static MicroProfileApplication app = new MicroProfileApplication()
+    public static ApplicationContainer app = new ApplicationContainer()
                     .withAppContextRoot("/")
+                    .withExposedPorts(9093)
                     .withReadinessPath("/system/properties")
-                    .withNetwork(network);
-    
-    @Override
-    public void startContainers() {
-        // If talking to KafkaContainer from within Docker network we need to talk to the broker on port 9092
-        // If talking to KafkaContainer from outside of the Docker network we can talk to kafka directly on 9093
-        if (ApplicationEnvironment.load().getClass() == HollowTestcontainersConfiguration.class) {
-            app.withEnv("KAFKA_SERVER", "localhost:9093");
-        } else {
-            app.withEnv("KAFKA_SERVER", "kafka:9092");
-        }
-
-        kafka.start();
-    	app.start();
-    }
+                    .withNetwork(network)
+                    .dependsOn(kafka);
     
 }
