@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,22 +18,19 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 
-
 public class AppContainerConfig implements SharedContainerConfiguration {
 
-	private static Network network = Network.newNetwork();
-	
+    private static Network network = Network.newNetwork();
+
     @Container
     public static KafkaContainer kafka = new KafkaContainer()
-        .withNetworkAliases("kafka")
         .withNetwork(network);
     
     @Container
     public static ApplicationContainer app = new ApplicationContainer()
                     .withAppContextRoot("/")
-                    .withExposedPorts(9093)
-                    .withReadinessPath("/system/properties")
+                    .withExposedPorts(new Integer(9083))
+                    .withReadinessPath("/health/ready")
                     .withNetwork(network)
                     .dependsOn(kafka);
-    
 }
