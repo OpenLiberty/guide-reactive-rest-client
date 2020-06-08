@@ -1,218 +1,176 @@
-//  Copyright (c) 2020 IBM Corporation and others.
+// Copyright (c) 2019 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
 //
 // Contributors:
-//     IBM Corporation
-//
-:projectid: microprofile-reactive-messaging-rest
+//   IBM Corporation
+:projectid: jax-rs-reactive-client
 :page-layout: guide-multipane
-:page-duration: 20 minutes
-:page-releasedate: 2020-04-22
+:page-duration: 15 minutes
+:page-releasedate: 2019-09-13
 :page-guide-category: microprofile
 :page-essential: false
-:page-description: Learn how to trigger messages in reactive Java microservices via RESTful endpoints
+:page-description: Learn how to use the reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
+:page-seo-title: Consuming RESTful services using reactive JAX-RS client
+:page-seo-description: A tutorial on how to consume RESTful services asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client.
 :guide-author: Open Liberty
-:page-tags: ['MicroProfile', 'Jakarta EE']
-:page-related-guides: ['reactive-service-testing']
+:page-tags: ['MicroProfile', 'Java EE', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
+:page-related-guides: ['microprofile-rest-client', 'microprofile-rest-client-async']
+:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
 :imagesdir: /img/guide/{projectid}
-:page-seo-title: Producing messages by RESTful endpoint in reactive Java microservice
-:page-seo-description: A reactive programming tutorial with examples on how to trigger message creation via RESTful endpoint and send and receive messages between asynchronous Java microservices using Eclipse MicroProfile Reactive Messaging and Apache Kafka.
-:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/dev
 :source-highlighter: prettify
-= Using Reactive Messaging with RESTful services
+:mac: MAC
+:win: WINDOWS
+:linux: LINUX
+= Consuming RESTful services using reactive JAX-RS client
 
 [.hidden]
-NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].   
+NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].
 
-Learn how to trigger messages in reactive Java microservices via RESTful endpoints.
+Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
+
+== What is asynchronous programming?
+Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
+
+Asynchronous methods allow you to perform a lengthy operation, such as input/output (I/O) asynchronously. This means that the I/O occurs in the background and the caller is notified via a callback to continue with their computation once it’s complete. The benefit is that this frees up the original thread to handle other work rather than waiting on I/O to complete. Going back to the restaurant analogy, food is prepared asynchronously in the kitchen and your waiter is freed up to attend to other tables. Since they’re free, the waiter can take more orders from other tables, or serve food to other tables.
+
+In the context of REST clients, making synchronous HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
+
+== What is reactive programming?
+Reactive programming is an extension to asynchronous programming and a paradigm where data availability controls execution that avoids overwhelming the consumer. In other words, execution advances when new information becomes available. Changes, once they occur, are propagated via data streams and this makes it generally easier to implement an asynchronous and non-blocking system. This allows you to be more efficient with the resources you use in your application.
+It also leverages the publisher-subscriber pipeline instead of the more traditional producer-consumer model. The former requires very little configuration and thus has little overhead. This makes this model much simpler to implement, allowing you to have a more elegant solution. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration.
+The usage of reactive streams brings with it tools, among others, to handle data flow, backpressure, thread safety and error propagation. +
 
 == What you'll learn
+You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects form third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
+You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. Doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
 
-You will learn how to use RESTful endpoints to trigger microservices to produce and send messages to other microservices
-using MicroProfile Reactive Messaging. The current implementation of MicroProfile Reactive Messaging operates on continuous
-streams of events. For instance, Producer produces events periodically, and Consumer consumes those events. This guide
-helps you write microservices so that when a user hits the RESTful endpoint, producer events are generated.  Most importantly,
-you'll learn how to bridge the gap between reactive applications and RESTful ones. You'll also learn how we can achieve code
-execution on demand in the reactive applications.
+The application you will be working with is a job manager that maintains an inventory of available systems.
+It consists of four microservices, `gateway`, `job`, `system`, and `inventory`.
+The `job` microservice allows you to dispatch jobs that will be run by the `system` microservice.
+The job is a sleep operation used to represent a slow task that lasts for a duration of 5 to 10 seconds. When it completes, the `system` microservice
+reports the sleep time as the result of this job. In addition to running jobs, the `system` microservice also registers
+itself on startup with the `inventory` microservice that keeps track of all instances of the `system` microservice. Finally,
+the `gateway` microservice is a https://microservices.io/patterns/apigateway.html#variation-backends-for-frontends[backend for frontend^] service.
+It communicates with the backend `job` and `inventory` microservices on the caller's behalf.
 
-The reactive application in this guide sends and receives messages between services using an external message broker,
-https://kafka.apache.org/[Apache Kafka^]. Using an external message broker enables asynchronous communications between
-services so that requests are non-blocking and decoupled from responses. You can learn more about reactive Java services
-that use an external message broker to manage communications in the
-https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide. Before
-you go any further, it is highly recommended to go through the basic guide.
+image::reactive-inventory-system.png[Reactive Inventory System,align="center"]
 
-The application in this guide consists of two microservices, `system` and `inventory`. Every 15 seconds, the `system`
-microservice calculates and publishes events that contain its current average system load. The `inventory` microservice
-subscribes to that information so that it can keep an updated list of all the systems and their current system loads. The
-`inventory` microservice also subscribes to a POST request response that queries a specific system property on the `system`
-microservice. The current inventory of systems can be accessed via the `/systems` REST endpoint. You'll create the `system`
-and `inventory` microservices using MicroProfile Reactive Messaging. Please refer to the figure below.
+The microservice that you will modify is the `gateway` service.
+It acts as a gateway to communicate with the backend microservices.
+Whenever a request is made to the `gateway` service to retrieve the jobs,
+the `gateway` service communicates with the `job`
+service to get the completed jobs.
 
-image::reactive-messaging-system-inventory-rest.png[Reactive system inventory,align="center"]
+The implementations of the application and its services are provided for you in the `start/src` directory.
+The application also uses the Apache Kafka and ZooKeeper services to distribute the job results and system status.
 
+== Additional Prerequisites
 
-== Additional prerequisites
+- *Docker*: Docker is a tool that you can use to deploy and run applications with containers. You can think of Docker like a virtual machine that runs various applications. However, unlike a typical virtual machine, you can run these applications simultaneously on a single system and independent of one another.
 
-You need to have Docker installed. For installation instructions, refer to the official
-https://docs.docker.com/get-docker/[Docker documentation^]. You will build and run the microservices in Docker containers.
-An installation of Apache Kafka is provided in another Docker container.
+Install Docker by following the instructions in the https://docs.docker.com/engine/installation[official Docker documentation^].
 
+Learn more about containers on the https://www.docker.com/resources/what-container[official Docker website^]
+
+// =================================================================================================
+// Getting started
+// =================================================================================================
 
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
+== Using the default reactive JAX-RS client
 
-== Creating the system microservice
-
-//file 0
-SystemService.java
+JobClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/system/src/main/java/io/openliberty/guides/system/SystemService.java[]
+include::start/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
-//file 1
-system/microprofile-config.properties
-[source, Text, linenums, role='code_column hide_tags=copyright']
+GatewayJobResource.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/system/src/main/resources/META-INF/microprofile-config.properties[]
+include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
 ----
 
 Navigate to the `start` directory to begin.
 
-The `system` microservice is the producer of the messages that are published to the Kafka messaging system as a stream of
-events. Every 15 seconds, the `system` microservice publishes events that contain its calculation of the average system
-load (its CPU usage) for the last minute. It also processes the specific system property request from the `inventory`
-microservice and publishes it to the Kafka messaging system.
+An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`JobClient` and [hotspot file=1]`GatewayJobResource` which now implement the default JAX-RS reactive client.
+In the client, notice how the [hotspot=getJobsCompletionStage file=0]`getJobs()`, [hotspot=getJobCompletionStage file=0]`getJob()` and [hotspot=createJobCompletionStage file=0]`createJob()` return the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenApplyAsync file=1]`thenApplyAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
 
-[role="code_command hotspot file=0", subs="quotes"]
+
+In the [hotspot file=0]`JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods contain an [hotspot=rxGetJobsCompletionStage hotspot=rxGetJobCompletionStage hotspot=rxCreateJobCompletionStage file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
+
+In the [hotspot file=1]`GatewayJobResource` class, whatever object you want to return is returned in the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method.
+
+Similarly to the synchronous approach, if we successfully get the completed jobs from the job microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs.
+
+
+== Updating the client to use third-party objects
+
+JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^], and can allow for client configurations that are different from the default one.
+
+By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot.
+
+
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`gateway/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=60-64 file=0]`rxjava`, [hotspot=65-69 file=0]`jersey-client`, [hotspot=70-74 file=0]`jersey-rx-client-rxjava` and [hotspot=75-79 file=0]`jersey-rx-client-rxjava2`.
+
+pom.xml
+[source,xml,linenums,role="code_column"]
 ----
-#Create the `SystemService` class.#
-`system/src/main/java/io/openliberty/guides/system/SystemService.java`
-----
-
-The `system` microservice contains a method named [hotspot=sendPropertyDetails file=0]`sendProperty()`. It receives a
-system property name from the `inventory` microservice over the [hotspot=getProperty file=0]`@Incoming("propertyRequest")`
-channel, calculates the requested property on the fly and publishes it back to Kafka over the
-[hotspot=setProperty file=0]`@Outgoing("propertyResponse")` channel. The [hotspot=sendPropertyDetails file=0]`sendProperty()`
-method acts as a processor in this scenario.
-
-The `SystemService` class contains a `Publisher` method that is called [hotspot=sendSystemLoad file=0]`sendSystemLoad()`,
-which calculates and returns the average system load. The [hotspot=publishSystemLoad file=0]`@Outgoing` annotation on the
-[hotspot=sendSystemLoad file=0]`sendSystemLoad()` method indicates that the method publishes its calculation as a message
-on a topic in the Kafka messaging system.
-
-The messages are transported between the service and the Kafka messaging system through the channels called
-[hotspot=systemLoad file=1]`systemLoad` and [hotspot=setProperty file=1]`propertyResponse`.
-
-== Creating the inventory microservice
-
-//file 0
-InventoryResource.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
-----
-include::finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java[]
+include::finish/gateway/pom.xml[tags=**]
 ----
 
-//file 1
-inventory/microprofile-config.properties
-[source, Text, linenums, role='code_column hide_tags=copyright']
-----
-include::finish/inventory/src/main/resources/META-INF/microprofile-config.properties[]
-----
-
-The `inventory` microservice records in its inventory the average system load information and the requested system property,
-that it received from potentially multiple instances of the `system` service.
-
-[role="code_command hotspot file=0", subs="quotes"]
-----
-#Create the `InventoryResource` class.#
-`inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java`
-----
-
-The `inventory` microservice receives the message from the `system` microservice over the
-[hotspot=systemLoad file=0]`@Incoming("systemLoad")` and [hotspot=propertyMessage file=0]`@Incoming("addSystemProperty")`
-channel. The configuration for this channel is defined in the
-[hotspot=systemLoad hotspot=propertyMessage file=1]`microprofile-config.properties` file. The `inventory` microservice
-is also a RESTful service that is served at the [hotspot=inventoryEndPoint file=0]`/inventory` endpoint.
-
-When accessed, there is a RESTful endpoint to the `inventory` microservice that triggers message creation. The `inventory`
-microservice creates a system property request when a property name is sent in a PUT request to the [hotspot=postPath file=0]`/data`
-endpoint. The [hotspot=getSystemProperty file=0]`updateSystemProperty()` method receives a system property name like `os.name`
-from the PUT request and adds it to the [hotspot=flowableEmitter file=0]`propertyNameEmitter`
-[hotspot=flowableEmitterDecl file=0]`FlowableEmitter`. The [hotspot=flowableCreate file=0]`Flowable.create()` method from
-rxJava is used to create a Publisher and an associated emitter. The property name sent to the emitter will be sent to the
-Publisher. The Publisher is returned from the [hotspot=OutgoingPropertyName file=0]`@Outgoing("requestSystemProperty")`
-channel, which is configured in the [hotspot file=1]`microprofile-config.properties`
-[hotspot=setProperty file=1]`requestSystemProperty` stream and MicroProfile Reactive Messaging takes care of assigning the
-Publisher to the channel.
-
-== Configuring the MicroProfile Reactive Messaging connectors for Kafka
-
-//file 0
-system/microprofile-config.properties
-[source, text, linenums, role='code_column']
-----
-include::finish/system/src/main/resources/META-INF/microprofile-config.properties[]
-----
-
-//file 1
-inventory/microprofile-config.properties
-[source, text, linenums, role='code_column']
-----
-include::finish/inventory/src/main/resources/META-INF/microprofile-config.properties[]
-----
-
-The `system` and `inventory` services exchange messages with the external messaging system through a channel. The
-MicroProfile Reactive Messaging Connector API makes it easy to connect each service to the channel. You just need to add
-configuration keys in a properties file for each of the services. These configuration keys define properties such as the
-name of the channel and the topic in the Kafka messaging system. Open Liberty includes the `liberty-kafka` connector for
-sending and receiving messages from Apache Kafka.
-
-The system and inventory microservices each have a MicroProfile Config property file to define the properties of their
-incoming and outgoing streams.
-
-[role="code_command hotspot file=0", subs="quotes"]
-----
-#Create the system/microprofile-config.properties file.#
-`system/src/main/resources/META-INF/microprofile-config.properties`
-----
-
-The `system` microservice uses an outgoing connector to send messages through the [hotspot=systemLoad file=0]`systemLoad`
-and [hotspot=setProperty file=0]`propertyResponse` channel, to the [hotspot=topic1 file=0]`systemLoadTopic` and
-[hotspot=topic3 file=0]`addSystemPropertyTopic` topic, respectively, in the Kafka message broker so that the `inventory`
-microservice can consume the messages. The `SystemLoadSerializer` and `PropertyMessageSerializer` class implements the
-logic for turning a `SystemLoad` and `PropertyMessage` object into JSON and is configured as the
-[hotspot=serializerVal1 hotspot=serializerVal3 file=0]`value.serializer`.
-
-NOTE : If you want the message to be sent to all the `System` microservices then configure the unique `group.id` for all of the instances.
-
-The `inventory` microservice uses a similar [hotspot file=1]`microprofile-config.properties` configuration to define its
-required incoming stream.
+Update the client to accommodate the custom object types that you are trying to return. Also register the type of object that you want inside the client invocation.
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
-#Create the inventory/microprofile-config.properties file.#
-`inventory/src/main/resources/META-INF/microprofile-config.properties`
+#Replace the `JobClient` interface.#
+`gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java`
+----
+JobClient.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
 ----
 
-The `inventory` microservice uses an incoming connector to receive messages through the [hotspot=systemLoad file=1]`systemLoad`
-and [hotspot=propertyMessage file=1]`propertyMessage` channel. The messages were published by the `system` microservice to
-the [hotspot=topic1 file=1]`systemLoadTopic` and [hotspot=topic3 file=1]`addSystemPropertyTopic` in the Kafka message broker.
-The `SystemLoadDeserializer` and `PropertyMessageDeserializer` class implements the logic for turning JSON into a `SystemLoad`
-and `PropertyMessage` object and is configured as the [hotspot=deserializerVal1 hotspot=deserializerVal3 file=1]`value.deserializer`.
+The changes involve changing the return types of the [hotspot=getJobs file=1]`getJobs()`, [hotspot=getJob file=1]`getJob()` and [hotspot=createJob file=1]`createJob()` methods from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a class that is part of ReactiveX and, as will be seen later, is a more flexible data type than the `CompletionStage` interface.
+The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. The invoker depends on the type of object that you wish to return. If you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` object instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+
+Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using `backpressure` and `Flowables`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
+
+
+== Updating the JAX resources
+
+Now that the client methods return the `Observable<T>` class, you must update the resource to accommodate these changes.
+
+[role="code_command hotspot=0", subs="quotes"]
+----
+#Replace the `GatewayJobResource` class.#
+`gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java`
+----
+GatewayJobResource.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
+----
+
+Instead of using `thenApplyAsync()`, observables use the [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()` call. In this case, it is simply saving the data in the temporary [hotspot=getJobsHolder hotspot=getJobHolder hotspot=createJobHolder file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()`. The [hotspot=getJobsAwait hotspot=getJobAwait hotspot=createJobAwait file=0]`countdownLatch.await()` will ensure that the function will only return a value once the required operation is complete. The `CountdownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=getJobsCountDown hotspot=getJobCountDown hotspot=createJobCountDown file=0]`countdownLatch.countdown()` call. This means that the value will only return once the thread that's retrieving the value is complete. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
+
+// =================================================================================================
+// Building the application
+// =================================================================================================
 
 == Building and running the application
 
-Build the `system` and `inventory` microservices using Maven and then run them in Docker containers.
+The `gateway`, `job`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
-Start your Docker environment. Dockerfiles are provided for you to use.
+Start your Docker environment.
 
-To build the application, run the Maven `install` and `package` goals from the command line in the `start` directory:
+To build the application, run the following Maven goals from the command line in the `start` directory.
 
 [role='command']
 ```
@@ -220,19 +178,17 @@ mvn -pl models install
 mvn package
 ```
 
-include::{common-includes}/ol-kernel-docker-pull.adoc[]
-
-Run the following commands to containerize the microservices:
+Run the following commands to build and containerize the application:
 
 [role='command']
 ```
 docker build -t system:1.0-SNAPSHOT system/.
 docker build -t inventory:1.0-SNAPSHOT inventory/.
+docker build -t job:1.0-SNAPSHOT job/.
+docker build -t gateway:1.0-SNAPSHOT gateway/.
 ```
 
-Next, use the provided script to start the application in Docker containers. The script creates a network for the
-containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and the microservices in the
-project. For simplicity, the script starts one instance of the `system` service.
+Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and all of the microservices in the project.
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -240,7 +196,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-./scripts/startContainers.sh
+./scripts/start-app
 ```
 --
 
@@ -248,73 +204,33 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-.\scripts\startContainers.bat
+.\scripts\start-app.bat
 ```
 --
 
-== Testing the application
+The services will take some time to become available.
+You can access the application by making requests to the `gateway` job endpoints.
 
-After the application is up and running, you can access the application by making a GET request to the `/systems` endpoint
-of the `inventory` service. Wait for a minute or two for the services to become available.
+[options="header", role="wrap_table"]
+|===
+|Description |Endpoint |Sample Output
+|Get completed jobs |GET http://localhost:8080/api/jobs[http://localhost:8080/api/jobs^] |`{"count":0,"results":[]}`
+|Create a job |POST \http://localhost:8080/api/jobs |`{"jobId":"661891cb-ad36-4ef4-9bb3-641f973f2964"}`
+|Get a specific job |GET \http://localhost:8080/api/jobs/{jobId} |`{"jobId":"661891cb-ad36-4ef4-9bb3-641f973f2964","result":5}`
+|===
+Before any jobs are created, the output will be simply `{"count":0,"results":[]}`, representing that no jobs have been created.
 
-Go to the http://localhost:9085/inventory/systems[^] URL to access the inventory microservice. You see the CPU `systemLoad`
-property for all the systems:
+You can use `curl -X POST \http://localhost:8080/api/jobs` command if available on the system to create a job. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
 
-[source, role='no_copy']
-----
-{
-   "hostname":"30bec2b63a96",   
-   "systemLoad":1.44
-}
-----
+The completed jobs JSON output has an `averageResult` attribute that is the average sleep time of all the jobs, a count for the number of jobs and the list of the jobs. The JSON output for each job has a job ID and a sleep time as the result for this job.
 
-You can revisit the http://localhost:9085/inventory/systems[^] URL after a while, and you will notice the CPU `systemLoad`
-property for the systems changed.
+Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While the client request is being handled, the thread can handle other work.
 
-You can use a `PUT` request on the `\http://localhost:9085/inventory/data` URL to add the value of a particular system
-property to the set of existing properties.
+== Stopping the application
 
-For example :
+Navigate back to the `start` directory.
 
-The `PUT` request with `os.name` in the request body on `\http://localhost:9085/inventory/data` URL will add the `os.name`
-system property for your system.
-
-Make a `PUT` request to the service by using `curl`:
-
-[role=command]
-```
-curl -X PUT -d "os.name" http://localhost:9085/inventory/data --header "Content-Type:text/plain"
-```
-
-If the `curl` command is unavailable, then use https://www.getpostman.com/[Postman^]. Postman enables you
-to make requests using a graphical interface. To make a request with Postman, enter `\http://localhost:9085/inventory/systems`
-into the URL bar and change the request from `GET` to `PUT`. Go to the `Body` tab and enter the `os.name` value under
-raw category. Click the blue `Send` button to make the request.
-
-You see the following output:
-
-[source, role="no_copy"]
-----
-Request successful for the os.name property
-----
-
-Since the `system` service is available, the request to the service is successful and returns a `200` response code.
-
-You can revisit the http://localhost:9085/inventory/systems[^] URL and see the `os.name` system property value in addition
-to the previous values:
-
-[source, role='no_copy']
-----
-{
-   "hostname":"30bec2b63a96",
-   "os.name":"Linux",
-   "systemLoad":1.44
-}
-----
-
-== Tearing down the environment
-
-Run the following script to stop the application:
+Finally, use the script to stop the application.
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -322,7 +238,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-./scripts/stopContainers.sh
+./scripts/stop-app
 ```
 --
 
@@ -330,12 +246,69 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-.\scripts\stopContainers.bat
+.\scripts\stop-app.bat
 ```
 --
+
+// =================================================================================================
+// Testing
+// =================================================================================================
+
+== Testing the gateway application
+
+A few tests are included for you to test the basic functionality of the `gateway` microservice. If a test failure occurs, then you may have introduced a bug into the code.
+
+[role="code_command hotspot", subs="quotes"]
+----
+#Create the `GatewayJobEndpointIT` class.#
+`gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java`
+----
+
+See the following descriptions of the test cases:
+
+* [hotspot=testCreateJob file=0]`testCreateJob()` verifies that the gateway service communicates with a backend service to create a job.
+
+* [hotspot=testGetJobs file=0]`testGetJobs()` verifies that the gateway service communicates with an upstream service to get all jobs and transforms them appropriately to a `JobListModel`.
+
+GatewayJobEndpointIT.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java[]
+----
+
+
+// =================================================================================================
+// Running the tests
+// =================================================================================================
+
+=== Running the tests
+
+Navigate to the `gateway` directory, then verify that the tests pass using the Maven `verify` goal:
+
+[role='command']
+```
+mvn verify
+```
+
+When the tests succeed, you will see output similar to the following.
+
+[source, role='no_copy']
+----
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
+Running it.io.openliberty.guides.gateway.GatewayJobEndpointIT
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.455 s - in it.io.openliberty.guides.gateway.GatewayJobEndpointIT
+
+Results:
+
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+----
 
 == Great work! You're done!
 
-You just developed a reactive Java application using MicroProfile Reactive Messaging, Open Liberty, and Kakfa.
+You have just modified an application to make HTTP requests using reactive JAX-RS client with Open Liberty and Jersey.
 
 include::{common-includes}/attribution.adoc[subs="attributes"]

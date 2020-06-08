@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.ws.rs.core.GenericType;
@@ -41,7 +43,7 @@ import org.microshed.testing.jupiter.MicroShedTest;
 import org.microshed.testing.kafka.KafkaConsumerClient;
 import org.microshed.testing.kafka.KafkaProducerClient;
 
-import io.openliberty.guides.inventory.InventoryResource;
+import io.openliberty.guides.inventory.InventoryManager;
 import io.openliberty.guides.models.SystemLoad;
 import io.openliberty.guides.models.SystemLoad.SystemLoadSerializer;
 
@@ -51,7 +53,7 @@ import io.openliberty.guides.models.SystemLoad.SystemLoadSerializer;
 public class InventoryServiceIT {
 
     @RESTClient
-    public static InventoryResource inventoryResource;
+    public static InventoryManager inventoryResource;
 
     @KafkaProducerClient(valueSerializer = SystemLoadSerializer.class)
     public static KafkaProducer<String, SystemLoad> producer;
@@ -71,26 +73,18 @@ public class InventoryServiceIT {
         SystemLoad sl = new SystemLoad("localhost", 1.1);
         producer.send(new ProducerRecord<String, SystemLoad>("systemLoadTopic", sl));
         Thread.sleep(5000);
-        Response response = inventoryResource.getSystems();
-        List<Properties> systems =
-                response.readEntity(new GenericType<List<Properties>>() {});
-        Assertions.assertEquals(200, response.getStatus(),
-                "Response should be 200");
+        Map<String,Properties> systems = inventoryResource.getSystems();
         Assertions.assertEquals(systems.size(), 1);
-        for (Properties system : systems) {
-            Assertions.assertEquals(sl.hostname, system.get("hostname"),
-                    "Hostname doesn't match!");
-            BigDecimal systemLoad = (BigDecimal) system.get("systemLoad");
-            Assertions.assertEquals(sl.loadAverage, systemLoad.doubleValue(),
-                    "CPU load doesn't match!");
-        }
+        Assertions.assertEquals(sl.hostname, systems.get("hostname"),
+                "Hostname doesn't match!");
+        Properties systemLoad = systems.get("systemLoad");
+        Assertions.assertEquals(sl.loadAverage, systemLoad,
+                "CPU load doesn't match!");
+        
     }
 
     @Test
     public void testGetProperty() {
-        Response response = inventoryResource.getSystemProperty("os.name");
-        Assertions.assertEquals(200, response.getStatus(),
-                "Response should be 200");
         int recordsProcessed = 0;
         ConsumerRecords<String, String> records = propertyConsumer.poll(Duration.ofMillis(3000));
         System.out.println("Polled " + records.count() + " records from Kafka:");

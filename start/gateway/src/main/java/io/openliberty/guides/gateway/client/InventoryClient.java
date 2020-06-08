@@ -18,8 +18,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.concurrent.CompletionStage;
+
+import rx.Observable;
 
 @Path("/inventory")
 @RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9085")
@@ -28,21 +28,21 @@ public interface InventoryClient {
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getSystems();
+    Observable<SystemLoad> getSystems();
 
     @GET
     @Path("/systems/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getSystem(@PathParam("hostname") String hostname);
+    Observable<SystemLoad> getSystem(@PathParam("hostname") String hostname);
 
     @POST
     @Path("/systems/property")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     @Asynchronous
-    CompletionStage<Response> addProperty(String propertyName);
+    Observable<PropertyMessage> addProperty(String propertyName);
 
     @DELETE
     @Path("/")
-    Response resetSystems();
+    Observable<PropertyMessage> resetSystems();
 }

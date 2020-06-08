@@ -56,7 +56,7 @@ public class GatewayInventoryEndpointIT {
     
     @Test
     public void testAddSystem() {
-    	SystemData s = inventoryResource.getSystem("coconut");
+    	response s = inventoryResource.getSystem("coconut");
         assertEquals("coconut", s.getHostname());
     }
 

@@ -14,6 +14,9 @@ package it.io.openliberty.guides.gateway;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
+import org.bouncycastle.crypto.CryptoServicesRegistrar.Property;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.microshed.testing.SharedContainerConfig;
@@ -22,16 +25,16 @@ import org.microshed.testing.jupiter.MicroShedTest;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
-import io.openliberty.guides.gateway.GatewayInventoryResource;
-import io.openliberty.guides.models.InventoryList;
-import io.openliberty.guides.models.SystemData;
+import io.openliberty.guides.gateway.GatewayResource;
+import io.openliberty.guides.models.SystemLoad;
+import io.openliberty.guides.models.PropertyMessage;
 
 @MicroShedTest
 @SharedContainerConfig(AppContainerConfig.class)
 public class GatewayInventoryEndpointIT {
 
     @RESTClient
-    public static GatewayInventoryResource inventoryResource;
+    public static GatewayResource inventoryResource;
     
     @BeforeAll
     public static void setup() throws InterruptedException {
@@ -55,16 +58,15 @@ public class GatewayInventoryEndpointIT {
     }
     
     @Test
-    public void testAddSystem() {
-    	SystemData s = inventoryResource.getSystem("coconut");
-        assertEquals("coconut", s.getHostname());
+    public void testAddSystem() throws InterruptedException {
+    	SystemLoad s = inventoryResource.getSystem("coconut");
+        assertEquals("coconut", s.hostname);
     }
 
     @Test
-    public void testGetSystems() {
-    	InventoryList systems = inventoryResource.getSystems();
-        assertEquals(1, systems.getTotal());
-        assertEquals(1, systems.getSystems().size());
+    public void testGetSystems() throws InterruptedException {
+        List<SystemLoad> systems = inventoryResource.getSystems();
+        assertEquals(1, systems.size());
     }
 
 }
