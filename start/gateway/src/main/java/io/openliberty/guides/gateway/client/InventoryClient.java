@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 import rx.Observable;
 
 @Path("/inventory")
-@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9080")
+@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9080/openapi/ui/")
 public interface InventoryClient {
 
     @GET
