@@ -18,11 +18,12 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import rx.Observable;
 
 @Path("/inventory")
-@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9085")
+@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9080")
 public interface InventoryClient {
 
     @GET
@@ -44,5 +45,5 @@ public interface InventoryClient {
 
     @DELETE
     @Path("/")
-    Observable<PropertyMessage> resetSystems();
+    Response resetSystems();
 }

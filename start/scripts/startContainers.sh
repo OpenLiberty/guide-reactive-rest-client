@@ -39,13 +39,11 @@ docker run -d \
   --name=inventory \
   --rm \
   inventory:1.0-SNAPSHOT &
-
+  
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
-	-e inventoryClient_mp_rest_url=http://inventory:9080 \
 	--name=gateway \
-	--hostname=gateway \
-	-p 8080:9080 \
+	-p 9080:9080 \
 	--network=$NETWORK \
 	--rm \
 	gateway:1.0-SNAPSHOT

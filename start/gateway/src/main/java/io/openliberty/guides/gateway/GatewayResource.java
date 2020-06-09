@@ -102,19 +102,7 @@ public class GatewayResource {
     @DELETE
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    PropertyMessage resetSystems() {
-        final Holder<PropertyMessage> holder = new Holder<PropertyMessage>();
-        CountDownLatch countdownLatch = new CountDownLatch(1);
-        Observable<PropertyMessage> obs = inventoryClient.resetSystems();
-        obs.subscribe((v) -> {
-            holder.value = v;
-            countdownLatch.countDown();
-        });
-        try {
-            countdownLatch.await();
-        } catch (InterruptedException e) {
-            return new PropertyMessage();
-        }
-        return holder.value;
+    public Response resetSystems() {
+        return inventoryClient.resetSystems();
     }
 }
