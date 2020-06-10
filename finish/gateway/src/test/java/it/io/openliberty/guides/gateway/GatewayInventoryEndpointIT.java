@@ -14,57 +14,79 @@ package it.io.openliberty.guides.gateway;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.BeforeAll;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.junit.jupiter.api.Test;
 import org.microshed.testing.SharedContainerConfig;
 import org.microshed.testing.jaxrs.RESTClient;
 import org.microshed.testing.jupiter.MicroShedTest;
-import org.mockserver.model.HttpRequest;
-import org.mockserver.model.HttpResponse;
 
-import io.openliberty.guides.gateway.GatewayInventoryResource;
-import io.openliberty.guides.models.InventoryList;
-import io.openliberty.guides.models.SystemData;
+
+
+import io.openliberty.guides.gateway.GatewayResource;
+import io.openliberty.guides.models.SystemLoad;
+
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.Duration;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.Assertions;
+
+import org.microshed.testing.kafka.KafkaConsumerClient;
+import org.microshed.testing.kafka.KafkaProducerClient;
+
+
+import io.openliberty.guides.models.SystemLoad.SystemLoadSerializer;
+
 
 @MicroShedTest
 @SharedContainerConfig(AppContainerConfig.class)
 public class GatewayInventoryEndpointIT {
 
     @RESTClient
-    public static GatewayInventoryResource inventoryResource;
-    
-    @BeforeAll
-    public static void setup() throws InterruptedException {
-    	AppContainerConfig.mockClient
-            .when(HttpRequest.request()
-                .withMethod("GET")
-                .withPath("/inventory/systems"))
-            .respond(HttpResponse.response()
-                .withStatusCode(200)
-                .withBody("{ \"systems\": [ { \"hostname\": \"banana\", \"properties\": { \"java.vendor\": \"you\", \"system.busy\": \"false\" } } ], \"total\": 1 }")
-                .withHeader("Content-Type", "application/json"));
+    public static GatewayResource gatewayResource;
 
-    	AppContainerConfig.mockClient
-            .when(HttpRequest.request()
-                .withMethod("GET")
-                .withPath("/inventory/systems/coconut"))
-            .respond(HttpResponse.response()
-                .withStatusCode(200)
-                .withBody("{ \"hostname\": \"coconut\", \"properties\": { \"java.vendor\": \"me\" } }")
-                .withHeader("Content-Type", "application/json"));
-    }
+    @KafkaProducerClient(valueSerializer = SystemLoadSerializer.class)
+    public static KafkaProducer<String, SystemLoad> producer;
+
+    @KafkaConsumerClient(valueDeserializer = StringDeserializer.class, 
+            groupId = "property-name", topics = "requestSystemPropertyTopic", 
+            properties = ConsumerConfig.AUTO_OFFSET_RESET_CONFIG + "=earliest")
+    public static KafkaConsumer<String, String> propertyConsumer;
+
     
     @Test
-    public void testAddSystem() {
-    	response s = inventoryResource.getSystem("coconut");
-        assertEquals("coconut", s.getHostname());
+    public void testCpuUsage() throws InterruptedException {
+        Response response = gatewayResource.getOSProperties();
+        Assertions.assertEquals(200, response.getStatus(),
+                "Response should be 200");
+        
     }
 
     @Test
-    public void testGetSystems() {
-    	InventoryList systems = inventoryResource.getSystems();
-        assertEquals(1, systems.getTotal());
-        assertEquals(1, systems.getSystems().size());
+    public void testGetProperty() {
+        int recordsProcessed = 0;
+        final ConsumerRecords<String, String> records = propertyConsumer.poll(Duration.ofMillis(3000));
+        System.out.println("Polled " + records.count() + " records from Kafka:");
+        for (final ConsumerRecord<String, String> record : records) {
+            final String p = record.value();
+            System.out.println(p);
+            assertEquals("os.name", p);
+            recordsProcessed++;
+        }
+        propertyConsumer.commitAsync();
+        assertTrue(recordsProcessed == 0, "No records processed");
     }
 
 }

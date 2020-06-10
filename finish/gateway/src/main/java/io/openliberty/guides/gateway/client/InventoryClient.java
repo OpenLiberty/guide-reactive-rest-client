@@ -13,36 +13,81 @@
 package io.openliberty.guides.gateway.client;
 
 import io.openliberty.guides.models.*;
-import org.eclipse.microprofile.faulttolerance.Asynchronous;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
+
+import java.util.List;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.CompletionStage;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 
-@Path("/inventory")
-@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9085")
-public interface InventoryClient {
+import rx.Observable;
 
-    @GET
-    @Path("/systems")
-    @Produces(MediaType.APPLICATION_JSON)
-    Response getSystems();
+@RequestScoped
+public class InventoryClient {
 
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
-    Response getSystem(@PathParam("hostname") String hostname);
+    @Inject
+    @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://localhost:9080")
+    private String baseUri;
 
-    @POST
-    @Path("/systems/property")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Asynchronous
-    CompletionStage<Response> addProperty(String propertyName);
+    private WebTarget target;
 
-    @DELETE
-    @Path("/")
-    Response resetSystems();
+    public InventoryClient() {
+        this.target = null;
+    }
+
+    public Observable<List<SystemLoad>> getSystems() {
+        return iBuilder(webTarget())
+            .rx(RxObservableInvoker.class)
+            .get(new GenericType<List<SystemLoad>>() {});
+    }
+
+    public Observable<SystemLoad> getSystem(@PathParam("hostname") String hostname) {
+        return iBuilder(webTarget().path("systems").path(hostname))
+            .rx(RxObservableInvoker.class)
+            .get(new GenericType<SystemLoad>(){});
+    }
+
+    public Observable<Response> addProperty(String propertyName) {
+        return iBuilder(webTarget().path("data"))
+            // tag::rxCreateJob[]
+            .rx(RxObservableInvoker.class)
+            // end::rxCreateJob[]
+            .post(null, new GenericType<Response>(){});
+    }
+
+    public Observable<List<String>> getProperty(@PathParam("propertyName") String propertyName) {
+        return iBuilder(webTarget().path(propertyName))
+            .rx(RxObservableInvoker.class)
+            .get(new GenericType<List<String>>(){});
+    }
+
+    private Invocation.Builder iBuilder(WebTarget target) {
+        return target
+            .request()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+    }
+
+    // tag::webTarget[]
+    private WebTarget webTarget() {
+        if (this.target == null) {
+            this.target = ClientBuilder.newClient().target(baseUri)
+                            .register(RxObservableInvokerProvider.class)
+                            .path("gateway");
+        }
+
+        return this.target;
+    }
 }

@@ -13,7 +13,6 @@
 package io.openliberty.guides.gateway;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -21,8 +20,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.DELETE;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,19 +31,17 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.openliberty.guides.gateway.client.InventoryClient;
 import io.openliberty.guides.models.SystemLoad;
-import io.openliberty.guides.models.PropertyMessage;
 import rx.Observable;
 
 @ApplicationScoped
-@Path("/inventory")
+@Path("/gateway")
 public class GatewayResource {
 
-    @Inject
-    @RestClient
     private InventoryClient inventoryClient;
 
     private class Holder<T> {
-        public volatile T value;
+        @SuppressWarnings("unchecked")
+        public volatile T value = (T) new ArrayList<List<String>>();
     }
 
     @GET
@@ -53,18 +49,21 @@ public class GatewayResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<SystemLoad> getSystems() throws InterruptedException {
         final Holder<List<SystemLoad>> holder = new Holder<List<SystemLoad>>();
-        final CountDownLatch countdownLatch =  new CountDownLatch(1);
-        final Observable<SystemLoad> obs = inventoryClient.getSystems();
+        CountDownLatch countdownLatch = new CountDownLatch(1);
+        Observable<List<SystemLoad>> obs = inventoryClient.getSystems();
         obs.subscribe((v) -> {
-            final List<SystemLoad> li = Arrays.asList(new SystemLoad(v.hostname, v.loadAverage));
-            holder.value = li;
-            countdownLatch.countDown();
+            for (SystemLoad load : v) {
+                holder.value.add(load);
+                countdownLatch.countDown();
+            }
         });
+        
         try {
             countdownLatch.await();
-        } catch (final InterruptedException e) {
-            return new ArrayList<>();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+            
         return holder.value;
     }
 
@@ -79,30 +78,55 @@ public class GatewayResource {
             holder.value = v;
             countdownLatch.countDown();
         });
+
         try {
             countdownLatch.await();
         } catch (InterruptedException e) {
-            return new SystemLoad();
+            e.printStackTrace();
         }
+            
         return holder.value;
     }
 
-    @POST
-    @Path("/systems/properties")
+    
+
+    @PUT
+    @Path("/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addProperties(final ArrayList<String> properties) {
-        for (final String property : properties) {
-            inventoryClient.addProperty(property);
-        }
-
-        return Response.status(Response.Status.OK).build();
+    public Response addProperties(List<String> propertyNames) {
+        for (String propertyName : propertyNames)
+            inventoryClient.addProperty(propertyName);
+        return Response.status(Response.Status.OK)
+               .entity("Request successful for " + propertyNames.size() + " properties\n")
+               .build();
     }
 
-    @DELETE
-    @Path("/")
+    @GET
+    @Path("/data/os")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response resetSystems() {
-        return inventoryClient.resetSystems();
+    public Response getOSProperties() {
+        final String[] osProperties = new String[] {"os.name", "os.arch", "os.version"};
+        final Holder<List<List<String>>> holder = new Holder<List<List<String>>>();
+        CountDownLatch countdownLatch = new CountDownLatch(osProperties.length);
+    
+        for (String osProperty : osProperties) {
+            Observable<List<String>> obs = inventoryClient.getProperty(osProperty);
+            obs.subscribe((v) -> {
+                holder.value.add(v);
+               countdownLatch.countDown();
+            });
+        }
+        
+        // wait all asynchronous inventoryClient.getProperty to be completed
+        try {
+            countdownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+            
+        return Response.status(Response.Status.OK)
+                       .entity(holder.value)
+                       .build();
     }
 }

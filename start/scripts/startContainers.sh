@@ -26,7 +26,6 @@ sleep 15
 
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
-  -p 9083:9083 \
   --network=$NETWORK \
   --name=system \
   --rm \
@@ -34,7 +33,6 @@ docker run -d \
  
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
-  -p 9085:9085 \
   --network=$NETWORK \
   --name=inventory \
   --rm \
@@ -42,6 +40,7 @@ docker run -d \
   
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
+  -e inventoryClient_mp_rest_url=http://inventory:9085 \
 	--name=gateway \
 	-p 9080:9080 \
 	--network=$NETWORK \

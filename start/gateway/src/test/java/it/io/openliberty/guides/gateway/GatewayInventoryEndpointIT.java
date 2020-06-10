@@ -14,8 +14,10 @@ package it.io.openliberty.guides.gateway;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 import org.microshed.testing.SharedContainerConfig;
@@ -39,7 +41,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 
 import org.microshed.testing.kafka.KafkaConsumerClient;
@@ -64,25 +65,14 @@ public class GatewayInventoryEndpointIT {
             properties = ConsumerConfig.AUTO_OFFSET_RESET_CONFIG + "=earliest")
     public static KafkaConsumer<String, String> propertyConsumer;
 
-    @AfterAll
-    public static void cleanup() {
-        gatewayResource.resetSystems();
-    }
-
-    // @Test
-    // public void testCpuUsage() throws InterruptedException {
-    //     final SystemLoad sl = new SystemLoad("localhost", 1.1);
-    //     producer.send(new ProducerRecord<String, SystemLoad>("systemLoadTopic", sl));
-    //     Thread.sleep(5000);
-    //     final List<SystemLoad> systems = gatewayResource.getSystems();
-    //     Assertions.assertEquals(systems.size(), 1);
-    //     Assertions.assertEquals(sl.hostname, systems.get(0).hostname,
-    //             "Hostname doesn't match!");
-    //     final SystemLoad systemLoad = systems.get(0);
-    //     Assertions.assertEquals(sl.loadAverage, systemLoad.loadAverage,
-    //             "CPU load doesn't match!");
+    
+    @Test
+    public void testCpuUsage() throws InterruptedException {
+        Response response = gatewayResource.getOSProperties();
+        Assertions.assertEquals(200, response.getStatus(),
+                "Response should be 200");
         
-    // }
+    }
 
     @Test
     public void testGetProperty() {
