@@ -43,29 +43,26 @@ Reactive programming is an extension to asynchronous programming and a paradigm 
 It also leverages the publisher-subscriber pipeline instead of the more traditional producer-consumer model. The former requires very little configuration and thus has little overhead. This makes this model much simpler to implement, allowing you to have a more elegant solution. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration.
 The usage of reactive streams brings with it tools, among others, to handle data flow, backpressure, thread safety and error propagation. +
 
-== What you'll learn
+== What you will learn
 You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects form third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
 You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. Doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
 
-The application you will be working with is a job manager that maintains an inventory of available systems.
-It consists of four microservices, `gateway`, `job`, `system`, and `inventory`.
-The `job` microservice allows you to dispatch jobs that will be run by the `system` microservice.
-The job is a sleep operation used to represent a slow task that lasts for a duration of 5 to 10 seconds. When it completes, the `system` microservice
-reports the sleep time as the result of this job. In addition to running jobs, the `system` microservice also registers
+The application you will be working with is a manager that maintains an inventory of available systems.
+It consists of three microservices, `gateway`, `system`, and `inventory`. The `system` microservice
+reports its given properties and checks to make sure the application is ready. The `system` microservice also registers
 itself on startup with the `inventory` microservice that keeps track of all instances of the `system` microservice. Finally,
 the `gateway` microservice is a https://microservices.io/patterns/apigateway.html#variation-backends-for-frontends[backend for frontend^] service.
-It communicates with the backend `job` and `inventory` microservices on the caller's behalf.
+It communicates with the backend `inventory` microservice on the caller's behalf.
 
 image::reactive-inventory-system.png[Reactive Inventory System,align="center"]
 
 The microservice that you will modify is the `gateway` service.
 It acts as a gateway to communicate with the backend microservices.
-Whenever a request is made to the `gateway` service to retrieve the jobs,
-the `gateway` service communicates with the `job`
-service to get the completed jobs.
+The `gateway` service communicates with the `inventory` whenever a request 
+is made to the `gateway` service to retrieve the systems.
 
 The implementations of the application and its services are provided for you in the `start/src` directory.
-The application also uses the Apache Kafka and ZooKeeper services to distribute the job results and system status.
+The application also uses the Apache Kafka and ZooKeeper services to distribute the inventory results and system status.
 
 == Additional Prerequisites
 
@@ -84,27 +81,23 @@ include::{common-includes}/gitclone.adoc[]
 
 == Using the default reactive JAX-RS client
 
-JobClient.java
+InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::start/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
+include::start/gateway/src/main/java/io/openliberty/guides/gateway/client/InventoryClient.java[]
 ----
 
-GatewayJobResource.java
+GatewayResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
+include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayResource.java[]
 ----
 
 Navigate to the `start` directory to begin.
 
-An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`JobClient` and [hotspot file=1]`GatewayJobResource` which now implement the default JAX-RS reactive client.
-In the client, notice how the [hotspot=getJobsCompletionStage file=0]`getJobs()`, [hotspot=getJobCompletionStage file=0]`getJob()` and [hotspot=createJobCompletionStage file=0]`createJob()` return the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenApplyAsync file=1]`thenApplyAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
+An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`InventoryClient` and [hotspot file=1]`GatewayResource` which now implement the default JAX-RS reactive client.
+In the client, notice how the [hotspot=getJobsCompletionStage file=0]`addProperty()` and [hotspot=getJobCompletionStage file=0]`getProperty()` return the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenApplyAsync file=1]`thenApplyAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
 
-
-In the [hotspot file=0]`JobClient` class, there are additional methods used to create, and configure the JAX-RS client. Also note how the other methods contain an [hotspot=rxGetJobsCompletionStage hotspot=rxGetJobCompletionStage hotspot=rxCreateJobCompletionStage file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
-
-In the [hotspot file=1]`GatewayJobResource` class, whatever object you want to return is returned in the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method.
 
 Similarly to the synchronous approach, if we successfully get the completed jobs from the job microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs.
 
