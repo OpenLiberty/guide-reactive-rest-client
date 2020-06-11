@@ -36,56 +36,24 @@ import rx.Observable;
 @ApplicationScoped
 @Path("/gateway")
 public class GatewayResource {
-
+    
+    @Inject
+    @RestClient
     private InventoryClient inventoryClient;
 
-    private class Holder<T> {
-        @SuppressWarnings("unchecked")
-        public volatile T value = (T) new ArrayList<List<String>>();
-    }
 
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<SystemLoad> getSystems() throws InterruptedException {
-        final Holder<List<SystemLoad>> holder = new Holder<List<SystemLoad>>();
-        CountDownLatch countdownLatch = new CountDownLatch(1);
-        Observable<List<SystemLoad>> obs = inventoryClient.getSystems();
-        obs.subscribe((v) -> {
-            for (SystemLoad load : v) {
-                holder.value.add(load);
-                countdownLatch.countDown();
-            }
-        });
-        
-        try {
-            countdownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-            
-        return holder.value;
+    public Response getSystems() {
+        return inventoryClient.getSystems();
     }
 
     @GET
     @Path("/systems/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
-    public SystemLoad getSystem(@PathParam("hostname") final String hostname) {
-        final Holder<SystemLoad> holder = new Holder<SystemLoad>();
-        CountDownLatch countdownLatch = new CountDownLatch(1);
-        Observable<SystemLoad> obs = inventoryClient.getSystem(hostname);
-        obs.subscribe((v) -> {
-            holder.value = v;
-            countdownLatch.countDown();
-        });
-
-        try {
-            countdownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-            
-        return holder.value;
+    public Response getSystem(@PathParam("hostname") String hostname) {
+        return inventoryClient.getSystem(hostname);
     }
 
     
@@ -118,6 +86,7 @@ public class GatewayResource {
             });
         }
         
+        // wait all asynchronous inventoryClient.getProperty to be completed
         try {
             countdownLatch.await();
         } catch (InterruptedException e) {
@@ -127,5 +96,10 @@ public class GatewayResource {
         return Response.status(Response.Status.OK)
                        .entity(holder.value)
                        .build();
+    }
+
+    private class Holder<T> {
+        @SuppressWarnings("unchecked")
+        public volatile T value = (T) new ArrayList<List<String>>();
     }
 }

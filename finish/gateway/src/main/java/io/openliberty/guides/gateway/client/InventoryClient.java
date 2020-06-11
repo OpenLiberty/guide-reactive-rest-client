@@ -36,6 +36,7 @@ import javax.ws.rs.core.HttpHeaders;
 import rx.Observable;
 
 @RequestScoped
+@Path("/inventory")
 public class InventoryClient {
 
     @Inject
@@ -48,27 +49,36 @@ public class InventoryClient {
         this.target = null;
     }
 
-    public Observable<List<SystemLoad>> getSystems() {
-        return iBuilder(webTarget())
-            .rx(RxObservableInvoker.class)
-            .get(new GenericType<List<SystemLoad>>() {});
+    @GET
+    @Path("/systems")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSystems() {
+        return Response.status(Response.Status.OK)
+                       .build();
     }
 
-    public Observable<SystemLoad> getSystem(String hostname) {
-        return iBuilder(webTarget().path("systems").path(hostname))
-            .rx(RxObservableInvoker.class)
-            .get(new GenericType<SystemLoad>(){});
+    @GET
+    @Path("/systems/{hostname}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSystem(@PathParam("hostname") String hostname) {
+        return Response.status(Response.Status.OK)
+                       .build();
     }
 
+    @PUT
+    @Path("/data")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Observable<Response> addProperty(String propertyName) {
         return iBuilder(webTarget().path("data"))
-            // tag::rxCreateJob[]
             .rx(RxObservableInvoker.class)
-            // end::rxCreateJob[]
             .post(null, new GenericType<Response>(){});
     }
 
-    public Observable<List<String>> getProperty(String propertyName) {
+    @GET
+    @Path("/data/{propertyName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Observable<List<String>> getProperty(@PathParam("propertyName") String propertyName) {
         return iBuilder(webTarget().path(propertyName))
             .rx(RxObservableInvoker.class)
             .get(new GenericType<List<String>>(){});
