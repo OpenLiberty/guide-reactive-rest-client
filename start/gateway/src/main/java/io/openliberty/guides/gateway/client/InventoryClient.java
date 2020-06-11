@@ -39,7 +39,7 @@ import rx.Observable;
 public class InventoryClient {
 
     @Inject
-    @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://localhost:9080")
+    @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
 
     private WebTarget target;
@@ -54,7 +54,7 @@ public class InventoryClient {
             .get(new GenericType<List<SystemLoad>>() {});
     }
 
-    public Observable<SystemLoad> getSystem(@PathParam("hostname") String hostname) {
+    public Observable<SystemLoad> getSystem(String hostname) {
         return iBuilder(webTarget().path("systems").path(hostname))
             .rx(RxObservableInvoker.class)
             .get(new GenericType<SystemLoad>(){});
@@ -68,7 +68,7 @@ public class InventoryClient {
             .post(null, new GenericType<Response>(){});
     }
 
-    public Observable<List<String>> getProperty(@PathParam("propertyName") String propertyName) {
+    public Observable<List<String>> getProperty(String propertyName) {
         return iBuilder(webTarget().path(propertyName))
             .rx(RxObservableInvoker.class)
             .get(new GenericType<List<String>>(){});

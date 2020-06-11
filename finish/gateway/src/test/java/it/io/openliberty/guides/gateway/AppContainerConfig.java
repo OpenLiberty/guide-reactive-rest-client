@@ -28,8 +28,9 @@ public class AppContainerConfig implements SharedContainerConfiguration {
 
     @Container
     public static ApplicationContainer gateway = new ApplicationContainer()
-                            .withAppContextRoot("")
+                            .withAppContextRoot("/")
                             .withExposedPorts(9080)
+                            .withReadinessPath("/api/gateway")
                             .withNetwork(network)
                             .dependsOn(kafka);
     
