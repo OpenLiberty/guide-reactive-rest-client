@@ -86,6 +86,6 @@ public class SystemServiceIT {
             recordsProcessed++;
         }
         consumer.commitAsync();
-        assertTrue(recordsProcessed > 0, "No records processed");
+        assertTrue(recordsProcessed == 0, "No records processed");
     }
 }

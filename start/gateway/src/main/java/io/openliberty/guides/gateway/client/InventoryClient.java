@@ -53,6 +53,7 @@ public class InventoryClient {
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSystems() {
+        // TODO: research
         return Response.status(Response.Status.OK)
                        .build();
     }
@@ -61,6 +62,7 @@ public class InventoryClient {
     @Path("/systems/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSystem(@PathParam("hostname") String hostname) {
+        // TODO: research
         return Response.status(Response.Status.OK)
                        .build();
     }
@@ -71,7 +73,9 @@ public class InventoryClient {
     @Produces(MediaType.APPLICATION_JSON)
     public Observable<Response> addProperty(String propertyName) {
         return iBuilder(webTarget().path("data"))
+            // tag::rxCreateJob[]
             .rx(RxObservableInvoker.class)
+            // end::rxCreateJob[]
             .post(null, new GenericType<Response>(){});
     }
 
@@ -79,7 +83,7 @@ public class InventoryClient {
     @Path("/data/{propertyName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Observable<List<String>> getProperty(@PathParam("propertyName") String propertyName) {
-        return iBuilder(webTarget().path(propertyName))
+        return iBuilder(webTarget().path("data").path(propertyName))
             .rx(RxObservableInvoker.class)
             .get(new GenericType<List<String>>(){});
     }

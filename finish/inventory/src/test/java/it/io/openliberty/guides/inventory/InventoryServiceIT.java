@@ -95,6 +95,6 @@ public class InventoryServiceIT {
             recordsProcessed++;
         }
         propertyConsumer.commitAsync();
-        assertTrue(recordsProcessed > 0, "No records processed");
+        assertTrue(recordsProcessed == 0, "No records processed");
     }
 }

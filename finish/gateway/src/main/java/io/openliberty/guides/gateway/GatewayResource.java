@@ -86,7 +86,6 @@ public class GatewayResource {
             });
         }
         
-        // wait all asynchronous inventoryClient.getProperty to be completed
         try {
             countdownLatch.await();
         } catch (InterruptedException e) {
