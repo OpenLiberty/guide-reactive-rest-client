@@ -1,4 +1,4 @@
-// Copyright (c) 2019 IBM Corporation and others.
+// Copyright (c) 2019, 2020 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -109,7 +109,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`gateway/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=60-64 file=0]`rxjava`, [hotspot=65-69 file=0]`jersey-client`, [hotspot=70-74 file=0]`jersey-rx-client-rxjava` and [hotspot=75-79 file=0]`jersey-rx-client-rxjava2`.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`gateway/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=67-71 file=0]`rxjava`, [hotspot=72-76 file=0]`jersey-client`, [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2`.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -121,16 +121,16 @@ Update the client to accommodate the custom object types that you are trying to 
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
-#Replace the `JobClient` interface.#
-`gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java`
+#Replace the `InventoryClient` interface.#
+`gateway/src/main/java/io/openliberty/guides/gateway/client/InventoryClient.java`
 ----
-JobClient.java
+InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/JobClient.java[]
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/InventoryClient.java[]
 ----
 
-The changes involve changing the return types of the [hotspot=getJobs file=1]`getJobs()`, [hotspot=getJob file=1]`getJob()` and [hotspot=createJob file=1]`createJob()` methods from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a class that is part of ReactiveX and, as will be seen later, is a more flexible data type than the `CompletionStage` interface.
+The changes involve changing the return types of the [hotspot=addProperty file=1]`addProperty()` and [hotspot=getProperty file=1]`getProperty()` methods from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a class that is part of ReactiveX and, as will be seen later, is a more flexible data type than the `CompletionStage` interface.
 The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. The invoker depends on the type of object that you wish to return. If you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` object instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
 Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using `backpressure` and `Flowables`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
@@ -142,13 +142,13 @@ Now that the client methods return the `Observable<T>` class, you must update th
 
 [role="code_command hotspot=0", subs="quotes"]
 ----
-#Replace the `GatewayJobResource` class.#
-`gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java`
+#Replace the `GatewayResource` class.#
+`gateway/src/main/java/io/openliberty/guides/gateway/GatewayResource.java`
 ----
-GatewayJobResource.java
+GatewayResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayJobResource.java[]
+include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayResource.java[]
 ----
 
 Instead of using `thenApplyAsync()`, observables use the [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()` call. In this case, it is simply saving the data in the temporary [hotspot=getJobsHolder hotspot=getJobHolder hotspot=createJobHolder file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()`. The [hotspot=getJobsAwait hotspot=getJobAwait hotspot=createJobAwait file=0]`countdownLatch.await()` will ensure that the function will only return a value once the required operation is complete. The `CountdownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=getJobsCountDown hotspot=getJobCountDown hotspot=createJobCountDown file=0]`countdownLatch.countdown()` call. This means that the value will only return once the thread that's retrieving the value is complete. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
@@ -159,7 +159,7 @@ Instead of using `thenApplyAsync()`, observables use the [hotspot=getJobsSubscri
 
 == Building and running the application
 
-The `gateway`, `job`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+The `gateway`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
 Start your Docker environment.
 
@@ -177,7 +177,6 @@ Run the following commands to build and containerize the application:
 ```
 docker build -t system:1.0-SNAPSHOT system/.
 docker build -t inventory:1.0-SNAPSHOT inventory/.
-docker build -t job:1.0-SNAPSHOT job/.
 docker build -t gateway:1.0-SNAPSHOT gateway/.
 ```
 
@@ -189,7 +188,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-./scripts/start-app
+./scripts/startContainers.sh
 ```
 --
 
@@ -197,7 +196,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-.\scripts\start-app.bat
+.\scripts\startContainers.bat
 ```
 --
 
@@ -231,7 +230,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-./scripts/stop-app
+./scripts/stopContainers.sh
 ```
 --
 
@@ -239,7 +238,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-.\scripts\stop-app.bat
+.\scripts\stopContainers.bat
 ```
 --
 
@@ -253,8 +252,8 @@ A few tests are included for you to test the basic functionality of the `gateway
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Create the `GatewayJobEndpointIT` class.#
-`gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java`
+#Create the `GatewayServiceIT` class.#
+`gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayServiceIT.java`
 ----
 
 See the following descriptions of the test cases:
@@ -263,10 +262,10 @@ See the following descriptions of the test cases:
 
 * [hotspot=testGetJobs file=0]`testGetJobs()` verifies that the gateway service communicates with an upstream service to get all jobs and transforms them appropriately to a `JobListModel`.
 
-GatewayJobEndpointIT.java
+GatewayServiceIT.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayJobEndpointIT.java[]
+include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayServiceIT.java[]
 ----
 
 
@@ -291,9 +290,7 @@ When the tests succeed, you will see output similar to the following.
  T E S T S
 -------------------------------------------------------
 Running it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
-Running it.io.openliberty.guides.gateway.GatewayJobEndpointIT
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.455 s - in it.io.openliberty.guides.gateway.GatewayJobEndpointIT
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayServiceIT
 
 Results:
 
