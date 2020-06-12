@@ -151,7 +151,7 @@ public class GatewayServiceIT {
 
     // tag::osInfo[]
     @Test
-    @Timeout(value = 5, unit = TimeUnit.SECONDS)
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
     public void testOsInfo() {
         response = gatewayResource.getOSProperties();
         assertEquals(200, response.getStatus());

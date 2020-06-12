@@ -38,7 +38,6 @@ import rx.Observable;
 public class GatewayResource {
     
     @Inject
-    @RestClient
     private InventoryClient inventoryClient;
 
 

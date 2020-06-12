@@ -36,12 +36,15 @@ import javax.ws.rs.core.HttpHeaders;
 import rx.Observable;
 
 @RequestScoped
-@Path("/inventory")
 public class InventoryClient {
 
     @Inject
-    @ConfigProperty(name = "GATEWAY_JOB_BASE_URI", defaultValue = "http://localhost:9085")
+    @ConfigProperty(name = "GATEWAY_BASE_URI", defaultValue = "http://localhost:9090")
     private String baseUri;
+
+    @Inject
+    @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
+    private String inventory_baseUri;
 
     private WebTarget target;
 
@@ -49,28 +52,35 @@ public class InventoryClient {
         this.target = null;
     }
 
-    @GET
-    @Path("/systems")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getSystems() {
-        // TODO: research
-        return Response.status(Response.Status.OK)
-                       .build();
+        try {
+            ClientBuilder.newClient().target(inventory_baseUri)
+                        .path("inventory").path("systems")
+                        .request().get();
+                        
+            return Response.status(Response.Status.OK).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getSystem(@PathParam("hostname") String hostname) {
-        // TODO: research
-        return Response.status(Response.Status.OK)
-                       .build();
+        try {
+            ClientBuilder.newClient().target(inventory_baseUri)
+                        .path("inventory")
+                        .path("systems")
+                        .path(hostname)
+                        .request()
+                        .get();
+                        
+            return Response.status(Response.Status.OK)
+                        .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                        .build();
+        }
     }
 
-    @PUT
-    @Path("/data")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
     public Observable<Response> addProperty(String propertyName) {
         return iBuilder(webTarget().path("data"))
             // tag::rxCreateJob[]
@@ -79,10 +89,7 @@ public class InventoryClient {
             .post(null, new GenericType<Response>(){});
     }
 
-    @GET
-    @Path("/data/{propertyName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Observable<List<String>> getProperty(@PathParam("propertyName") String propertyName) {
+    public Observable<List<String>> getProperty(String propertyName) {
         return iBuilder(webTarget().path("data").path(propertyName))
             .rx(RxObservableInvoker.class)
             .get(new GenericType<List<String>>(){});
