@@ -12,7 +12,9 @@
 // end::copyright[]
 package io.openliberty.guides.inventory;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -22,7 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class InventoryManager {
-
+    
     private Map<String, Properties> systems = Collections.synchronizedMap(new TreeMap<String, Properties>());
 
     public void addSystem(String hostname, Double systemLoad) {
@@ -34,29 +36,11 @@ public class InventoryManager {
         }
     }
 
-    public void addSystem(String hostname, String key, String value) {
-        if (!systems.containsKey(hostname)) {
-            Properties p = new Properties();
-            p.put("hostname", hostname);
-            p.put("key", value);
-            systems.put(hostname, p);
-        }
-    }
-
     public void updateCpuStatus(String hostname, Double systemLoad) {
         Optional<Properties> p = getSystem(hostname);
         if (p.isPresent()) {
             if (p.get().getProperty(hostname) == null && hostname != null)
                 p.get().put("systemLoad", systemLoad);
-        }
-    }
-
-    public void updatePropertyMessage(String hostname, String key, String value) {
-        Optional<Properties> p = getSystem(hostname);
-        if (p.isPresent()) {
-            if (p.get().getProperty(hostname) == null && hostname != null) {
-                p.get().put(key, value);
-            }
         }
     }
 

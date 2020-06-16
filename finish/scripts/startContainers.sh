@@ -27,7 +27,21 @@ sleep 15
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
   --network=$NETWORK \
-  --name=system \
+  --name=system1 \
+  --rm \
+  system:1.0-SNAPSHOT &
+
+docker run -d \
+  -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
+  --network=$NETWORK \
+  --name=system2 \
+  --rm \
+  system:1.0-SNAPSHOT &
+
+docker run -d \
+  -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
+  --network=$NETWORK \
+  --name=system3 \
   --rm \
   system:1.0-SNAPSHOT &
  
@@ -37,14 +51,14 @@ docker run -d \
   --name=inventory \
   --rm \
   inventory:1.0-SNAPSHOT &
-  
+
 docker run -d \
+  -e InventoryClient_mp_rest_url=http://inventory:9085 \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
-  -e inventoryClient_mp_rest_url=http://inventory:9085 \
-	--name=gateway \
-	-p 9080:9080 \
-	--network=$NETWORK \
-	--rm \
-	gateway:1.0-SNAPSHOT
+  -p 9080:9080 \
+  --network=$NETWORK \
+  --name=query \
+  --rm \
+  query:1.0-SNAPSHOT &
   
 wait

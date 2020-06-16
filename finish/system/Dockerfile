@@ -4,16 +4,16 @@ ARG VERSION=1.0
 ARG REVISION=SNAPSHOT
 
 LABEL \
-  org.opencontainers.image.authors="Your Name" \
-  org.opencontainers.image.vendor="IBM" \
+  org.opencontainers.image.authors="My Name" \
+  org.opencontainers.image.vendor="Open Liberty" \
   org.opencontainers.image.url="local" \
-  org.opencontainers.image.source="https://github.com/OpenLiberty/guide-jax-rs-reactive-client" \
+  org.opencontainers.image.source="https://github.com/OpenLiberty/guide-microprofile-reactive-rest-client-async" \
   org.opencontainers.image.version="$VERSION" \
   org.opencontainers.image.revision="$REVISION" \
   vendor="Open Liberty" \
   name="system" \
   version="$VERSION-$REVISION" \
-  summary="The system microservice from the Consuming RESTful services using reactive JAX-RS client guide" \
+  summary="The system microservice from the 'Learn how to use MicroProfile Rest Client to invoke RESTful microservices asynchronously over HTTP' guide" \
   description="This image contains the system microservice running with the Open Liberty runtime."
 
 COPY --chown=1001:0 src/main/liberty/config /config/

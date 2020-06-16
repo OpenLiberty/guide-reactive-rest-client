@@ -30,7 +30,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
     public static ApplicationContainer app = new ApplicationContainer()
                     .withAppContextRoot("/")
                     .withExposedPorts(9085)
-                    .withReadinessPath("/inventory/systems")
+                    .withReadinessPath("/health/ready")
                     .withNetwork(network)
                     .dependsOn(kafka);
 }
