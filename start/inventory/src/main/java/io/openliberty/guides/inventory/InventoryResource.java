@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+
 import io.openliberty.guides.models.SystemLoad;
 
 
@@ -45,29 +47,19 @@ public class InventoryResource {
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystems() {
-        List<String> systems = manager.getSystems();
-        return Response
-                .status(Response.Status.OK)
-                .entity(systems)
-                .build();
+    public List<String> getSystems() {
+        return manager.getSystems();
     }
 
     @GET
     @Path("/systems/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystem(@PathParam("hostname") String hostname) {
+    public Properties getSystem(@PathParam("hostname") String hostname) {
         Optional<Properties> system = manager.getSystem(hostname);
         if (system.isPresent()) {
-            return Response
-                    .status(Response.Status.OK)
-                    .entity(system)
-                    .build();
+            return system.get();
         }
-        return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity("hostname does not exist.")
-                .build();
+        return null;
     }
 
     @DELETE

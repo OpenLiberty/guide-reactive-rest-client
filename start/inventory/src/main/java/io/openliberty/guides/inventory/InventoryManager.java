@@ -14,6 +14,7 @@ package io.openliberty.guides.inventory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -48,7 +49,7 @@ public class InventoryManager {
         return Optional.ofNullable(p);
     }
 
-    public ArrayList<String> getSystems() {
+    public List<String> getSystems() {
         return new ArrayList<String>(systems.keySet());
     }
 

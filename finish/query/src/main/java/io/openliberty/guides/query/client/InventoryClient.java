@@ -21,6 +21,7 @@ import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -48,18 +49,19 @@ public class InventoryClient {
         this.target = null;
     }
 
-    public Observable<List<String>> getSystems() {
-        return iBuilder(webTarget())
-            .rx(RxObservableInvoker.class)
-            .get(new GenericType<List<String>>(){});
+    public List<String> getSystems() {
+        return iBuilder(ClientBuilder
+                .newClient()
+                .target(baseUri)
+                .path("/inventory/systems")).get().readEntity(List.class);
     }
 
-    public Observable<Response> getSystem(String hostname) {
+    public Observable<Properties> getSystem(String hostname) {
         return iBuilder(webTarget().path(hostname))
             .rx(RxObservableInvoker.class)
-            .get(new GenericType<Response>(){});
+            .get(new GenericType<Properties>(){});
     }
-
+    
     private Invocation.Builder iBuilder(WebTarget target) {
         return target
             .request()
@@ -68,8 +70,6 @@ public class InventoryClient {
 
     // tag::webTarget[]
     private WebTarget webTarget() {
-        System.out.println("baseUri:");
-        System.out.println(baseUri);
         if (this.target == null) {
             this.target = ClientBuilder
                 .newClient()

@@ -12,6 +12,8 @@
 // end::copyright[]
 package io.openliberty.guides.query;
 
+import java.math.BigDecimal;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import io.openliberty.guides.query.client.InventoryClient;
+import io.openliberty.guides.query.client.*;
 import io.openliberty.guides.models.SystemLoad;
 import rx.Observable;
 
@@ -44,57 +46,27 @@ public class QueryResource {
     private InventoryClient inventoryClient;
 
     private List<String> getSystems() {
-        System.out.println("2");
-        final Holder<List<String>> holder = new Holder<List<String>>();
-        inventoryClient.getSystems()
-                       .subscribe(v -> {
-                           System.out.println("9");
-                           System.out.println(v);
-                           for (String host : v) {
-                            holder.value.add(host);   
-                           }
-                       }); 
-        System.out.println(holder.value);
-        return holder.value;
+        List<String> obs = inventoryClient.getSystems();
+        System.out.println(obs);
+        return obs;
     }
 
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response systemLoad() {
-        System.out.println("1");
+    public Map<String, Properties> systemLoad() {
         List<String> systems = getSystems();
-        System.out.println(systems);
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
+        final Holder systemLoads = new Holder();
 
-        final Holder<Map<String, Properties>> systemLoads = new Holder<Map<String, Properties>>();
-        systemLoads.value = new ConcurrentHashMap<String, Properties>();
-        System.out.println("3");
         for (String system : systems) {
-            System.out.println(system);
             inventoryClient.getSystem(system)
-                           .subscribe(r -> {
-                                Properties p = r.readEntity(Properties.class);
-                                double load = Double.parseDouble(p.getProperty("systemLoad"));
-                                if (systemLoads.value.containsKey("highest")) {
-                                    double highest = Double.parseDouble(
-                                        systemLoads.value.get("highest").getProperty("systemLoad"));
-                                    if (load > highest) {
-                                        systemLoads.value.put("highest", p);
-                                    }
-                                } else {
-                                    systemLoads.value.put("highest", p);
+                           .subscribe(p -> {
+                                if (p != null) {
+                                    systemLoads.updateHighest(p);
+                                    systemLoads.updateLowest(p);
+                                    remainingSystems.countDown();
                                 }
-                                if (systemLoads.value.containsKey("lowest")) {
-                                    double lowest = Double.parseDouble(
-                                        systemLoads.value.get("lowest").getProperty("systemLoad"));
-                                    if (load < lowest) {
-                                        systemLoads.value.put("lowest", p);
-                                    }
-                                } else {
-                                    systemLoads.value.put("lowest", p);
-                                }
-                                remainingSystems.countDown();
                            });
         }
 
@@ -104,13 +76,50 @@ public class QueryResource {
             e.printStackTrace();
         }
 
-        return Response.status(Response.Status.OK)
-                       .entity(systemLoads.value)
-                       .build();
+        return systemLoads.values;
     }
 
-    private class Holder<T> {
+    private class Holder2<T> {
         @SuppressWarnings("unchecked")
         public volatile T value;
+    }
+
+    private class Holder {
+        @SuppressWarnings("unchecked")
+        // tag::volatile
+        public volatile Map<String, Properties> values;
+        // end::volatile
+
+        public Holder() {
+            // tag::concurrentHashMap
+            this.values = new ConcurrentHashMap<String, Properties>();
+            // end::concurrentHashMap
+            
+            // Initialize highest and lowest values
+            this.values.put("highest", new Properties());
+            this.values.put("lowest", new Properties());
+            this.values.get("highest").put("systemLoad", new BigDecimal(Double.MIN_VALUE));
+            this.values.get("lowest").put("systemLoad", new BigDecimal(Double.MAX_VALUE));
+        }
+
+        public void updateHighest(Properties p) {
+            BigDecimal load = (BigDecimal) p.get("systemLoad");
+            BigDecimal highest = (BigDecimal) this.values
+                                                  .get("highest")
+                                                  .get("systemLoad");
+            if (load.compareTo(highest) > 0) {
+                this.values.put("highest", p);
+            }
+        }
+
+        public void updateLowest(Properties p) {
+            BigDecimal load = (BigDecimal) p.get("systemLoad");
+            BigDecimal lowest = (BigDecimal) this.values
+                                                 .get("lowest")
+                                                 .get("systemLoad");
+            if (load.compareTo(lowest) < 0) {
+                this.values.put("lowest", p);
+            }
+        }
     }
 }

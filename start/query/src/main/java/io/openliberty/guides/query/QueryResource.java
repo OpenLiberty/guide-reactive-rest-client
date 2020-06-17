@@ -12,20 +12,19 @@
 // end::copyright[]
 package io.openliberty.guides.query;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+// tag::concurrentHashMap
 import java.util.concurrent.ConcurrentHashMap;
+// end::concurrentHashMap
 import java.util.concurrent.CountDownLatch;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -42,92 +41,33 @@ public class QueryResource {
     @RestClient
     private InventoryClient inventoryClient;
 
-    @GET
-    @Path("/systems")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystems() {
-        return inventoryClient.getSystems();
-    }
-
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystem(@PathParam("hostname") String hostname) {
-        final Holder<Response> holder = new Holder<Response>();
-        inventoryClient.getSystem(hostname)
-                       // tag::thenApplyAsync[]
-                       .thenAcceptAsync(r -> {
-                           holder.value = r;
-                       })
-                       // end::thenApplyAsync[]
-                       // tag::exceptionally[]
-                       .exceptionally(ex -> {
-                           holder.value = Response.status(Response.Status.NOT_FOUND)
-                                              .build();
-                           return null;
-                       });
-                       // end::exceptionally[]
-        return holder.value;
-    }
-
-    @PUT
-    @Path("/data")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response addProperties(List<String> propertyNames) {
-        for (String propertyName : propertyNames)
-            inventoryClient.addProperty(propertyName);
-        return Response.status(Response.Status.OK)
-               .entity("Request successful for " + propertyNames.size() + " properties\n")
-               .build();
-    }
-
+    // tag::systemLoad[]
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response systemLoad() {
-        List<String> systems = inventoryClient.getSystems().readEntity(List.class);
+    public Map<String, Properties> systemLoad() {
+        List<String> systems = inventoryClient.getSystems();
         // tag::countdown[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
         // end::countdown[]
-        final Holder<Map<String, Properties>> systemLoads = new Holder<Map<String, Properties>>();
-        systemLoads.value = new ConcurrentHashMap<String, Properties>();
+        final Holder systemLoads = new Holder();
 
         for (String system : systems) {
             inventoryClient.getSystem(system)
-                           // tag::thenApplyAsync[]
-                           .thenAcceptAsync(r -> {
-                                Properties p = r.readEntity(Properties.class);
-                                double load = Double.parseDouble(p.getProperty("systemLoad"));
-                                if (systemLoads.value.containsKey("highest")) {
-                                    double highest = Double.parseDouble(
-                                        systemLoads.value
-                                                   .get("highest")
-                                                   .getProperty("systemLoad"));
-                                    if (load > highest) {
-                                        systemLoads.value.put("highest", p);
-                                    }
-                                } else {
-                                    systemLoads.value.put("highest", p);
+                           // tag::thenAcceptAsync[]
+                           .thenAcceptAsync(p -> {
+                                if (p != null) {
+                                    systemLoads.updateHighest(p);
+                                    systemLoads.updateLowest(p);
+                                    // tag::countdown[]
+                                    remainingSystems.countDown();
+                                    // end::countdown[]
                                 }
-                                if (systemLoads.value.containsKey("lowest")) {
-                                    double lowest = Double.parseDouble(
-                                        systemLoads.value
-                                                   .get("lowest")
-                                                   .getProperty("systemLoad"));
-                                    if (load < lowest) {
-                                        systemLoads.value.put("lowest", p);
-                                    }
-                                } else {
-                                    systemLoads.value.put("lowest", p);
-                                }
-                                // tag::countdown[]
-                                remainingSystems.countDown();
-                                // end::countdown[]
                            })
-                           // end::thenApplyAsync[]
+                           // end::thenAcceptAsync[]
                            // tag::exceptionally[]
                            .exceptionally(ex -> {
+                                System.out.println(ex);
                                 // tag::countdown[]
                                 remainingSystems.countDown();
                                 // end::countdown[]
@@ -138,20 +78,53 @@ public class QueryResource {
 
         // Wait for all remaining systems to be checked
         try {
+            // tag::await[]
             remainingSystems.await();
+            // end::await[]
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        return Response.status(Response.Status.OK)
-                       .entity(systemLoads.value)
-                       .build();
+        return systemLoads.values;
     }
+    // end::systemLoad[]
 
-    // tag::holder[]
-    private class Holder<T> {
+    private class Holder {
         @SuppressWarnings("unchecked")
-        public volatile T value;
+        // tag::volatile
+        public volatile Map<String, Properties> values;
+        // end::volatile
+
+        public Holder() {
+            // tag::concurrentHashMap
+            this.values = new ConcurrentHashMap<String, Properties>();
+            // end::concurrentHashMap
+            
+            // Initialize highest and lowest values
+            this.values.put("highest", new Properties());
+            this.values.put("lowest", new Properties());
+            this.values.get("highest").put("systemLoad", new BigDecimal(Double.MIN_VALUE));
+            this.values.get("lowest").put("systemLoad", new BigDecimal(Double.MAX_VALUE));
+        }
+
+        public void updateHighest(Properties p) {
+            BigDecimal load = (BigDecimal) p.get("systemLoad");
+            BigDecimal highest = (BigDecimal) this.values
+                                                  .get("highest")
+                                                  .get("systemLoad");
+            if (load.compareTo(highest) > 0) {
+                this.values.put("highest", p);
+            }
+        }
+
+        public void updateLowest(Properties p) {
+            BigDecimal load = (BigDecimal) p.get("systemLoad");
+            BigDecimal lowest = (BigDecimal) this.values
+                                                 .get("lowest")
+                                                 .get("systemLoad");
+            if (load.compareTo(lowest) < 0) {
+                this.values.put("lowest", p);
+            }
+        }
     }
-    // end::holder[]
 }

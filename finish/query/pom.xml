@@ -67,8 +67,6 @@
             <version>2.4.0</version>
         </dependency>
         <!-- end::kafka[] -->
-
-        <!-- Reactive extensions support -->
         <!-- tag::rxjava[] -->
         <dependency>
             <groupId>io.reactivex.rxjava3</groupId>
@@ -76,7 +74,7 @@
             <version>3.0.0</version>
         </dependency>
         <!-- end::rxjava[] -->
-         <dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>2.27</version>
