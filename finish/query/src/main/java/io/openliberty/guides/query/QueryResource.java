@@ -45,17 +45,11 @@ public class QueryResource {
     @Inject
     private InventoryClient inventoryClient;
 
-    private List<String> getSystems() {
-        List<String> obs = inventoryClient.getSystems();
-        System.out.println(obs);
-        return obs;
-    }
-
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Properties> systemLoad() {
-        List<String> systems = getSystems();
+        List<String> systems = inventoryClient.getSystems();
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
         final Holder systemLoads = new Holder();
 
