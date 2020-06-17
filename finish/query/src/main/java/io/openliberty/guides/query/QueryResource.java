@@ -33,20 +33,26 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.openliberty.guides.query.client.InventoryClient;
+import io.openliberty.guides.models.SystemLoad;
+import rx.Observable;
 
 @ApplicationScoped
 @Path("/query")
 public class QueryResource {
     
     @Inject
-    @RestClient
     private InventoryClient inventoryClient;
 
     @GET
     @Path("/systems")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSystems() {
-        return inventoryClient.getSystems();
+        final Holder<Response> holder = new Holder<Response>();
+        inventoryClient.getSystems()
+                       .subscribe(v -> {
+                           holder.value = v;
+                       }); 
+        return holder.value;
     }
 
     @GET
@@ -55,55 +61,30 @@ public class QueryResource {
     public Response getSystem(@PathParam("hostname") String hostname) {
         final Holder<Response> holder = new Holder<Response>();
         inventoryClient.getSystem(hostname)
-                       // tag::thenApplyAsync[]
-                       .thenAcceptAsync(r -> {
-                           holder.value = r;
-                       })
-                       // end::thenApplyAsync[]
-                       // tag::exceptionally[]
-                       .exceptionally(ex -> {
-                           holder.value = Response.status(Response.Status.NOT_FOUND)
-                                              .build();
-                           return null;
-                       });
-                       // end::exceptionally[]
+                       .subscribe(v -> {
+                           holder.value = v;
+                       }); 
         return holder.value;
-    }
-
-    @PUT
-    @Path("/data")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response addProperties(List<String> propertyNames) {
-        for (String propertyName : propertyNames)
-            inventoryClient.addProperty(propertyName);
-        return Response.status(Response.Status.OK)
-               .entity("Request successful for " + propertyNames.size() + " properties\n")
-               .build();
     }
 
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     public Response systemLoad() {
-        List<String> systems = inventoryClient.getSystems().readEntity(List.class);
-        // tag::countdown[]
+        List<String> systems = getSystems().readEntity(List.class);
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
-        // end::countdown[]
+
         final Holder<Map<String, Properties>> systemLoads = new Holder<Map<String, Properties>>();
         systemLoads.value = new ConcurrentHashMap<String, Properties>();
 
         for (String system : systems) {
             inventoryClient.getSystem(system)
-                           // tag::thenApplyAsync[]
-                           .thenAcceptAsync(r -> {
+                           .subscribe(r -> {
                                 Properties p = r.readEntity(Properties.class);
                                 double load = Double.parseDouble(p.getProperty("systemLoad"));
                                 if (systemLoads.value.containsKey("highest")) {
                                     double highest = Double.parseDouble(
-                                        systemLoads.value
-                                                   .get("highest")
-                                                   .getProperty("systemLoad"));
+                                        systemLoads.value.get("highest").getProperty("systemLoad"));
                                     if (load > highest) {
                                         systemLoads.value.put("highest", p);
                                     }
@@ -112,31 +93,17 @@ public class QueryResource {
                                 }
                                 if (systemLoads.value.containsKey("lowest")) {
                                     double lowest = Double.parseDouble(
-                                        systemLoads.value
-                                                   .get("lowest")
-                                                   .getProperty("systemLoad"));
+                                        systemLoads.value.get("lowest").getProperty("systemLoad"));
                                     if (load < lowest) {
                                         systemLoads.value.put("lowest", p);
                                     }
                                 } else {
                                     systemLoads.value.put("lowest", p);
                                 }
-                                // tag::countdown[]
                                 remainingSystems.countDown();
-                                // end::countdown[]
-                           })
-                           // end::thenApplyAsync[]
-                           // tag::exceptionally[]
-                           .exceptionally(ex -> {
-                                // tag::countdown[]
-                                remainingSystems.countDown();
-                                // end::countdown[]
-                                return null;
                            });
-                           // end::exceptionally[]
         }
 
-        // Wait for all remaining systems to be checked
         try {
             remainingSystems.await();
         } catch (InterruptedException e) {
@@ -148,10 +115,8 @@ public class QueryResource {
                        .build();
     }
 
-    // tag::holder[]
     private class Holder<T> {
         @SuppressWarnings("unchecked")
         public volatile T value;
     }
-    // end::holder[]
 }

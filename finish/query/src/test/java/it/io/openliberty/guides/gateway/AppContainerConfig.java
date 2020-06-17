@@ -25,36 +25,5 @@ import org.testcontainers.junit.jupiter.Container;
 import io.openliberty.guides.query.client.InventoryClient;
 
 public class AppContainerConfig implements SharedContainerConfiguration {
-
-    private static Network network = Network.newNetwork();
-
-    @Container
-    public static MockServerContainer mockServer = new MockServerContainer("5.10.0")
-                    .withNetworkAliases("mock-server")
-                    .withNetwork(network);
-
-    public static MockServerClient mockClient;
-
-    @Container
-    public static KafkaContainer kafka = new KafkaContainer()
-        .withNetwork(network);
-    
-    @Container
-    public static ApplicationContainer gateway = new ApplicationContainer()
-                    .withAppContextRoot("/")
-                    .withExposedPorts(9080)
-                    .withReadinessPath("/health/ready")
-                    .withNetwork(network)
-                    .dependsOn(kafka)
-                    .withMpRestClient(InventoryClient.class, "http://mock-server:" + MockServerContainer.PORT);
-    
-    @Override
-    public void startContainers() {
-        mockServer.start();
-        mockClient = new MockServerClient(
-                mockServer.getContainerIpAddress(),
-                mockServer.getServerPort());
-        gateway.start();
-    }
                 
 }

@@ -12,42 +12,71 @@
 // end::copyright[]
 package io.openliberty.guides.query.client;
 
-import java.util.List;
-import java.util.concurrent.CompletionStage;
+import io.openliberty.guides.models.*;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.eclipse.microprofile.faulttolerance.Asynchronous;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@Path("/inventory")
-@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9085")
-public interface InventoryClient extends AutoCloseable {
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
 
-    @GET
-    @Path("/systems")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystems();
+import java.util.List;
 
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Asynchronous
-    public CompletionStage<Response> getSystem(@PathParam("hostname") String hostname);
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 
-    // tag::addProperty[]
-    @PUT
-    @Path("/data")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Asynchronous
-    public CompletionStage<Response> addProperty(String propertyName);
-    // end:addProperty[]
+import rx.Observable;
+
+@RequestScoped
+public class InventoryClient {
+
+    @Inject
+    @ConfigProperty(name = "QUERY_BASE_URI", defaultValue = "http://localhost:9085")
+    private String baseUri;
+
+    private WebTarget target;
+
+    public InventoryClient() {
+        this.target = null;
+    }
+
+    public Observable<Response> getSystems() {
+        return iBuilder(webTarget())
+            .rx(RxObservableInvoker.class)
+            .get(new GenericType<Response>(){});
+    }
+
+    public Observable<Response> getSystem(String hostname) {
+        return iBuilder(webTarget().path(hostname))
+            .rx(RxObservableInvoker.class)
+            .get(new GenericType<Response>(){});
+    }
+
+    private Invocation.Builder iBuilder(WebTarget target) {
+        return target
+            .request()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+    }
+
+    // tag::webTarget[]
+    private WebTarget webTarget() {
+        if (this.target == null) {
+            this.target = ClientBuilder
+                .newClient()
+                .target(baseUri)
+                .register(RxObservableInvokerProvider.class)
+                .path("/inventory/systems");
+        }
+
+        return this.target;
+    }
+
 }
