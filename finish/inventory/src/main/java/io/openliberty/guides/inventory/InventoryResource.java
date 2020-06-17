@@ -66,7 +66,8 @@ public class InventoryResource {
         }
         return Response
                 .status(Response.Status.NOT_FOUND)
-                .entity("hostname does not exist.")
+                .entity("{ \"error\" : \"Unknown hostname or the system service " 
+                + "may not be running on " + hostname + "\" }")
                 .build();
     }
 

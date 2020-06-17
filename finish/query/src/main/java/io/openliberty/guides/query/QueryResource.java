@@ -48,6 +48,8 @@ public class QueryResource {
         final Holder<List<String>> holder = new Holder<List<String>>();
         inventoryClient.getSystems()
                        .subscribe(v -> {
+                           System.out.println("9");
+                           System.out.println(v);
                            for (String host : v) {
                             holder.value.add(host);   
                            }

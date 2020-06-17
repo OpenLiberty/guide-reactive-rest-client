@@ -68,6 +68,8 @@ public class InventoryClient {
 
     // tag::webTarget[]
     private WebTarget webTarget() {
+        System.out.println("baseUri:");
+        System.out.println(baseUri);
         if (this.target == null) {
             this.target = ClientBuilder
                 .newClient()
