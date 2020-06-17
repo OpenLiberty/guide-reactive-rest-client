@@ -48,10 +48,10 @@ public class InventoryClient {
         this.target = null;
     }
 
-    public Observable<Response> getSystems() {
+    public Observable<List<String>> getSystems() {
         return iBuilder(webTarget())
             .rx(RxObservableInvoker.class)
-            .get(new GenericType<Response>(){});
+            .get(new GenericType<List<String>>(){});
     }
 
     public Observable<Response> getSystem(String hostname) {

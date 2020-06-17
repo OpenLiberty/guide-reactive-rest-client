@@ -43,27 +43,16 @@ public class QueryResource {
     @Inject
     private InventoryClient inventoryClient;
 
-    @GET
-    @Path("/systems")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystems() {
-        final Holder<Response> holder = new Holder<Response>();
+    private List<String> getSystems() {
+        System.out.println("2");
+        final Holder<List<String>> holder = new Holder<List<String>>();
         inventoryClient.getSystems()
                        .subscribe(v -> {
-                           holder.value = v;
+                           for (String host : v) {
+                            holder.value.add(host);   
+                           }
                        }); 
-        return holder.value;
-    }
-
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getSystem(@PathParam("hostname") String hostname) {
-        final Holder<Response> holder = new Holder<Response>();
-        inventoryClient.getSystem(hostname)
-                       .subscribe(v -> {
-                           holder.value = v;
-                       }); 
+        System.out.println(holder.value);
         return holder.value;
     }
 
@@ -71,13 +60,16 @@ public class QueryResource {
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     public Response systemLoad() {
-        List<String> systems = getSystems().readEntity(List.class);
+        System.out.println("1");
+        List<String> systems = getSystems();
+        System.out.println(systems);
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
 
         final Holder<Map<String, Properties>> systemLoads = new Holder<Map<String, Properties>>();
         systemLoads.value = new ConcurrentHashMap<String, Properties>();
-
+        System.out.println("3");
         for (String system : systems) {
+            System.out.println(system);
             inventoryClient.getSystem(system)
                            .subscribe(r -> {
                                 Properties p = r.readEntity(Properties.class);

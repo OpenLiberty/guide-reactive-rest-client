@@ -47,6 +47,7 @@ docker run -d \
  
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
+  -p 9085:9085 \
   --network=$NETWORK \
   --name=inventory \
   --rm \
@@ -54,7 +55,7 @@ docker run -d \
 
 docker run -d \
   -e MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS=$KAFKA_SERVER \
-  -e QUERY_BASE_URI=http://inventory:9085 \
+  -e QUERY_BASE_URI=http://localhost:9085 \
   -p 9080:9080 \
   --network=$NETWORK \
   --name=query \
