@@ -96,7 +96,7 @@ include::start/query/src/main/java/io/openliberty/guides/query/QueryResource.jav
 Navigate to the `start` directory to begin.
 
 An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`InventoryClient` and [hotspot file=1]`QueryResource` which now implement the default JAX-RS reactive client.
-In the client, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thencceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
+In the client, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
 
 In the `QueryResource` class, whatever object you want to return is returned in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method.
 
@@ -110,7 +110,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=rxjava file=0]`rxjava`, [hotspot=77-81 file=0]`jersey-client`, [hotspot=82-86 file=0]`jersey-rx-client-rxjava` and [hotspot=87-91 file=0]`jersey-rx-client-rxjava2`.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=69-72 file=0]`rxjava`, [hotspot=73-77 file=0]`jersey-client`, [hotspot=78-82 file=0]`jersey-rx-client-rxjava` and [hotspot=83-87 file=0]`jersey-rx-client-rxjava2`.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -229,7 +229,8 @@ You can access the application by making requests to the `query` systemload endp
 
 You will see an output similar to the one below:
 
-`
+[source, role='no_copy']
+----
 { 
     "highest": {
         "hostname":"30bec2b63a96",       
@@ -240,11 +241,11 @@ You will see an output similar to the one below:
         ”systemLoad": 0.1
     }
 }
-`
+----
 
 You can use `curl -X GET \http://localhost:9080/query/systemLoad` command if available on the system, to get the system loads. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
 
-The JSON output has a `highest` attribute that represents the system with the highest load. Similarly, the 'lowest' attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
+The JSON output has a `highest` attribute that represents the system with the highest load. Similarly, the `lowest` attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
 
 Switching to an asynchronous programming model has freed up the thread handling your request to `/query/systemLoad`. While the client request is being handled, the thread can handle other work.
 
@@ -288,7 +289,7 @@ A few tests are included for you to test the basic functionality of the `gateway
 
 See the following descriptions of the test cases:
 
-* [hotspot=testCreateJob file=0]`testLoads()` verifies that the query service returns the correct systems to represent the `highest` and `lowest` attributes.
+* [hotspot=testLoads file=0]`testLoads()` verifies that the query service returns the correct systems to represent the `highest` and `lowest` attributes.
 
 QueryServiceIT.java
 [source, Java, linenums, role='code_column hide_tags=copyright']

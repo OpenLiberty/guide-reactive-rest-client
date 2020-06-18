@@ -18,11 +18,10 @@ mvn -pl query verify
 
 sleep 180
 
-docker logs system
 docker logs inventory
 docker logs query
 
-systemCPULoad="$(curl --write-out "%{http_code}" --silent --output /dev/null "http://localhost:9080/api/gateway/systems")"
+systemCPULoad="$(curl --write-out "%{http_code}" --silent --output /dev/null "http://localhost:9080/query/systemLoad")"
 
 if [ "$systemCPULoad" == "200" ]
 then
