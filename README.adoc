@@ -48,20 +48,20 @@ You will learn how the default reactive JAX-RS client accesses remote RESTful se
 You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. Doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
 
 The application you will be working with is a manager that maintains an inventory of available systems.
-It consists of three microservices, `gateway`, `system`, and `inventory`. The `system` microservice
+It consists of three microservices, `system`, `inventory`, and `query`. The `system` microservice
 reports its given properties and checks to make sure the application is ready. The `system` microservice also registers
 itself on startup with the `inventory` microservice that keeps track of all instances of the `system` microservice. Finally,
-the `gateway` microservice is a https://microservices.io/patterns/apigateway.html#variation-backends-for-frontends[backend for frontend^] service.
+the `query` microservice is a https://microservices.io/patterns/apigateway.html#variation-backends-for-frontends[backend for frontend^] service.
 It communicates with the backend `inventory` microservice on the caller's behalf.
 
-image::reactive-inventory-system.png[Reactive Inventory System,align="center"]
+image::QueryService.png[Reactive Query Service,align="center"]
 
-The microservice that you will modify is the `gateway` service.
+The microservice that you will modify is the `query` service.
 It acts as a gateway to communicate with the backend microservices.
-The `gateway` service communicates with the `inventory` whenever a request 
-is made to the `gateway` service to retrieve the systems.
+The `query` service communicates with the `inventory` whenever a request 
+is made to retrieve the systems.
 
-The implementations of the application and its services are provided for you in the `start/src` directory.
+The implementations of the application and its services are provided for you in the `start` directory.
 The application also uses the Apache Kafka and ZooKeeper services to distribute the inventory results and system status.
 
 == Additional Prerequisites
@@ -84,22 +84,23 @@ include::{common-includes}/gitclone.adoc[]
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::start/gateway/src/main/java/io/openliberty/guides/gateway/client/InventoryClient.java[]
+include::start/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-GatewayResource.java
+QueryResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::start/gateway/src/main/java/io/openliberty/guides/gateway/GatewayResource.java[]
+include::start/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
 Navigate to the `start` directory to begin.
 
-An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`InventoryClient` and [hotspot file=1]`GatewayResource` which now implement the default JAX-RS reactive client.
-In the client, notice how the [hotspot=getJobsCompletionStage file=0]`addProperty()` and [hotspot=getJobCompletionStage file=0]`getProperty()` return the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenApplyAsync file=1]`thenApplyAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thenApplyAsync file=1]`thenApplyAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
+An implementation of the default reactive JAX-RS client is already provided for you. The classes changed are [hotspot file=0]`InventoryClient` and [hotspot file=1]`QueryResource` which now implement the default JAX-RS reactive client.
+In the client, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Alternatively, the `CompletionStage` interface can be chained with additional stages using the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method for further processing. Exceptions can be handled in a callback provided to the [hotspot=exceptionally file=1]`exceptionally()` method. The [hotspot=thencceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. Rather, it just means that the service will respond to the caller once the `CompletionStage` has completed.
 
+In the `QueryResource` class, whatever object you want to return is returned in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method.
 
-Similarly to the synchronous approach, if we successfully get the completed jobs from the job microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of jobs.
+Similarly to the synchronous approach, if we successfully get the systems from the inventory microservice, then the resource will respond with an HTTP status of 200 and the body will contain a list of systems.
 
 
 == Updating the client to use third-party objects
@@ -109,12 +110,12 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`gateway/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=67-71 file=0]`rxjava`, [hotspot=72-76 file=0]`jersey-client`, [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2`.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=rxjava file=0]`rxjava`, [hotspot=77-81 file=0]`jersey-client`, [hotspot=82-86 file=0]`jersey-rx-client-rxjava` and [hotspot=87-91 file=0]`jersey-rx-client-rxjava2`.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
 ----
-include::finish/gateway/pom.xml[tags=**]
+include::finish/query/pom.xml[tags=**]
 ----
 
 Update the client to accommodate the custom object types that you are trying to return. Also register the type of object that you want inside the client invocation.
@@ -122,16 +123,16 @@ Update the client to accommodate the custom object types that you are trying to 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
 #Replace the `InventoryClient` interface.#
-`gateway/src/main/java/io/openliberty/guides/gateway/client/InventoryClient.java`
+`query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
 ----
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/client/InventoryClient.java[]
+include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-The changes involve changing the return types of the [hotspot=addProperty file=1]`addProperty()` and [hotspot=getProperty file=1]`getProperty()` methods from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a class that is part of ReactiveX and, as will be seen later, is a more flexible data type than the `CompletionStage` interface.
-The [hotspot=rxGetJobs hotspot=rxGetJob hotspot=rxCreateJob file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. The invoker depends on the type of object that you wish to return. If you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` object instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+The changes involve changing the return types of the [hotspot=getSystem file=1]`getSystem()` method from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a class that is part of ReactiveX and, as will be seen later, is a more flexible data type than the `CompletionStage` interface.
+The [hotspot=rx file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. The invoker depends on the type of object that you wish to return. If you wanted to return a `http://reactivex.io/RxJava/2.x/javadoc/io/reactivex/Flowable.html[Flowable^]` object instead, you would need to pass `RxFlowableInvoker.class`. For this to work however, the invoker would need to have a provider that is registered with the client. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
 Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using `backpressure` and `Flowables`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
 
@@ -142,16 +143,16 @@ Now that the client methods return the `Observable<T>` class, you must update th
 
 [role="code_command hotspot=0", subs="quotes"]
 ----
-#Replace the `GatewayResource` class.#
-`gateway/src/main/java/io/openliberty/guides/gateway/GatewayResource.java`
+#Replace the `QueryResource` class.#
+`query/src/main/java/io/openliberty/guides/query/QueryResource.java`
 ----
-GatewayResource.java
+QueryResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/main/java/io/openliberty/guides/gateway/GatewayResource.java[]
+include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-Instead of using `thenApplyAsync()`, observables use the [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()` call. In this case, it is simply saving the data in the temporary [hotspot=getJobsHolder hotspot=getJobHolder hotspot=createJobHolder file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=getJobsSubscribe hotspot=getJobSubscribe hotspot=createJobSubscribe file=0]`subscribe()`. The [hotspot=getJobsAwait hotspot=getJobAwait hotspot=createJobAwait file=0]`countdownLatch.await()` will ensure that the function will only return a value once the required operation is complete. The `CountdownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=getJobsCountDown hotspot=getJobCountDown hotspot=createJobCountDown file=0]`countdownLatch.countdown()` call. This means that the value will only return once the thread that's retrieving the value is complete. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
+Instead of using `thenAcceptAsync()`, observables use the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=subscribe file=0]`subscribe()` call. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=subscribe file=0]`subscribe()`. The [hotspot=await file=0]`countdownLatch.await()` will ensure that the function will only return a value once the required operation is complete. The `CountdownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=countdown file=0]`countdownLatch.countdown()` call. This means that the value will only return once the thread that's retrieving the value is complete. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
 
 // =================================================================================================
 // Building the application
@@ -159,26 +160,49 @@ Instead of using `thenApplyAsync()`, observables use the [hotspot=getJobsSubscri
 
 == Building and running the application
 
-The `gateway`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+The `query`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
 Start your Docker environment.
 
-To build the application, run the following Maven goals from the command line in the `start` directory.
+To build the application, run the following script from the command line in the `start` directory.
 
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.mac_section.linux_section]
+--
 [role='command']
 ```
-mvn -pl models install
-mvn package
+./scripts/packageApps.sh
 ```
+--
 
-Run the following commands to build and containerize the application:
-
+[.tab_content.windows_section]
+--
 [role='command']
 ```
-docker build -t system:1.0-SNAPSHOT system/.
-docker build -t inventory:1.0-SNAPSHOT inventory/.
-docker build -t gateway:1.0-SNAPSHOT gateway/.
+.\scripts\packageApps.bat
 ```
+--
+
+Run the following script to build and containerize the application:
+
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/buildImages.sh
+```
+--
+
+[.tab_content.windows_section]
+--
+[role='command']
+```
+.\scripts\buildImages.bat
+```
+--
 
 Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and all of the microservices in the project.
 
@@ -201,22 +225,28 @@ include::{common-includes}/os-tabs.adoc[]
 --
 
 The services will take some time to become available.
-You can access the application by making requests to the `gateway` job endpoints.
+You can access the application by making requests to the `query` systemload endpoint by accessing http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^]. 
 
-[options="header", role="wrap_table"]
-|===
-|Description |Endpoint |Sample Output
-|Get completed jobs |GET http://localhost:8080/api/jobs[http://localhost:8080/api/jobs^] |`{"count":0,"results":[]}`
-|Create a job |POST \http://localhost:8080/api/jobs |`{"jobId":"661891cb-ad36-4ef4-9bb3-641f973f2964"}`
-|Get a specific job |GET \http://localhost:8080/api/jobs/{jobId} |`{"jobId":"661891cb-ad36-4ef4-9bb3-641f973f2964","result":5}`
-|===
-Before any jobs are created, the output will be simply `{"count":0,"results":[]}`, representing that no jobs have been created.
+You will see an output similar to the one below:
 
-You can use `curl -X POST \http://localhost:8080/api/jobs` command if available on the system to create a job. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
+`
+{ 
+    "highest": {
+        "hostname":"30bec2b63a96",       
+        ”systemLoad": 6.1
+    },     
+    "lowest": { 
+        "hostname":"55ec2b63a96",    
+        ”systemLoad": 0.1
+    }
+}
+`
 
-The completed jobs JSON output has an `averageResult` attribute that is the average sleep time of all the jobs, a count for the number of jobs and the list of the jobs. The JSON output for each job has a job ID and a sleep time as the result for this job.
+You can use `curl -X GET \http://localhost:9080/query/systemLoad` command if available on the system, to get the system loads. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
 
-Switching to an asynchronous programming model has freed up the thread handling your request to `/api/jobs`. While the client request is being handled, the thread can handle other work.
+The JSON output has a `highest` attribute that represents the system with the highest load. Similarly, the 'lowest' attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
+
+Switching to an asynchronous programming model has freed up the thread handling your request to `/query/systemLoad`. While the client request is being handled, the thread can handle other work.
 
 == Stopping the application
 
@@ -252,20 +282,18 @@ A few tests are included for you to test the basic functionality of the `gateway
 
 [role="code_command hotspot", subs="quotes"]
 ----
-#Create the `GatewayServiceIT` class.#
-`gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayServiceIT.java`
+#Create the `QueryServiceIT` class.#
+`query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
 See the following descriptions of the test cases:
 
-* [hotspot=testCreateJob file=0]`testCreateJob()` verifies that the gateway service communicates with a backend service to create a job.
+* [hotspot=testCreateJob file=0]`testLoads()` verifies that the query service returns the correct systems to represent the `highest` and `lowest` attributes.
 
-* [hotspot=testGetJobs file=0]`testGetJobs()` verifies that the gateway service communicates with an upstream service to get all jobs and transforms them appropriately to a `JobListModel`.
-
-GatewayServiceIT.java
+QueryServiceIT.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewayServiceIT.java[]
+include::finish/query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java[]
 ----
 
 
@@ -275,7 +303,7 @@ include::finish/gateway/src/test/java/it/io/openliberty/guides/gateway/GatewaySe
 
 === Running the tests
 
-Navigate to the `gateway` directory, then verify that the tests pass using the Maven `verify` goal:
+Navigate to the `query` directory, then verify that the tests pass using the Maven `verify` goal:
 
 [role='command']
 ```
@@ -290,11 +318,11 @@ When the tests succeed, you will see output similar to the following.
  T E S T S
 -------------------------------------------------------
 Running it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayServiceIT
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayServiceIT
 
 Results:
 
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 ----
 
 == Great work! You're done!

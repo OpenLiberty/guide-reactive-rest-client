@@ -51,21 +51,29 @@ public class QueryResource {
     public Map<String, Properties> systemLoad() {
         List<String> systems = inventoryClient.getSystems();
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
+        // tag::holder[]
         final Holder systemLoads = new Holder();
-
+        // end::holder[]
         for (String system : systems) {
             inventoryClient.getSystem(system)
+                            // tag::subscribe[]
                            .subscribe(p -> {
                                 if (p != null) {
                                     systemLoads.updateHighest(p);
                                     systemLoads.updateLowest(p);
+                                    // tag::countdown[]
                                     remainingSystems.countDown();
+                                    // end::countdown[]
                                 }
                            });
+                           // end::subscribe[]
         }
 
+        // Wait for all remaining systems to be checked
         try {
+            // tag::await[]
             remainingSystems.await();
+            // end::await[]
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -73,21 +81,17 @@ public class QueryResource {
         return systemLoads.values;
     }
 
-    private class Holder2<T> {
-        @SuppressWarnings("unchecked")
-        public volatile T value;
-    }
-
+    // tag::holderClass[]
     private class Holder {
         @SuppressWarnings("unchecked")
-        // tag::volatile
+        // tag::volatile[]
         public volatile Map<String, Properties> values;
-        // end::volatile
+        // end::volatile[]
 
         public Holder() {
-            // tag::concurrentHashMap
+            // tag::concurrentHashMap[]
             this.values = new ConcurrentHashMap<String, Properties>();
-            // end::concurrentHashMap
+            // end::concurrentHashMap[]
             
             // Initialize highest and lowest values
             this.values.put("highest", new Properties());
@@ -116,4 +120,5 @@ public class QueryResource {
             }
         }
     }
+    // end::holderClass[]
 }

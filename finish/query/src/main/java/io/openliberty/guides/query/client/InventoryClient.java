@@ -53,14 +53,19 @@ public class InventoryClient {
         return iBuilder(ClientBuilder
                 .newClient()
                 .target(baseUri)
-                .path("/inventory/systems")).get().readEntity(List.class);
+                .path("/inventory/systems"))
+                .get().readEntity(List.class);
     }
 
+    // tag::getSystem[]
     public Observable<Properties> getSystem(String hostname) {
         return iBuilder(webTarget().path(hostname))
+            // tag::rx[]
             .rx(RxObservableInvoker.class)
+            // end::rx[]
             .get(new GenericType<Properties>(){});
     }
+    // end::getSystem[]
     
     private Invocation.Builder iBuilder(WebTarget target) {
         return target
@@ -74,11 +79,14 @@ public class InventoryClient {
             this.target = ClientBuilder
                 .newClient()
                 .target(baseUri)
+                // tag::register[]
                 .register(RxObservableInvokerProvider.class)
+                // end::register[]
                 .path("/inventory/systems");
         }
 
         return this.target;
     }
+    // end::webTarget[]
 
 }

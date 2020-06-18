@@ -40,13 +40,13 @@ public class AppContainerConfig implements SharedContainerConfiguration {
         .withNetwork(network);
     
     @Container
-    public static ApplicationContainer gateway = new ApplicationContainer()
+    public static ApplicationContainer query = new ApplicationContainer()
                     .withAppContextRoot("/")
                     .withExposedPorts(9080)
                     .withReadinessPath("/health/ready")
                     .withNetwork(network)
                     .dependsOn(kafka)
-                    .withMpRestClient(InventoryClient.class, "http://mock-server:" + MockServerContainer.PORT);
+                    .withEnv("QUERY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
     
     @Override
     public void startContainers() {
@@ -54,7 +54,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
         mockClient = new MockServerClient(
                 mockServer.getContainerIpAddress(),
                 mockServer.getServerPort());
-        gateway.start();
+        query.start();
     }
                 
 }
