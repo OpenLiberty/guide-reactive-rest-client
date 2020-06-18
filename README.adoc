@@ -110,7 +110,7 @@ JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.git
 By using Jersey, the client can be updated to support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot.
 
 
-The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=69-72 file=0]`rxjava`, [hotspot=73-77 file=0]`jersey-client`, [hotspot=78-82 file=0]`jersey-rx-client-rxjava` and [hotspot=83-87 file=0]`jersey-rx-client-rxjava2`.
+The ReactiveX API and the required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. Look for the dependencies with `artifactIDs` of [hotspot=68-71 file=0]`rxjava`, [hotspot=72-76 file=0]`jersey-client`, [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2`.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -225,7 +225,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 
 The services will take some time to become available.
-You can access the application by making requests to the `query` systemload endpoint by accessing http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^]. 
+You can access the application by making requests to the `query/systemLoad` endpoint by accessing http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^]. 
 
 You will see an output similar to the one below:
 
@@ -318,8 +318,8 @@ When the tests succeed, you will see output similar to the following.
 -------------------------------------------------------
  T E S T S
 -------------------------------------------------------
-Running it.io.openliberty.guides.gateway.GatewayInventoryEndpointIT
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.gateway.GatewayServiceIT
+Running it.io.openliberty.guides.query.QueryServiceIT
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.88 s - in it.io.openliberty.guides.query.QueryServiceIT
 
 Results:
 
