@@ -30,7 +30,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -61,10 +60,10 @@ public class QueryResource {
                                 if (p != null) {
                                     systemLoads.updateHighest(p);
                                     systemLoads.updateLowest(p);
-                                    // tag::countdown[]
-                                    remainingSystems.countDown();
-                                    // end::countdown[]
                                 }
+                                // tag::countdown[]
+                                remainingSystems.countDown();
+                                // end::countdown[]
                            });
                            // end::subscribe[]
         }
@@ -83,7 +82,6 @@ public class QueryResource {
 
     // tag::holderClass[]
     private class Holder {
-        @SuppressWarnings("unchecked")
         // tag::volatile[]
         public volatile Map<String, Properties> values;
         // end::volatile[]

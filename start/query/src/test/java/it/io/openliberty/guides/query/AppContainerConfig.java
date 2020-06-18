@@ -15,14 +15,10 @@ package it.io.openliberty.guides.query;
 import org.microshed.testing.SharedContainerConfiguration;
 import org.microshed.testing.testcontainers.ApplicationContainer;
 import org.mockserver.client.MockServerClient;
-import org.mockserver.model.HttpRequest;
-import org.mockserver.model.HttpResponse;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
-
-import io.openliberty.guides.query.client.InventoryClient;
 
 public class AppContainerConfig implements SharedContainerConfiguration {
 
@@ -46,7 +42,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                     .withReadinessPath("/health/ready")
                     .withNetwork(network)
                     .dependsOn(kafka)
-                    .withMpRestClient(InventoryClient.class, "http://mock-server:" + MockServerContainer.PORT);
+                    .withEnv("QUERY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
     
     @Override
     public void startContainers() {
