@@ -16,30 +16,64 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletionStage;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import org.eclipse.microprofile.faulttolerance.Asynchronous;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+@RequestScoped
+public class InventoryClient {
 
-@Path("/inventory")
-@RegisterRestClient(configKey = "InventoryClient", baseUri = "http://localhost:9085")
-public interface InventoryClient extends AutoCloseable {
+    @Inject
+    @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
+    private String baseUri;
 
-    @GET
-    @Path("/systems")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getSystems();
+    private WebTarget target;
+
+    public InventoryClient() {
+        this.target = null;
+    }
+
+    public List<String> getSystems() {
+        return iBuilder(ClientBuilder
+                .newClient()
+                .target(baseUri)
+                .path("/inventory/systems"))
+                .get(new GenericType<List<String>>(){});
+    }
 
     // tag::getSystem[]
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Asynchronous
-    public CompletionStage<Properties> getSystem(@PathParam("hostname") String hostname);
+    public CompletionStage<Properties> getSystem(String hostname) {
+        return iBuilder(webTarget().path(hostname))
+            // tag::rx[]
+            .rx()
+            // end::rx[]
+            .get(Properties.class);
+    }
     // end::getSystem[]
+    
+    private Invocation.Builder iBuilder(WebTarget target) {
+        return target
+            .request()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+    }
+
+    // tag::webTarget[]
+    private WebTarget webTarget() {
+        if (this.target == null) {
+            this.target = ClientBuilder
+                .newClient()
+                .target(baseUri)
+                .path("/inventory/systems");
+        }
+
+        return this.target;
+    }
+    // end::webTarget[]
 
 }

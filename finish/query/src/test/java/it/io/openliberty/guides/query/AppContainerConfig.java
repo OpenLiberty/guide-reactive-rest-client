@@ -46,7 +46,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                     .withReadinessPath("/health/ready")
                     .withNetwork(network)
                     .dependsOn(kafka)
-                    .withEnv("QUERY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
+                    .withEnv("INVENTORY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
     
     @Override
     public void startContainers() {

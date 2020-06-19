@@ -33,7 +33,7 @@ import rx.Observable;
 public class InventoryClient {
 
     @Inject
-    @ConfigProperty(name = "QUERY_BASE_URI", defaultValue = "http://localhost:9085")
+    @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
 
     private WebTarget target;
@@ -47,7 +47,7 @@ public class InventoryClient {
                 .newClient()
                 .target(baseUri)
                 .path("/inventory/systems"))
-                .get().readEntity(List.class);
+                .get(new GenericType<List<String>>(){});
     }
 
     // tag::getSystem[]
