@@ -229,7 +229,7 @@ include::{common-includes}/os-tabs.adoc[]
 The services will take some time to become available.
 You can access the application by making requests to the `query/systemLoad` endpoint by accessing http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^]. 
 
-You will see an output similar to the one below:
+When the service is ready, you will see an output similar to the one below:
 
 [source, role='no_copy']
 ----
@@ -245,7 +245,7 @@ You will see an output similar to the one below:
 }
 ----
 
-You can use `curl -X GET \http://localhost:9080/query/systemLoad` command if available on the system, to get the system loads. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
+You can also use `curl -X GET \http://localhost:9080/query/systemLoad` command if available on the system to get the system loads. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
 
 The JSON output has a `highest` attribute that represents the system with the highest load. Similarly, the `lowest` attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
 
