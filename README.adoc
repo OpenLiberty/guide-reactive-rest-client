@@ -48,21 +48,20 @@ You will learn how the default reactive JAX-RS client accesses remote RESTful se
 You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. Doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
 
 The application you will be working with is a manager that maintains an inventory of available systems.
-It consists of three microservices, `system`, `inventory`, and `query`. The `system` microservice
-reports its given properties and checks to make sure the application is ready. The `system` microservice also registers
-itself on startup with the `inventory` microservice that keeps track of all instances of the `system` microservice. Finally,
-the `query` microservice is a https://microservices.io/patterns/apigateway.html#variation-backends-for-frontends[backend for frontend^] service.
-It communicates with the backend `inventory` microservice on the caller's behalf.
+It consists of three microservices, `system`, `inventory`, and `query`. Every 15 seconds, the `system` microservice 
+calculates and publishes an event that contains its current average system load. The `inventory` microservice subscribes 
+to that information so that it can keep an updated list of all the systems and their current system loads.
 
 image::QueryService.png[Reactive Query Service,align="center"]
 
-The microservice that you will modify is the `query` service.
-It acts as a gateway to communicate with the backend microservices.
-The `query` service communicates with the `inventory` whenever a request 
-is made to retrieve the systems.
+The microservice that you will modify is the `query` service. It communicates with the `inventory` service 
+to determine which system has the highest system load and which system has the lowest system load.
 
 The implementations of the application and its services are provided for you in the `start` directory.
-The application also uses the Apache Kafka and ZooKeeper services to distribute the inventory results and system status.
+The `system` and `inventory` microservices uses MicroProfile Reactive Messaging to send and receive the system load events.
+
+If you want to learn more about reactive messaging, you can read the 
+https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
 
 == Additional Prerequisites
 
@@ -162,49 +161,28 @@ Instead of using `thenAcceptAsync()`, observables use the [hotspot=subscribe fil
 
 == Building and running the application
 
-The `query`, `system`, and `inventory` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+The `system`, `inventory`, and `query` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
 Start your Docker environment.
 
-To build the application, run the following script from the command line in the `start` directory.
+To build the application, run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
-include::{common-includes}/os-tabs.adoc[]
-
-[.tab_content.mac_section.linux_section]
---
 [role='command']
 ```
-./scripts/packageApps.sh
+mvn -pl models install
+mvn package
 ```
---
 
-[.tab_content.windows_section]
---
+include::{common-includes}/ol-kernel-docker-pull.adoc[]
+
+Run the following commands to containerize the microservices:
+
 [role='command']
 ```
-.\scripts\packageApps.bat
+docker build -t system:1.0-SNAPSHOT system/.
+docker build -t inventory:1.0-SNAPSHOT inventory/.
+docker build -t inventory:1.0-SNAPSHOT query/.
 ```
---
-
-Run the following script to build and containerize the application:
-
-include::{common-includes}/os-tabs.adoc[]
-
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/buildImages.sh
-```
---
-
-[.tab_content.windows_section]
---
-[role='command']
-```
-.\scripts\buildImages.bat
-```
---
 
 Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and all of the microservices in the project.
 
@@ -229,7 +207,7 @@ include::{common-includes}/os-tabs.adoc[]
 The services will take some time to become available.
 You can access the application by making requests to the `query/systemLoad` endpoint by accessing http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^]. 
 
-When the service is ready, you will see an output similar to the one below:
+When the service is ready, you will see an output similar to the one below. The given example has been formatted for readability.
 
 [source, role='no_copy']
 ----
@@ -251,11 +229,7 @@ The JSON output has a `highest` attribute that represents the system with the hi
 
 Switching to an asynchronous programming model has freed up the thread handling your request to `/query/systemLoad`. While the client request is being handled, the thread can handle other work.
 
-== Stopping the application
-
-Navigate back to the `start` directory.
-
-Finally, use the script to stop the application.
+When you are done checking out the application, run the following script to stop the application:
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -279,9 +253,9 @@ include::{common-includes}/os-tabs.adoc[]
 // Testing
 // =================================================================================================
 
-== Testing the gateway application
+== Testing the query microservice
 
-A few tests are included for you to test the basic functionality of the `gateway` microservice. If a test failure occurs, then you may have introduced a bug into the code.
+A few tests are included for you to test the basic functionality of the `query` microservice. If a test failure occurs, then you may have introduced a bug into the code.
 
 [role="code_command hotspot", subs="quotes"]
 ----
