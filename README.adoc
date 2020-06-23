@@ -52,14 +52,13 @@ It consists of three microservices, `system`, `inventory`, and `query`. Every 15
 calculates and publishes an event that contains its current average system load. The `inventory` microservice subscribes 
 to that information so that it can keep an updated list of all the systems and their current system loads.
 
-image::QueryService.png[Reactive Query Service,align="center"]
+image::QueryService.png[Reactive Query Service, width=253, height=327, align="center"]
 
 The microservice that you will modify is the `query` service. It communicates with the `inventory` service 
 to determine which system has the highest system load and which system has the lowest system load.
 
 The implementations of the application and its services are provided for you in the `start` directory.
 The `system` and `inventory` microservices uses MicroProfile Reactive Messaging to send and receive the system load events.
-
 If you want to learn more about reactive messaging, you can read the 
 https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
 
