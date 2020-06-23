@@ -5,7 +5,7 @@
 //
 // Contributors:
 //   IBM Corporation
-:projectid: jaxrs-reactive-client
+:projectid: jax-rs-reactive-client
 :page-layout: guide-multipane
 :page-duration: 15 minutes
 :page-releasedate: 2019-09-13
