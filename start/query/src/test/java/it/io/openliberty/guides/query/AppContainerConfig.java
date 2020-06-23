@@ -36,7 +36,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
         .withNetwork(network);
     
     @Container
-    public static ApplicationContainer gateway = new ApplicationContainer()
+    public static ApplicationContainer query = new ApplicationContainer()
                     .withAppContextRoot("/")
                     .withExposedPorts(9080)
                     .withReadinessPath("/health/ready")
@@ -50,7 +50,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
         mockClient = new MockServerClient(
                 mockServer.getContainerIpAddress(),
                 mockServer.getServerPort());
-        gateway.start();
+        query.start();
     }
                 
 }
