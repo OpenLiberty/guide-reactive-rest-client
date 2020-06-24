@@ -52,45 +52,45 @@ public class QueryServiceIT {
     @BeforeAll
     public static void setup() throws InterruptedException {
         AppContainerConfig.mockClient.when(HttpRequest.request()
-                                            .withMethod("GET")
-                                            .withPath("/inventory/systems"))
-                                        .respond(HttpResponse.response()
-                                            .withStatusCode(200)
-                                            .withBody("[\"testHost1\"," +
-                                                    "\"testHost2\"," + 
+                                         .withMethod("GET")
+                                         .withPath("/inventory/systems"))
+                                     .respond(HttpResponse.response()
+                                         .withStatusCode(200)
+                                         .withBody("[\"testHost1\"," + 
+                                                    "\"testHost2\"," +
                                                     "\"testHost3\"]")
-                                            .withHeader("Content-Type", "application/json"));
+                                         .withHeader("Content-Type", "application/json"));
 
         AppContainerConfig.mockClient.when(HttpRequest.request()
-                                            .withMethod("GET")
-                                            .withPath("/inventory/systems/testHost1"))
-                                        .respond(HttpResponse.response()
-                                            .withStatusCode(200)
-                                            .withBody(testHost1)
-                                            .withHeader("Content-Type", "application/json"));
+                                         .withMethod("GET")
+                                         .withPath("/inventory/systems/testHost1"))
+                                     .respond(HttpResponse.response()
+                                         .withStatusCode(200)
+                                         .withBody(testHost1)
+                                         .withHeader("Content-Type", "application/json"));
 
         AppContainerConfig.mockClient.when(HttpRequest.request()
-                                            .withMethod("GET")
-                                            .withPath("/inventory/systems/testHost2"))
-                                        .respond(HttpResponse.response()
-                                            .withStatusCode(200)
-                                            .withBody(testHost2)
-                                            .withHeader("Content-Type", "application/json"));
+                                         .withMethod("GET")
+                                         .withPath("/inventory/systems/testHost2"))
+                                     .respond(HttpResponse.response()
+                                         .withStatusCode(200)
+                                         .withBody(testHost2)
+                                         .withHeader("Content-Type", "application/json"));
 
         AppContainerConfig.mockClient.when(HttpRequest.request()
-                                            .withMethod("GET")
-                                            .withPath("/inventory/systems/testHost3"))
-                                        .respond(HttpResponse.response()
-                                            .withStatusCode(200)
-                                            .withBody(testHost3)
-                                            .withHeader("Content-Type", "application/json"));
+                                         .withMethod("GET")
+                                         .withPath("/inventory/systems/testHost3"))
+                                     .respond(HttpResponse.response()
+                                         .withStatusCode(200)
+                                         .withBody(testHost3)
+                                         .withHeader("Content-Type", "application/json"));
     }
 
     // tag::testLoads[]
     @Test
     public void testLoads() {
         Map<String, Properties> response = queryResource.systemLoad();
-        
+
         assertEquals(
             "testHost2",
             response.get("highest").get("hostname"),

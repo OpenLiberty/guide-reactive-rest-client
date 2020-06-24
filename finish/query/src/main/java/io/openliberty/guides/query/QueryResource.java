@@ -40,7 +40,9 @@ public class QueryResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Properties> systemLoad() {
         List<String> systems = inventoryClient.getSystems();
+        // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
+        // end::countdownlatch[]
         // tag::holder[]
         final Holder systemLoads = new Holder();
         // end::holder[]
