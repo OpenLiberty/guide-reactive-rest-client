@@ -252,6 +252,8 @@ A few tests are included for you to test the basic functionality of the `query` 
 `query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
+The [hotspot=testLoads file=0]`testLoads()` test case verifies that the `query` service can calculate the highest and lowest system loads.
+
 See the following descriptions of the test cases:
 
 * [hotspot=testLoads file=0]`testLoads()` verifies that the query service returns the correct systems to represent the `highest` and `lowest` attributes.
