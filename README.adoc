@@ -12,12 +12,12 @@
 :page-guide-category: microprofile
 :page-essential: false
 :page-description: Learn how to use the reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
-:page-seo-title: Consuming RESTful services using reactive JAX-RS client
-:page-seo-description: A tutorial on how to consume RESTful services asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client.
+:page-seo-title: Consuming RESTful Java microservices using reactive JAX-RS client
+:page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Java EE', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
-:page-related-guides: ['microprofile-rest-client', 'microprofile-rest-client-async']
+:page-related-guides: ['microprofile-reactive-messaging', 'microprofile-rest-client-async']
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
 :imagesdir: /img/guide/{projectid}
 :source-highlighter: prettify
@@ -39,7 +39,7 @@ Asynchronous methods allow you to perform a lengthy operation, such as input/out
 In the context of REST clients, making synchronous HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
 
 == What is reactive programming?
-Reactive programming is an extension to asynchronous programming and a paradigm concerned with data streams and the propagation of change. In other words, execution advances when new information becomes available. Changes, once they occur, are propagated via data streams and this makes it generally easier to implement an asynchronous and non-blocking system.
+Reactive programming is an extension of asynchronous programming and a model that concerns itself with the flow of data through data streams. Execution of the model advances only when new data becomes available. Any changes, once complete, are immediately transitioned through the model via data streams, thus making it generally easier to implement an asynchronous and non-blocking system.
 
 Reactive programming brings with it many advantages. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration. It is alot simpler to do asynchronous work and setup complex threading because reactive programming avoids the use of callbacks that asynchronous programming brings with itself. This also brings with it a much faster runtime execution of your application, which allows for a much better user experience. Lastly, it makes your code much more readable and easier to fix. You can add or remove blocks of code from individual data streams which means you can easily amend a specific, distressed stream. The usage of reactive streams brings with it tools, among others, to handle data flow, backpressure, thread safety and error propagation. +
 
@@ -60,7 +60,7 @@ to determine which system has the highest system load and which system has the l
 The implementations of the application and its services are provided for you in the `start` directory.
 The `system` and `inventory` microservices uses MicroProfile Reactive Messaging to send and receive the system load events.
 If you want to learn more about reactive messaging, you can read the 
-https://openliberty.io/guides/microprofile-rest-client.html[Consuming RESTful services with template interfaces^] guide.
+https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
 
 == Additional Prerequisites
 
@@ -93,7 +93,7 @@ An implementation of the default reactive JAX-RS client is already provided for 
 
 The [hotspot file=0]`InventoryClient` class is used to retrieve the inventory data. In the [hotspot file=0]`InventoryClient` class, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Notice how it also contains an [hotspot=rx file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
 
-The [hotspot file=1]`QueryResource` class is use to process the data coming in from the data streams, which is accessed through the hotspot file=0]`InventoryClient`, and serve it when all the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is retrieved from the `CompletionStage` interface and processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. 
+The [hotspot file=1]`QueryResource` class is used to process the data coming in from the data streams, which is accessed through the [hotspot file=0]`InventoryClient`, and serve it when all the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is retrieved from the `CompletionStage` interface and processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. 
 
 == Updating the client to use third-party libraries
 
@@ -212,9 +212,7 @@ When the service is ready, you will see an output similar to the one below. The 
 }
 ----
 
-You can also use `curl -X GET \http://localhost:9080/query/systemLoad` command if available on the system to get the system loads. The https://www.getpostman.com[Postman^] application can also be used. The request will take some time for the job results to return.
-
-The JSON output has a `highest` attribute that represents the system with the highest load. Similarly, the `lowest` attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
+The JSON output has a `highest` attribute which represents the system with the highest load. Similarly, the `lowest` attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
 
 Switching to an reactive programming model has freed up the thread handling your request to `/query/systemLoad`. While the client request is being handled, the thread can handle other work.
 
