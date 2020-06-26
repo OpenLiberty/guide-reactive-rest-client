@@ -15,7 +15,7 @@
 :page-seo-title: Consuming RESTful Java microservices asynchronously using default and third-party reactive JAX-RS client
 :page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client and Eclipse Jersey third-party reactive client library.
 :guide-author: Open Liberty
-:page-tags: ['MicroProfile', 'Java EE', 'Jakarta EE']
+:page-tags: ['MicroProfile', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
 :page-related-guides: ['microprofile-reactive-messaging', 'microprofile-rest-client-async']
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
@@ -41,7 +41,7 @@ In the context of REST clients, making synchronous HTTP requests can be a time c
 == What is reactive programming?
 Reactive programming is an extension of asynchronous programming and a model that concerns itself with the flow of data through data streams. Execution of the model advances only when new data becomes available. Any changes, once complete, are immediately transitioned through the model via data streams, thus making it generally easier to implement an asynchronous and non-blocking system.
 
-Reactive programming brings with it many advantages. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration. It is alot simpler to do asynchronous work and setup complex threading because reactive programming avoids the use of callbacks that asynchronous programming brings with itself. This also brings with it a much faster runtime execution of your application, which allows for a much better user experience. Lastly, it makes your code much more readable and easier to fix. You can add or remove blocks of code from individual data streams which means you can easily amend a specific, distressed stream. The usage of reactive streams brings with it tools, among others, to handle data flow, backpressure, thread safety and error propagation. +
+Reactive programming brings with it many advantages. One of the greatest advantage of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration. It is alot simpler to do asynchronous work and setup complex threading because reactive programming avoids the use of callbacks that asynchronous programming brings with itself. This also brings with it a much faster runtime execution of your application, which allows for a much better user experience. Lastly, it makes your code much more readable and easier to fix. You can add or remove blocks of code from individual data streams which means you can easily amend a specific, distressed stream. The usage of reactive streams brings with it tools to handle data flow, backpressure, thread safety, and error propagation. +
 
 == What you'll learn
 You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
@@ -91,15 +91,15 @@ Navigate to the `start` directory to begin.
 
 An implementation of the default reactive JAX-RS client is already provided for you. The classes you will change are [hotspot file=0]`InventoryClient` and [hotspot file=1]`QueryResource` which now implement the default JAX-RS reactive client.
 
-The [hotspot file=0]`InventoryClient` class is used to retrieve the inventory data. In the [hotspot file=0]`InventoryClient` class, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage<T>` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Notice how it also contains an [hotspot=rx file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
+The [hotspot file=0]`InventoryClient` class is used to retrieve the inventory data. In the [hotspot file=0]`InventoryClient` class, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Notice how it also contains an [hotspot=rx file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
 
-The [hotspot file=1]`QueryResource` class is used to process the data coming in from the data streams, which is accessed through the [hotspot file=0]`InventoryClient`, and serve it when all the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is retrieved from the `CompletionStage` interface and processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. 
+The [hotspot file=1]`QueryResource` class is used to process the data coming in from the data streams, which is accessed through the [hotspot file=0]`InventoryClient`, and serve it when all the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method, only when the `CompletionStage` interface has finished retrieving it. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. 
 
 == Updating the client to use third-party libraries
 
 JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^]. Jersey provides a client-builder interface which allows users to make a request for the data. It allows the use of specific invokers as configuration so that the client can support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot. 
 
-The https://github.com/ReactiveX/RxJava[RxJava^] and required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. [hotspot=67-71 file=0]`rxjava` allows the application to use the https://github.com/ReactiveX/RxJava[RxJava^] API. [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2` provide the Rx Invoker provider classes which are then registered to the [hotspot=72-76 file=0]`jersey-client` client-builder.
+The https://github.com/ReactiveX/RxJava[RxJava^] and required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. The [hotspot=67-71 file=0]`rxjava` dependency allows the application to use the https://github.com/ReactiveX/RxJava[RxJava^] API. The [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=72-76 file=0]`jersey-client` client-builder.
 
 pom.xml
 [source,xml,linenums,role="code_column"]
@@ -120,14 +120,14 @@ InventoryClient.java
 include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-The changes involve changing the return types of the [hotspot=getSystem file=1]`getSystem()` method from a `CompletionStage<T>` interface to an `Observable<T>` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a collection of data that awaits to be subscribed to before it can release any data and is part of https://github.com/ReactiveX/RxJava[RxJava^]. The [hotspot=rx file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
+The changes involve changing the return types of the [hotspot=getSystem file=1]`getSystem()` method from a `CompletionStage` interface to an `Observable` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a collection of data that awaits to be subscribed to before it can release any data and is part of https://github.com/ReactiveX/RxJava[RxJava^]. The [hotspot=rx file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
-Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using `backpressure` and `Flowables`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
+Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using RxJava's `backpressure` and `Flowables`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
 
 
 == Updating the client to use the reactive model
 
-Now that the client methods return the `Observable<T>` class, you must update the resource to accommodate these changes.
+Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
 
 [role="code_command hotspot=0", subs="quotes"]
 ----
@@ -250,11 +250,7 @@ A few tests are included for you to test the basic functionality of the `query` 
 `query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
-The [hotspot=testLoads file=0]`testLoads()` test case verifies that the `query` service can calculate the highest and lowest system loads.
-
-See the following descriptions of the test cases:
-
-* [hotspot=testLoads file=0]`testLoads()` verifies that the query service returns the correct systems to represent the `highest` and `lowest` attributes.
+The [hotspot=testLoads file=0]`testLoads()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
 
 QueryServiceIT.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
