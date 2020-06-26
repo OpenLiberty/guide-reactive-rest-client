@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 IBM Corporation and others.
+// Copyright (c) 2020 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -8,12 +8,12 @@
 :projectid: jax-rs-reactive-client
 :page-layout: guide-multipane
 :page-duration: 15 minutes
-:page-releasedate: 2019-09-13
+:page-releasedate: 2020-07-31
 :page-guide-category: microprofile
 :page-essential: false
 :page-description: Learn how to use the reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
-:page-seo-title: Consuming RESTful Java microservices using reactive JAX-RS client
-:page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client.
+:page-seo-title: Consuming RESTful Java microservices asynchronously using default and third-party reactive JAX-RS client
+:page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client and Eclipse Jersey third-party reactive client library.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Java EE', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
