@@ -7,33 +7,30 @@ set -euxo pipefail
 ##
 ##############################################################################
 
-mvn -pl models install
-mvn package
+./scripts/packageApps.sh
 
-docker pull open-liberty
+mvn -pl system verify
+mvn -pl inventory verify
+mvn -pl query verify
 
-docker build -t system:1.0-SNAPSHOT system/.
-docker build -t inventory:1.0-SNAPSHOT inventory/.
-docker build -t job:1.0-SNAPSHOT job/.
-docker build -t gateway:1.0-SNAPSHOT gateway/.
+./scripts/buildImages.sh
+./scripts/startContainers.sh
 
-./scripts/start-app
+sleep 180
 
-sleep 300
+docker logs inventory
+docker logs query
 
-jobCount="$(curl --silent http://localhost:8080/api/jobs | jq -r '.count')"
-jobStatus="$(curl --write-out "%{http_code}\n" --silent --output /dev/null "http://localhost:8080/api/jobs")"
+systemCPULoad="$(curl --write-out "%{http_code}" --silent --output /dev/null "http://localhost:9080/query/systemLoad")"
 
-if [ "$jobStatus" == "200" ] && [ "$jobCount" == "0" ]
+if [ "$systemCPULoad" == "200" ]
 then
-  echo ENDPOINT OK
+  echo SystemInventory OK
 else
-  echo job status:
-  echo "$jobStatus"
-  echo job count:
-  echo "$jobCount"
+  echo System Inventory status:
+  echo "$systemCPULoad"
   echo ENDPOINT
   exit 1
 fi
 
-./scripts/stop-app
+./scripts/stopContainers.sh
