@@ -44,13 +44,15 @@ public class QueryResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Properties> systemLoad() {
         List<String> systems = inventoryClient.getSystems();
-        // tag::countdown1[]
+        // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
-        // end::countdown1[]
+        // end::countdownlatch[]
         final Holder systemLoads = new Holder();
 
         for (String system : systems) {
+            // tag::getsystem[]
             inventoryClient.getSystem(system)
+            // end::getsystem[]
                            // tag::thenAcceptAsync[]
                            .thenAcceptAsync(p -> {
                                 if (p != null) {
