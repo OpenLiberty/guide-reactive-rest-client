@@ -42,7 +42,9 @@ public class QueryResource {
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
+    // tag::systemLoadMethod[]
     public Map<String, Properties> systemLoad() {
+    // end::systemLoadMethod[]
         List<String> systems = inventoryClient.getSystems();
         // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());

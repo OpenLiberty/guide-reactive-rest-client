@@ -35,11 +35,14 @@ public class QueryResource {
     @Inject
     private InventoryClient inventoryClient;
 
+    // tag::systemload[]
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Properties> systemLoad() {
+        // tag::getSystems[]
         List<String> systems = inventoryClient.getSystems();
+        // end::getSystems[]
         // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
         // end::countdownlatch[]
@@ -47,18 +50,26 @@ public class QueryResource {
         final Holder systemLoads = new Holder();
         // end::holder[]
         for (String system : systems) {
+            // tag::getSystem[]
             inventoryClient.getSystem(system)
+            // end::getSystem[]
                             // tag::subscribe[]
                            .subscribe(p -> {
                                 if (p != null) {
+                                    // tag::updateHighest[]
                                     systemLoads.updateHighest(p);
+                                    // end::updateHighest[]
+                                    // tag::updateLowest[]
                                     systemLoads.updateLowest(p);
+                                    // end::updateLowest[]
                                 }
                                 // tag::countdown[]
                                 remainingSystems.countDown();
                                 // end::countdown[]
                            }, e -> {
+                                // tag::countdown[]
                                 remainingSystems.countDown();
+                                // end::countdown[]
                            });
                            // end::subscribe[]
         }
@@ -74,6 +85,7 @@ public class QueryResource {
 
         return systemLoads.values;
     }
+    // end::systemload[]
 
     // tag::holderClass[]
     private class Holder {
@@ -95,6 +107,7 @@ public class QueryResource {
             this.values.get("lowest").put("systemLoad", new BigDecimal(Double.MAX_VALUE));
         }
 
+        // tag::updateHighest[]
         public void updateHighest(Properties p) {
             BigDecimal load = (BigDecimal) p.get("systemLoad");
             BigDecimal highest = (BigDecimal) this.values
@@ -104,7 +117,9 @@ public class QueryResource {
                 this.values.put("highest", p);
             }
         }
+        // end::updateHighest[]
 
+        // tag::updateLowest[]
         public void updateLowest(Properties p) {
             BigDecimal load = (BigDecimal) p.get("systemLoad");
             BigDecimal lowest = (BigDecimal) this.values
@@ -114,6 +129,7 @@ public class QueryResource {
                 this.values.put("lowest", p);
             }
         }
+        // end::updateLowest[]
     }
     // end::holderClass[]
 }
