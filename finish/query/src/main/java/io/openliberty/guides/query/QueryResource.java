@@ -56,12 +56,12 @@ public class QueryResource {
                             // tag::subscribe[]
                            .subscribe(p -> {
                                 if (p != null) {
-                                    // tag::updateHighest[]
+                                    // tag::updateHighestCall[]
                                     systemLoads.updateHighest(p);
-                                    // end::updateHighest[]
-                                    // tag::updateLowest[]
+                                    // end::updateHighestCall[]
+                                    // tag::updateLowestCall[]
                                     systemLoads.updateLowest(p);
-                                    // end::updateLowest[]
+                                    // end::updateLowestCall[]
                                 }
                                 // tag::countdown[]
                                 remainingSystems.countDown();
@@ -107,7 +107,7 @@ public class QueryResource {
             this.values.get("lowest").put("systemLoad", new BigDecimal(Double.MAX_VALUE));
         }
 
-        // tag::updateHighest[]
+        // tag::updateHighestMethod[]
         public void updateHighest(Properties p) {
             BigDecimal load = (BigDecimal) p.get("systemLoad");
             BigDecimal highest = (BigDecimal) this.values
@@ -117,9 +117,9 @@ public class QueryResource {
                 this.values.put("highest", p);
             }
         }
-        // end::updateHighest[]
+        // end::updateHighestMethod[]
 
-        // tag::updateLowest[]
+        // tag::updateLowestMethod[]
         public void updateLowest(Properties p) {
             BigDecimal load = (BigDecimal) p.get("systemLoad");
             BigDecimal lowest = (BigDecimal) this.values
@@ -129,7 +129,7 @@ public class QueryResource {
                 this.values.put("lowest", p);
             }
         }
-        // end::updateLowest[]
+        // end::updateLowestMethod[]
     }
     // end::holderClass[]
 }
