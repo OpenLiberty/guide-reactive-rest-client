@@ -61,6 +61,7 @@ public class QueryResource {
                                     systemLoads.updateHighest(p);
                                     systemLoads.updateLowest(p);
                                 }
+                                remainingSystems.countDown();
                            })
                            // end::thenAcceptAsync[]
                            // tag::exceptionally[]

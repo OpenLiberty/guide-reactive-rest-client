@@ -63,10 +63,11 @@ public class QueryResource {
                                     systemLoads.updateLowest(p);
                                     // end::updateLowestCall[]
                                 }
-                           }, e -> {
                                 // tag::countdown[]
                                 remainingSystems.countDown();
                                 // end::countdown[]
+                           }, e -> {
+                                e.printStackTrace();
                            });
                            // end::subscribe[]
         }
