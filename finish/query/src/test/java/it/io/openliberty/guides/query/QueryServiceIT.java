@@ -86,9 +86,9 @@ public class QueryServiceIT {
                                          .withHeader("Content-Type", "application/json"));
     }
 
-    // tag::testLoads[]
+    // tag::testSystemLoad[]
     @Test
-    public void testLoads() {
+    public void testSystemLoad() {
         Map<String, Properties> response = queryResource.systemLoad();
 
         assertEquals(
@@ -102,6 +102,6 @@ public class QueryServiceIT {
             "Returned lowest system load incorrect"
         );
     }
-    // end::testLoads[]
+    // end::testSystemLoad[]
 
 }

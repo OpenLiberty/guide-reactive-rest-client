@@ -67,7 +67,9 @@ public class QueryResource {
                                 remainingSystems.countDown();
                                 // end::countdown[]
                            }, e -> {
-                                e.printStackTrace();
+                                // tag::countdown2[]
+                                remainingSystems.countDown();
+                                // end::countdown2[]
                            });
                            // end::subscribe[]
         }
