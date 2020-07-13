@@ -39,10 +39,10 @@ is an API allowing users to utilize the reactive programming model when using JA
 You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
 You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
 
-The application you will be working with is a manager that maintains an inventory of available systems.
-It consists of three microservices, `system`, `inventory`, and `query`. Every 15 seconds, the `system` microservice 
-calculates and publishes an event that contains its current average system load. The `inventory` microservice subscribes 
-to that information so that it can keep an updated list of all the systems and their current system loads.
+The application you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
+Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
+The `inventory` microservice subscribes to that information so that it can keep an updated list of all the systems and their 
+current system loads.
 
 image::QueryService.png[Reactive Query Service, width=253, height=327, align="center"]
 
