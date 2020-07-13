@@ -65,7 +65,7 @@ You need to have Docker installed. For installation instructions, refer to the o
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
-== Starting from the default reactive JAX-RS client
+== Creating a web client using the default JAX-RS API
 
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
@@ -87,7 +87,7 @@ The [hotspot file=0]`InventoryClient` class is used to retrieve the inventory da
 
 The [hotspot file=1]`QueryResource` class is used to query data from the inventory service. The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint processes the data, asynchronously, that is retrieved by the [hotspot=getsystem file=1]`InventoryClient`, as well as serves the data when all of the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method, only when the `CompletionStage` interface has finished retrieving it. It is important to note that when you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built. A [hotspot=countdownlatch file=1]`CountDownLatch` is used to guarentee all of the requests have completed. This is something that will be reviewed further into the guide.
 
-== Updating the default reactive client to use third-party libraries
+== Updating the web client to use third-party reactive libraries
 
 JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^]. Jersey provides a client-builder interface which allows users to make a request for the data. It allows the use of specific invokers as configuration so that the client can support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot. 
 
@@ -116,8 +116,7 @@ The changes involve changing the return types of the [hotspot=getSystem file=1]`
 
 Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
 
-
-== Updating the resource that calls the reactive client
+== Updating the REST resource to support the reactive JAX-RS client
 
 Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
 
