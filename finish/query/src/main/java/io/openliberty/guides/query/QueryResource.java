@@ -35,11 +35,14 @@ public class QueryResource {
     @Inject
     private InventoryClient inventoryClient;
 
+    // tag::systemload[]
     @GET
     @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Properties> systemLoad() {
+        // tag::getSystems[]
         List<String> systems = inventoryClient.getSystems();
+        // end::getSystems[]
         // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
         // end::countdownlatch[]
@@ -47,16 +50,26 @@ public class QueryResource {
         final Holder systemLoads = new Holder();
         // end::holder[]
         for (String system : systems) {
+            // tag::getSystem[]
             inventoryClient.getSystem(system)
+            // end::getSystem[]
                             // tag::subscribe[]
                            .subscribe(p -> {
                                 if (p != null) {
+                                    // tag::updateHighestCall[]
                                     systemLoads.updateHighest(p);
+                                    // end::updateHighestCall[]
+                                    // tag::updateLowestCall[]
                                     systemLoads.updateLowest(p);
+                                    // end::updateLowestCall[]
                                 }
                                 // tag::countdown[]
                                 remainingSystems.countDown();
                                 // end::countdown[]
+                           }, e -> {
+                                // tag::countdown2[]
+                                remainingSystems.countDown();
+                                // end::countdown2[]
                            });
                            // end::subscribe[]
         }
@@ -69,9 +82,10 @@ public class QueryResource {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        
         return systemLoads.values;
     }
+    // end::systemload[]
 
     // tag::holderClass[]
     private class Holder {
@@ -83,7 +97,30 @@ public class QueryResource {
             // tag::concurrentHashMap[]
             this.values = new ConcurrentHashMap<String, Properties>();
             // end::concurrentHashMap[]
-            
+            init();
+        }
+
+        // tag::updateHighestMethod[]
+        public void updateHighest(Properties p) {
+            BigDecimal load = (BigDecimal) p.get("systemLoad");
+            BigDecimal highest = (BigDecimal) this.values.get("highest").get("systemLoad");
+            if (load.compareTo(highest) > 0) {
+                this.values.put("highest", p);
+            }
+        }
+        // end::updateHighestMethod[]
+
+        // tag::updateLowestMethod[]
+        public void updateLowest(Properties p) {
+            BigDecimal load = (BigDecimal) p.get("systemLoad");
+            BigDecimal lowest = (BigDecimal) this.values.get("lowest").get("systemLoad");
+            if (load.compareTo(lowest) < 0) {
+                this.values.put("lowest", p);
+            }
+        }
+        // end::updateLowestMethod[]
+
+        private void init() {
             // Initialize highest and lowest values
             this.values.put("highest", new Properties());
             this.values.put("lowest", new Properties());
@@ -91,26 +128,6 @@ public class QueryResource {
             this.values.get("lowest").put("hostname", "temp_min");
             this.values.get("highest").put("systemLoad", new BigDecimal(Double.MIN_VALUE));
             this.values.get("lowest").put("systemLoad", new BigDecimal(Double.MAX_VALUE));
-        }
-
-        public void updateHighest(Properties p) {
-            BigDecimal load = (BigDecimal) p.get("systemLoad");
-            BigDecimal highest = (BigDecimal) this.values
-                                                  .get("highest")
-                                                  .get("systemLoad");
-            if (load.compareTo(highest) > 0) {
-                this.values.put("highest", p);
-            }
-        }
-
-        public void updateLowest(Properties p) {
-            BigDecimal load = (BigDecimal) p.get("systemLoad");
-            BigDecimal lowest = (BigDecimal) this.values
-                                                 .get("lowest")
-                                                 .get("systemLoad");
-            if (load.compareTo(lowest) < 0) {
-                this.values.put("lowest", p);
-            }
         }
     }
     // end::holderClass[]

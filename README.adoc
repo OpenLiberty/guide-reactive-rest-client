@@ -5,7 +5,7 @@
 //
 // Contributors:
 //   IBM Corporation
-:projectid: jax-rs-reactive-client
+:projectid: reactive-rest-client
 :page-layout: guide-multipane
 :page-duration: 15 minutes
 :page-releasedate: 2020-07-31
@@ -32,13 +32,17 @@ NOTE: This repository contains the guide documentation source. To view the guide
 Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
 
 == What you'll learn
+The default JAX-RS client is an API used to communicate with RESTful web services. The API makes it very easy to consume a web service 
+exposed via HTTP protocol and allowes developers to concisely and efficiently implement client side solutions. The Reactive client extension
+is an API allowing users to utilize the reactive programming model when using JAX-RS client.
+
 You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
 You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
 
-The application you will be working with is a manager that maintains an inventory of available systems.
-It consists of three microservices, `system`, `inventory`, and `query`. Every 15 seconds, the `system` microservice 
-calculates and publishes an event that contains its current average system load. The `inventory` microservice subscribes 
-to that information so that it can keep an updated list of all the systems and their current system loads.
+The application you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
+Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
+The `inventory` microservice subscribes to that information so that it can keep an updated list of all the systems and their 
+current system loads.
 
 image::QueryService.png[Reactive Query Service, width=253, height=327, align="center"]
 
@@ -49,18 +53,6 @@ The implementations of the application and its services are provided for you in 
 The `system` and `inventory` microservices uses MicroProfile Reactive Messaging to send and receive the system load events.
 If you want to learn more about reactive messaging, you can read the 
 https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
-
-=== What is asynchronous programming?
-Asynchronous programming can be thought of as a restaurant. After being seated, a waiter will take your order. At this point, you will have to wait a few minutes for your food to be prepared. While your food is being prepared your waiter may take more orders or serve other tables. Once your food is ready, your waiter will be notified to bring out your food. However, in a synchronous model, the waiter would have to wait for your food to be prepared before dealing with any other customers. This method blocks other customers from placing orders or receiving their food.
-
-Asynchronous methods allow you to perform a lengthy operation, such as input/output (I/O) asynchronously. This means that the I/O occurs in the background and the caller is notified via a callback to continue with their computation once it’s complete. The benefit is that this frees up the original thread to handle other work rather than waiting on I/O to complete. Going back to the restaurant analogy, food is prepared asynchronously in the kitchen and your waiter is freed up to attend to other tables. Since they’re free, the waiter can take more orders from other tables, or serve food to other tables.
-
-In the context of REST clients, making synchronous HTTP requests can be a time consuming process. The network may be slow, or maybe the upstream service is overwhelmed and can't respond quickly. These lengthy operations can block the execution of your thread when it's in use and prevent other work from being completed.
-
-=== What is reactive programming?
-Reactive programming is an extension of asynchronous programming and a model that concerns itself with the flow of data through data streams. Execution of the model advances only when new data becomes available. Any changes, once complete, are immediately transitioned through the model via data streams, thus making it generally easier to implement an asynchronous and non-blocking system.
-
-Reactive programming brings with it many advantages. One of the greatest advantages of reactive programming is that you can focus mainly on business logic instead of having to worry about implementation and configuration. It is alot simpler to do asynchronous work and setup complex threading because reactive programming avoids the use of callbacks that asynchronous programming brings with itself. This also brings with it a much faster runtime execution of your application, which allows for a much better user experience. Lastly, it makes your code much more readable and easier to fix. You can add or remove blocks of code from individual data streams which means you can easily amend a specific, distressed stream. The usage of reactive streams brings with it tools to handle data flow, backpressure, thread safety, and error propagation. +
 
 == Additional prerequisites
 
@@ -73,7 +65,7 @@ You need to have Docker installed. For installation instructions, refer to the o
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
-== Using the default reactive JAX-RS client
+== Creating a web client using the default JAX-RS API
 
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
@@ -93,9 +85,9 @@ An implementation of the default reactive JAX-RS client is already provided for 
 
 The [hotspot file=0]`InventoryClient` class is used to retrieve the inventory data. In the [hotspot file=0]`InventoryClient` class, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Notice how it also contains an [hotspot=rx file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
 
-The [hotspot file=1]`QueryResource` class is used to process the data coming in from the data streams, which is accessed through the [hotspot file=0]`InventoryClient`. It serves this data when all of the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method, only when the `CompletionStage` interface has finished retrieving it. It is important to note that when you return a `CompletionStage` in the resource, it doesn't guarantee that computation is complete and that the response has been built. 
+The [hotspot file=1]`QueryResource` class is used to query data from the inventory service. The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint processes the data, asynchronously, that is retrieved by the [hotspot=getsystem file=1]`InventoryClient`, as well as serves the data when all of the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method, only when the `CompletionStage` interface has finished retrieving it. It is important to note that when you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built. A [hotspot=countdownlatch file=1]`CountDownLatch` is used to guarentee all of the requests have completed. This is something that will be reviewed further into the guide.
 
-== Updating the client to use third-party libraries
+== Updating the web client to use third-party reactive libraries
 
 JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^]. Jersey provides a client-builder interface which allows users to make a request for the data. It allows the use of specific invokers as configuration so that the client can support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. These custom objects are useful for covering use cases that the `CompletionStage` interface cannot. 
 
@@ -124,8 +116,7 @@ The changes involve changing the return types of the [hotspot=getSystem file=1]`
 
 Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
 
-
-== Updating the client to use the reactive model
+== Updating the REST resource to support the reactive JAX-RS client
 
 Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
 
@@ -140,9 +131,11 @@ QueryResource.java
 include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-Instead of using `thenAcceptAsync()`, observables use the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=subscribe file=0]`subscribe()` call. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=subscribe file=0]`subscribe()`. 
+The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
 
-A [hotspot=countdownlatch file=0]`CountDownLatch` is used to keep track of how many asynchronous requests we are waiting on. The [hotspot=countdownlatch file=0]`CountDownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=countdown file=0]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. Using the [hotspot=await file=0]`await` method, we stop and wait until all our requests are complete. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
+Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=subscribe file=0]`subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=subscribe file=0]`subscribe()`. The highest and lowest load systems are updated in the [hotspot=updateHighestCall hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestCall hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
+
+A [hotspot=countdownlatch file=0]`CountDownLatch` is used to keep track of how many asynchronous requests we are waiting on. The [hotspot=countdownlatch file=0]`CountDownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=countdown hotspot=countdown2 file=0]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. Using the [hotspot=await file=0]`await` method, we stop and wait until all our requests are complete. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
 
 // =================================================================================================
 // Building the application
@@ -250,7 +243,7 @@ A few tests are included for you to test the basic functionality of the `query` 
 `query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
-The [hotspot=testLoads file=0]`testLoads()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
+The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
 
 QueryServiceIT.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
