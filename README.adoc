@@ -33,11 +33,12 @@ Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTT
 
 == What you'll learn
 The default JAX-RS client is an API used to communicate with RESTful web services. The API makes it very easy to consume a web service 
-exposed via HTTP protocol and allowes developers to concisely and efficiently implement client side solutions. The Reactive client extension
+exposed via HTTP protocol and allows developers to efficiently implement client side solutions. The Reactive client extension
 is an API allowing users to utilize the reactive programming model when using JAX-RS client.
 
-You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
-You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
+Reactive programming is an extension of asynchronous programming and a model that concerns itself with the flow of data through data streams. Execution of the model advances only when new data becomes available. Any changes, once complete, are immediately transitioned through the model via data streams, thus making it generally easier to implement an asynchronous and non-blocking system.
+
+You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries. Finally, you will update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface.
 
 The application you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
 Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
@@ -99,7 +100,7 @@ pom.xml
 include::finish/query/pom.xml[tags=**]
 ----
 
-Update the client to accommodate the custom object types that you are trying to return. Also register the type of object that you want inside the client invocation.
+Update the client to accommodate the custom object types that you are trying to return. You'll also need to register the type of object that you want inside the client invocation.
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
@@ -114,7 +115,7 @@ include::finish/query/src/main/java/io/openliberty/guides/query/client/Inventory
 
 The changes involve changing the return types of the [hotspot=getSystem file=1]`getSystem()` method from a `CompletionStage` interface to an `Observable` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a collection of data that awaits to be subscribed to before it can release any data and is part of https://github.com/ReactiveX/RxJava[RxJava^]. The [hotspot=rx file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. Notice in the [hotspot=webTarget file=1]`webTarget()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
 
-Sometimes there are scenarios where a producer will generate more data than the consumers and handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
+Sometimes there are scenarios where a producer will generate more data than the consumers can handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
 
 == Updating the REST resource to support the reactive JAX-RS client
 
@@ -133,7 +134,7 @@ include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.ja
 
 The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
 
-Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus any required processing of data will be performed in the [hotspot=subscribe file=0]`subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder`. The temporary holder is used to store the value returned from the client because values cannot be returned inside [hotspot=subscribe file=0]`subscribe()`. The highest and lowest load systems are updated in the [hotspot=updateHighestCall hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestCall hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
+Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed in the [hotspot=subscribe file=0]`subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder`. The temporary [hotspot=holder hotspot=holderClass file=0]`holder` is used to store the value returned from the client because values cannot be returned inside [hotspot=subscribe file=0]`subscribe()`. The highest and lowest load systems are updated in the [hotspot=updateHighestCall hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestCall hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
 
 A [hotspot=countdownlatch file=0]`CountDownLatch` is used to keep track of how many asynchronous requests are being waited on. The [hotspot=countdownlatch file=0]`CountDownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=countdown hotspot=countdown2 file=0]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. The [hotspot=await file=0]`await` method stops and waits until all of the requests have completed. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
 
