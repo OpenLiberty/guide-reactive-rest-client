@@ -33,11 +33,12 @@ Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTT
 
 == What you'll learn
 The default JAX-RS client is an API used to communicate with RESTful web services. The API makes it very easy to consume a web service 
-exposed via HTTP protocol and allows developers to concisely and efficiently implement client side solutions. The Reactive client extension
+exposed via HTTP protocol and allows developers to efficiently implement client side solutions. The Reactive client extension
 is an API allowing users to utilize the reactive programming model when using JAX-RS client.
 
-You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries such as http://cxf.apache.org/docs/jax-rs.html[CXF^] or in this case https://eclipse-ee4j.github.io/jersey/[Jersey^]. You will also use this library to invoke your new client using Jersey’s custom invoker `RxObservableInvoker`.
-You will then update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface, like more scalable implementation. You will also gain exposure to the rich set of operators that the former includes.
+Reactive programming is an extension of asynchronous programming and a model that concerns itself with the flow of data through data streams. Execution of the model advances only when new data becomes available. Any changes, once complete, are immediately transitioned through the model via data streams, thus making it generally easier to implement an asynchronous and non-blocking system.
+
+You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries. Finally, you will update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface.
 
 The application you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
 Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
