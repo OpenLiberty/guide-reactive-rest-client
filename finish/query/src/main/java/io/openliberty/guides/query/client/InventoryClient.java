@@ -36,50 +36,31 @@ public class InventoryClient {
     @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
 
-    private WebTarget target;
-
-    public InventoryClient() {
-        this.target = null;
-    }
 
     public List<String> getSystems() {
-        return iBuilder(ClientBuilder
-                .newClient()
-                .target(baseUri)
-                .path("/inventory/systems"))
-                .get(new GenericType<List<String>>(){});
+        return ClientBuilder.newClient()
+                            .target(baseUri)
+                            .path("/inventory/systems")
+                            .request()
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                            .get(new GenericType<List<String>>(){});
     }
 
     // tag::getSystem[]
     public Observable<Properties> getSystem(String hostname) {
-        return iBuilder(webTarget().path(hostname))
-            // tag::rx[]
-            .rx(RxObservableInvoker.class)
-            // end::rx[]
-            .get(new GenericType<Properties>(){});
+        return ClientBuilder.newClient()
+                            .target(baseUri)
+                            // tag::register[]
+                            .register(RxObservableInvokerProvider.class)
+                            // end::register[]
+                            .path("/inventory/systems")
+                            .path(hostname)
+                            .request()
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                            // tag::rx[]
+                            .rx(RxObservableInvoker.class)
+                            // end::rx[]
+                            .get(new GenericType<Properties>(){});
     }
     // end::getSystem[]
-    
-    private Invocation.Builder iBuilder(WebTarget target) {
-        return target
-            .request()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-    }
-
-    // tag::webTarget[]
-    private WebTarget webTarget() {
-        if (this.target == null) {
-            this.target = ClientBuilder
-                .newClient()
-                .target(baseUri)
-                // tag::register[]
-                .register(RxObservableInvokerProvider.class)
-                // end::register[]
-                .path("/inventory/systems");
-        }
-
-        return this.target;
-    }
-    // end::webTarget[]
-
 }

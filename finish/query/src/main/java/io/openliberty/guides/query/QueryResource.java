@@ -77,7 +77,7 @@ public class QueryResource {
         // Wait for all remaining systems to be checked
         try {
             // tag::await[]
-            remainingSystems.await();
+            remainingSystems.await(30, TimeUnit.SECONDS);
             // end::await[]
         } catch (InterruptedException e) {
             e.printStackTrace();

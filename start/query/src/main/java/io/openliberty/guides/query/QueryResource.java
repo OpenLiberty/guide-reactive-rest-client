@@ -26,8 +26,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import io.openliberty.guides.query.client.InventoryClient;
 
 @ApplicationScoped
@@ -35,7 +33,6 @@ import io.openliberty.guides.query.client.InventoryClient;
 public class QueryResource {
     
     @Inject
-    @RestClient
     private InventoryClient inventoryClient;
 
     // tag::systemLoad[]
@@ -77,7 +74,7 @@ public class QueryResource {
         // Wait for all remaining systems to be checked
         try {
             // tag::await[]
-            remainingSystems.await();
+            remainingSystems.await(30, TimeUnit.SECONDS);
             // end::await[]
         } catch (InterruptedException e) {
             e.printStackTrace();
