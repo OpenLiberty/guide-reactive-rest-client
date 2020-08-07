@@ -71,6 +71,7 @@ public class QueryResource {
                                 // tag::countdown2[]
                                 remainingSystems.countDown();
                                 // end::countdown2[]
+                                e.printStackTrace();
                            });
                            // end::subscribe[]
         }
