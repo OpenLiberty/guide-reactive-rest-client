@@ -187,16 +187,10 @@ Although Open Liberty provides the Apache CXF JAX-RS reactive provider by defaul
 pom.xml
 [source, xml, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/query/pom.xml[tags=**]
+include::finish/query/pom.xml[]
 ----
 
 The [hotspot=71-75 file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=81-85 file=2]`jersey-rx-client-rxjava` and [hotspot=86-90 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=76-80 file=2]`jersey-client` client-builder.
-
-pom.xml
-[source,xml,linenums,role="code_column"]
-----
-include::finish/query/pom.xml[tags=**]
-----
 
 Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
 
@@ -232,7 +226,7 @@ include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.ja
 
 The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
 
-Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder` class. The temporary `holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
+Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holderClass file=0]`holder` class. The temporary `holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
 
 
 == Re-Building and running the application

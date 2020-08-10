@@ -59,14 +59,16 @@ public class QueryResource {
                                     systemLoads.updateHighest(p);
                                     systemLoads.updateLowest(p);
                                 }
+                                // tag::countdown1[]
                                 remainingSystems.countDown();
+                                // tag::countdown1[]
                            })
                            // end::thenAcceptAsync[]
                            // tag::exceptionally[]
                            .exceptionally(ex -> {
-                                // tag::countdown3[]
+                                // tag::countdown2[]
                                 remainingSystems.countDown();
-                                // end::countdown3[]
+                                // end::countdown2[]
                                 ex.printStackTrace();
                                 return null;
                            });
