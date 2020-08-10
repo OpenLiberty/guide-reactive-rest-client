@@ -184,13 +184,13 @@ Although Open Liberty provides the Apache CXF JAX-RS reactive provider by defaul
 #Update the `pom.xml` file.#
 `query/pom.xml`
 ----
-pom.xml
+
+The [hotspot=rxjava file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=jerseyRxjava file=2]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=2]`jersey-client` client-builder.
+
 [source, xml, linenums, role='code_column hide_tags=copyright']
 ----
 include::finish/query/pom.xml[]
 ----
-
-The [hotspot=rxjava file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=jerseyRxjava file=2]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=2]`jersey-client` client-builder.
 
 Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
 
