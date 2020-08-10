@@ -68,13 +68,13 @@ include::{common-includes}/gitclone.adoc[]
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::start/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
 QueryResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::start/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
 Navigate to the `start` directory to begin.
@@ -187,9 +187,9 @@ docker stop query
 
 == Updating the web client to use an alternative reactive provider
 
-Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of RxJava reactive libraries. You'll now update the the web client to use the Jersey reactive provider instead of CXF. This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
+Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. You'll now update the the web client to use the Jersey reactive provider instead of CXF. This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
 
-[role="code_command hotspot file=1", subs="quotes"]
+[role="code_command hotspot file=2", subs="quotes"]
 ----
 #Update the `pom.xml` file.#
 `query/pom.xml`
@@ -200,13 +200,7 @@ Pom.xml
 include::finish/query/pom.xml[]
 ----
 
-The https://github.com/ReactiveX/RxJava[RxJava^] and required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. The [hotspot=67-71 file=0]`rxjava` dependency allows the application to use the https://github.com/ReactiveX/RxJava[RxJava^] API. The [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=72-76 file=0]`jersey-client` client-builder.
-
-pom.xml
-[source,xml,linenums,role="code_column"]
-----
-include::finish/query/pom.xml[tags=**]
-----
+The [hotspot=71-75 file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=81-85 file=2]`jersey-rx-client-rxjava` and [hotspot=86-90 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=76-80 file=2]`jersey-client` client-builder.
 
 Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
 
@@ -221,7 +215,7 @@ InventoryClient.java
 include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-The return types of the [hotspot=getSystem file=1]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a collection of data that awaits to be subscribed to before it can release any data and is part of https://github.com/ReactiveX/RxJava[RxJava^]. The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+The return types of the [hotspot=getSystem file=1]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that awaits to be subscribed to before it can release any data and is part of RxJava. The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
 
 Sometimes there are scenarios where a producer will generate more data than the consumers can handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
 
@@ -242,16 +236,14 @@ include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.ja
 
 The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
 
-Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed inside the [hotspot=subscribe file=0]`subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder` class. The temporary [hotspot=holder hotspot=holderClass file=0]`holder` class is used to store the value returned from the client because values cannot be returned inside the [hotspot=subscribe file=0]`subscribe()` method. The highest and lowest load systems are updated in the [hotspot=updateHighestCall hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestCall hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
+Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder` class. The temporary `holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
 
 
 == Re-Building and running the application
 
-The `system`, `inventory`, and `query` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
-Start your Docker environment.
 
-To build the application, run the Maven `install` and `package` goals from the command-line session in the `start` directory:
+Run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
 [role='command']
 ```
