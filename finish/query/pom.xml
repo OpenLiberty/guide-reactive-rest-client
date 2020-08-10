@@ -68,26 +68,34 @@
         </dependency>
         <!-- end::kafka[] -->
         <!-- Reactive dependencies -->
+        <!-- tag::rxjava[] -->
         <dependency>
             <groupId>io.reactivex.rxjava3</groupId>
             <artifactId>rxjava</artifactId>
             <version>3.0.0</version>
         </dependency>
+        <!-- end::rxjava[] -->
+        <!-- tag::jerseyClient[] -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>2.27</version>
         </dependency>
+        <!-- end::jerseyClient[] -->
+        <!-- tag::jerseyRxjava[] -->
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava</artifactId>
             <version>2.27</version>
         </dependency>
+        <!-- end::jerseyRxjava[] -->
+        <!-- tag::jerseyRxjava2[] -->
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava2</artifactId>
             <version>2.27</version>
         </dependency>
+        <!-- end::jerseyRxjava2[] -->
         <!-- For tests -->
         <dependency>
             <groupId>org.microshed</groupId>
