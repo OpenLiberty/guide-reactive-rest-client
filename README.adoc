@@ -7,12 +7,12 @@
 //   IBM Corporation
 :projectid: reactive-rest-client
 :page-layout: guide-multipane
-:page-duration: 15 minutes
+:page-duration: 25 minutes
 :page-releasedate: 2020-07-31
 :page-guide-category: microprofile
 :page-essential: false
-:page-description: Learn how to use the reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
-:page-seo-title: Consuming RESTful Java microservices asynchronously using reactive JAX-RS client
+:page-description: Learn how to write a reactive JAX-RS client to asynchronously call RESTful microservices over HTTP.
+:page-seo-title: Consuming RESTful Java microservices asynchronously using the reactive JAX-RS client
 :page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client and with Eclipse Jersey/RxJava reactive client library.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Jakarta EE']
@@ -24,21 +24,19 @@
 :mac: MAC
 :win: WINDOWS
 :linux: LINUX
-= Consuming RESTful services using reactive JAX-RS client
+= Consuming RESTful services using the reactive JAX-RS client
 
 [.hidden]
 NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].
 
-Learn how to use reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
+Learn how to use a reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
 
 == What you'll learn
-The default JAX-RS client is an API used to communicate with RESTful web services. The API makes it very easy to consume a web service 
-exposed via HTTP protocol and allows developers to efficiently implement client side solutions. The Reactive client extension
-is an API allowing users to utilize the reactive programming model when using JAX-RS client.
+You'll learn how to create a reactive JAX-RS client application using two different JAX-RS reactive providers, Apache CXF and Eclipse Jersey. The JAX-RS client is an API used to communicate with RESTful web services. The API makes it very easy to consume a web service exposed using the HTTP protocol and means that you can efficiently implement client-side applications. The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
 
-Reactive programming is an extension of asynchronous programming and a model that concerns itself with the flow of data through data streams. Execution of the model advances only when new data becomes available. Any changes, once complete, are immediately transitioned through the model via data streams, thus making it generally easier to implement an asynchronous and non-blocking system. This brings with it a much faster runtime execution of your application over the default asynchronous approach, which allows for a much better user experience.
+Reactive programming is an extension of asynchronous programming and focuses on the flow of data through data streams. Reactive application process data when it becomes available and responds to requests as soon as the processing is complete; the request and response to the application are decoupled so that the application is not blocked from responding to other requests in the meantime. Reactive applications can run faster than synchronous applications, which provides a much smoother user experience.
 
-You will learn how the default reactive JAX-RS client accesses remote RESTful services using asynchronous method calls. You will then learn how to update the client so that it uses custom objects from third-party libraries. Finally, you will update your resources to accommodate the new client. Instead of using elementary, single-use asynchronous solutions, you will use asynchronous data streams to transport data. In doing so, you will learn the benefits of using the `Observable` class over the more traditional `CompletionStage` interface.
+The application in this guide demonstrates how the JAX-RS client accesses remote RESTful services using asynchronous method calls. You'll first take a look at the supplied client application which uses CXF, the JAX-RS reactive provider used by default in Open Liberty, then you'll modify the client application to instead use Jersey, an alternative JAX-RS reactive provider. Both CXF and Jersey provide third-party reactive libraries, including RxJava, and have been tested for use in Open Liberty.
 
 The application you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
 Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
@@ -50,7 +48,6 @@ image::QueryService.png[Reactive Query Service, width=253, height=327, align="ce
 The microservice that you will modify is the `query` service. It communicates with the `inventory` service 
 to determine which system has the highest system load and which system has the lowest system load.
 
-The implementations of the application and its services are provided for you in the `start` directory.
 The `system` and `inventory` microservices uses MicroProfile Reactive Messaging to send and receive the system load events.
 If you want to learn more about reactive messaging, you can read the 
 https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
@@ -66,7 +63,7 @@ You need to have Docker installed. For installation instructions, refer to the o
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
-== Creating a web client using the default JAX-RS API
+== Creating a web client using the CXF reactive provider
 
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
@@ -82,44 +79,20 @@ include::start/query/src/main/java/io/openliberty/guides/query/QueryResource.jav
 
 Navigate to the `start` directory to begin.
 
-An implementation of the default reactive JAX-RS client is already provided for you. The classes you will change are [hotspot file=0]`InventoryClient` and [hotspot file=1]`QueryResource` which now implement the default JAX-RS reactive client.
-
-The [hotspot file=0]`InventoryClient` class is used to retrieve the inventory data. In the [hotspot file=0]`InventoryClient` class, notice how the [hotspot=getSystem file=0]`getSystem()` returns the `CompletionStage` interface. This interface represents a unit or stage of a computation, and once the associated computation completes, the value contained can be retrieved. Notice how it also contains an [hotspot=rx file=0]`rx()` call. This is the default reactive invoker for the `CompletionStage` interface and this method is what retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
-
-The [hotspot file=1]`QueryResource` class is used to query data from the inventory service. The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint processes the data, asynchronously, that is retrieved by the [hotspot=getsystem file=1]`InventoryClient`, as well as serves the data when all of the services have completed execution. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method, only when the `CompletionStage` interface has finished retrieving it. It is important to note that when you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built. A [hotspot=countdownlatch file=1]`CountDownLatch` is used to guarentee all of the requests have completed. This is something that will be reviewed further into the guide.
-
-== Updating the web client to use third-party reactive libraries
-
-JAX-RS supports the usage of third-party reactive libraries like https://github.com/ReactiveX/RxJava[RxJava^]. This is accomplished by reactive providers. Most JAX-RS implementors publish reactive providers for RxJava, including Apache CXF, Eclipse Jersey, and RESTEasy. Liberty has tested RxJava providers from CXF and Jersey. This example shows how to use Jersey's RxJava provider.
-
-The https://github.com/ReactiveX/RxJava[RxJava^] and required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. The [hotspot=67-71 file=0]`rxjava` dependency allows the application to use the https://github.com/ReactiveX/RxJava[RxJava^] API. The [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=72-76 file=0]`jersey-client` client-builder.
-
-pom.xml
-[source,xml,linenums,role="code_column"]
-----
-include::finish/query/pom.xml[tags=**]
-----
-
-Update the client to accommodate the custom object types that you are trying to return. You'll also need to register the type of object that you want inside the client invocation.
+The CXF reactive provider is provided by default in Open Liberty so that you can write application using reactive APIs like RxJava. Create an [hotspot file=0]`InventoryClient` class which is used to retrieve the inventory data, and a [hotspot file=1]`QueryResource` class, which queries data from the Inventory service.
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
-#Replace the `InventoryClient` interface.#
+#Create the `InventoryClient` interface.#
 `query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
 ----
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-The changes involve changing the return types of the [hotspot=getSystem file=1]`getSystem()` method from a `CompletionStage` interface to an `Observable` object. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a collection of data that awaits to be subscribed to before it can release any data and is part of https://github.com/ReactiveX/RxJava[RxJava^]. The [hotspot=rx file=1]`rx()` invoker also must contain `RxObservableInvoker.class` as an argument. This is to invoke the specific invoker for the `Observable` class provided by Jersey. Notice in the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call that allows for the client to recognize the `RxObservableInvoker` class. Without registering the invoker provider, the invoker will not be recognized.
-
-Sometimes there are scenarios where a producer will generate more data than the consumers can handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
-
-== Updating the REST resource to support the reactive JAX-RS client
-
-Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
+The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage` interface. This interface represents a unit or stage of a computation and, when the associated computation completes, the value contained can be retrieved. The [hotspot=rx file=0]`rx()` method calls the `CompletionStage` interface. It retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
 
 [role="code_command hotspot=0", subs="quotes"]
 ----
@@ -129,18 +102,12 @@ Now that the client methods return the `Observable` class, you must update the r
 QueryResource.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
+The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` and serves the data when all of the services have responded. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only when the `CompletionStage` interface has finished retrieving it. When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
-Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed in the [hotspot=subscribe file=0]`subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder`. The temporary [hotspot=holder hotspot=holderClass file=0]`holder` is used to store the value returned from the client because values cannot be returned inside [hotspot=subscribe file=0]`subscribe()`. The highest and lowest load systems are updated in the [hotspot=updateHighestCall hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestCall hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
-
-A [hotspot=countdownlatch file=0]`CountDownLatch` is used to keep track of how many asynchronous requests are being waited on. The [hotspot=countdownlatch file=0]`CountDownLatch` will countdown towards 0 after the completion of a thread via the [hotspot=countdown hotspot=countdown2 file=0]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. The [hotspot=await file=0]`await` method stops and waits until all of the requests have completed. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
-
-// =================================================================================================
-// Building the application
-// =================================================================================================
+A [hotspot=countdownlatch file=0]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. The [hotspot=countdownlatch file=0]`CountDownLatch` object will countdown towards 0 after the completion of a thread via the [hotspot=countdown hotspot=countdown2 file=0]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. The [hotspot=await file=0]`await` method stops and waits until all of the requests have completed. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
 
 == Building and running the application
 
@@ -167,7 +134,7 @@ docker build -t inventory:1.0-SNAPSHOT inventory/.
 docker build -t query:1.0-SNAPSHOT query/.
 ```
 
-Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It also creates containers for Kafka, Zookeeper, and all of the microservices in the project.
+Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It creates containers for Kafka, Zookeeper, and all of the microservices in the project.
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -207,6 +174,119 @@ When the service is ready, you will see an output similar to the one below. The 
 ----
 
 The JSON output has a `highest` attribute which represents the system with the highest load. Similarly, the `lowest` attribute represents the system with the lowest load. The JSON output for each of these feature the respective hostname and systemLoad of the system.
+
+When you are done checking out the application, run the following command to stop the query microservice. We will leave the `system` and `inventory` services running because we will use them when we rebuild the application later on. 
+
+--
+[role='command']
+```
+docker stop query
+```
+--
+
+
+== Updating the web client to use an alternative reactive provider
+
+Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of RxJava reactive libraries. You'll now update the the web client to use the Jersey reactive provider instead of CXF. This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
+
+[role="code_command hotspot file=1", subs="quotes"]
+----
+#Update the `pom.xml` file.#
+`query/pom.xml`
+----
+Pom.xml
+[source, xml, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/pom.xml[]
+----
+
+The https://github.com/ReactiveX/RxJava[RxJava^] and required Jersey libraries are included as dependencies to your [hotspot file=0]`query/pom.xml` file. The [hotspot=67-71 file=0]`rxjava` dependency allows the application to use the https://github.com/ReactiveX/RxJava[RxJava^] API. The [hotspot=77-81 file=0]`jersey-rx-client-rxjava` and [hotspot=82-86 file=0]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=72-76 file=0]`jersey-client` client-builder.
+
+pom.xml
+[source,xml,linenums,role="code_column"]
+----
+include::finish/query/pom.xml[tags=**]
+----
+
+Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
+
+[role="code_command hotspot file=1", subs="quotes"]
+----
+#Replace the `InventoryClient` interface.#
+`query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
+----
+InventoryClient.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+----
+
+The return types of the [hotspot=getSystem file=1]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. `http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^]` is a collection of data that awaits to be subscribed to before it can release any data and is part of https://github.com/ReactiveX/RxJava[RxJava^]. The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+
+Sometimes there are scenarios where a producer will generate more data than the consumers can handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
+
+== Updating the REST resource to support the reactive JAX-RS client
+
+Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
+
+[role="code_command hotspot=0", subs="quotes"]
+----
+#Replace the `QueryResource` class.#
+`query/src/main/java/io/openliberty/guides/query/QueryResource.java`
+----
+QueryResource.java
+[source, Java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
+----
+
+The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
+
+Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed inside the [hotspot=subscribe file=0]`subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holder hotspot=holderClass file=0]`holder` class. The temporary [hotspot=holder hotspot=holderClass file=0]`holder` class is used to store the value returned from the client because values cannot be returned inside the [hotspot=subscribe file=0]`subscribe()` method. The highest and lowest load systems are updated in the [hotspot=updateHighestCall hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestCall hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
+
+
+== Re-Building and running the application
+
+The `system`, `inventory`, and `query` microservices will be built in a Docker container. If you want to learn more about Docker containers, you can check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+
+Start your Docker environment.
+
+To build the application, run the Maven `install` and `package` goals from the command-line session in the `start` directory:
+
+[role='command']
+```
+mvn -pl models install
+mvn package
+```
+
+Run the following command to containerize the query microservices:
+
+[role='command']
+```
+docker build -t query:1.0-SNAPSHOT query/.
+```
+
+Next, use the provided script to restart the query service in a Docker container. 
+
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startQueryContainer.sh
+```
+--
+
+[.tab_content.windows_section]
+--
+[role='command']
+```
+.\scripts\startQueryContainer.bat
+```
+--
+
+You can access the application by making requests to the `query/systemLoad` endpoint by accessing http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^]. 
 
 Switching to a reactive programming model has freed up the thread handling your request to `/query/systemLoad`. While the client request is being handled, the thread can handle other work.
 
@@ -283,6 +363,6 @@ Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 
 == Great work! You're done!
 
-You have just modified an application to make HTTP requests using reactive JAX-RS client with Open Liberty and Jersey.
+You have just modified an application to make HTTP requests using a reactive JAX-RS client with Open Liberty and Jersey.
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
