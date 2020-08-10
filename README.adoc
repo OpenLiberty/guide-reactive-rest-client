@@ -179,6 +179,17 @@ docker stop query
 
 Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. You'll now update the the web client to use the Jersey reactive provider instead of CXF. This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
 
+[role="code_command hotspot file=2", subs="quotes"]
+----
+#Update the `pom.xml` file.#
+`query/pom.xml`
+----
+pom.xml
+[source, xml, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/pom.xml[tags=**]
+----
+
 The [hotspot=71-75 file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=81-85 file=2]`jersey-rx-client-rxjava` and [hotspot=86-90 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=76-80 file=2]`jersey-client` client-builder.
 
 pom.xml
