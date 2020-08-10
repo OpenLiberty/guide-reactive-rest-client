@@ -179,13 +179,18 @@ docker stop query
 
 Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. You'll now update the the web client to use the Jersey reactive provider instead of CXF. This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
 
-The [hotspot=rxjava file=0]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=2]`jersey-client` client-builder.
-
+[role="code_command hotspot=2", subs="quotes"]
+----
+#Update the `pom.xml` file.#
+`query/pom.xml`
+----
 pom.xml
-[source,xml,linenums,role="code_column"]
+[source, xml, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/query/pom.xml[tags=**]
+include::finish/query/pom.xml[]
 ----
+
+The [hotspot=rxjava file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=jerseyRxjava file=2]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=2]`jersey-client` client-builder.
 
 Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
 
