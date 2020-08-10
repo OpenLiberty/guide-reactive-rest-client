@@ -85,6 +85,8 @@ The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage`
 
 The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` and serves the data when all of the services have responded. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only when the `CompletionStage` interface has finished retrieving it. When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
+A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. The [hotspot=countdownlatch file=1]`CountDownLatch` object will countdown towards 0 after the completion of a thread via the [hotspot=countdown hotspot=countdown2 file=1]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. The [hotspot=await file=1]`await` method stops and waits until all of the requests have completed. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
+
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
 ----
@@ -96,8 +98,6 @@ QueryResource.java
 ----
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
-
-A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. The [hotspot=countdownlatch file=1]`CountDownLatch` object will countdown towards 0 after the completion of a thread via the [hotspot=countdown hotspot=countdown2 file=1]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. The [hotspot=await file=1]`await` method stops and waits until all of the requests have completed. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
 
 == Building and running the application
 
@@ -188,9 +188,9 @@ Although Open Liberty provides the Apache CXF JAX-RS reactive provider by defaul
 The [hotspot=71-75 file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=81-85 file=2]`jersey-rx-client-rxjava` and [hotspot=86-90 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=76-80 file=2]`jersey-client` client-builder.
 
 pom.xml
-[source,xml,linenums,role="code_column"]
+[source, xml, linenums, role='code_column hide_tags=copyright']
 ----
-include::finish/query/pom.xml[tags=**]
+include::finish/query/pom.xml[]
 ----
 
 Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
