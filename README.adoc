@@ -65,18 +65,6 @@ include::{common-includes}/gitclone.adoc[]
 
 == Creating a web client using the CXF reactive provider
 
-InventoryClient.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
-----
-include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
-----
-
-QueryResource.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
-----
-include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
-----
-
 Navigate to the `start` directory to begin.
 
 The CXF reactive provider is provided by default in Open Liberty so that you can write application using reactive APIs like RxJava. Create an [hotspot file=0]`InventoryClient` class which is used to retrieve the inventory data, and a [hotspot file=1]`QueryResource` class, which queries data from the Inventory service.
@@ -96,7 +84,7 @@ The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage`
 
 [role="code_command hotspot=0", subs="quotes"]
 ----
-#Replace the `QueryResource` class.#
+#Create the `QueryResource` class.#
 `query/src/main/java/io/openliberty/guides/query/QueryResource.java`
 ----
 QueryResource.java
