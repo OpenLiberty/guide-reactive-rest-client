@@ -61,7 +61,7 @@ public class QueryResource {
                                 }
                                 // tag::countdown1[]
                                 remainingSystems.countDown();
-                                // tag::countdown1[]
+                                // end::countdown1[]
                            })
                            // end::thenAcceptAsync[]
                            // tag::exceptionally[]

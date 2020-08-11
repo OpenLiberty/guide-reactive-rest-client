@@ -103,7 +103,7 @@ include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource
 The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` and serves the data when all of the services have responded. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only when the `CompletionStage` interface has finished retrieving it. When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
 A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. 
-The [hotspot=countdownlatch file=1]`CountDownLatch` object will countdown towards 0 after the completion of a thread via the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown` method call. 
+The `CountDownLatch` object will countdown towards 0 after each completion of a thread via the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown` method call. 
 This means that the value returns only after the thread that's retrieving the value is complete.
 The [hotspot=await file=1]`await` method stops and waits until all of the requests have completed. 
 While waiting for this countdown to complete, the main thread is free to perform other tasks. 
@@ -224,7 +224,7 @@ include::finish/query/src/main/java/io/openliberty/guides/query/client/Inventory
 The return types of the [hotspot=getSystem file=1]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. 
 http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that awaits to be subscribed to before it can release any data and is part of RxJava. 
 The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. 
-In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
 
 Sometimes there are scenarios where a producer will generate more data than the consumers can handle. 
 In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. 
@@ -252,7 +252,7 @@ Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()`
 
 Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
 Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holderClass file=0]`Holder` class. 
-The temporary `Holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. 
+The `Holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. 
 The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
 
 == Re-Building and running the application
