@@ -198,6 +198,12 @@ You'll now update the web client to use the Jersey reactive provider instead of 
 This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. 
 These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
 
+[role="code_command hotspot file=0", subs="quotes"]
+----
+#Replace the Maven configuration file.#
+`query/pom.xml`
+----
+
 The [hotspot=rxjava file=0]`rxjava` dependency allows the application to use the RxJava API. 
 The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=0]`jersey-client` client-builder.
 
