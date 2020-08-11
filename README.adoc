@@ -67,7 +67,8 @@ include::{common-includes}/gitclone.adoc[]
 
 Navigate to the `start` directory to begin.
 
-The CXF reactive provider is provided by default in Open Liberty so that you can write application using reactive APIs like RxJava. Create an [hotspot file=0]`InventoryClient` class which is used to retrieve the inventory data, and a [hotspot file=1]`QueryResource` class, which queries data from the Inventory service.
+The CXF reactive provider is provided by default in Open Liberty so that you can write applications using reactive APIs like RxJava. 
+Create an [hotspot file=0]`InventoryClient` class which is used to retrieve the inventory data, and a [hotspot file=1]`QueryResource` class, which queries data from the Inventory service.
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
@@ -75,7 +76,11 @@ The CXF reactive provider is provided by default in Open Liberty so that you can
 `query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
 ----
 
-The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage` interface. This interface represents a unit or stage of a computation and, when the associated computation completes, the value contained can be retrieved. The [hotspot=rx file=0]`rx()` method calls the `CompletionStage` interface. It retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
+The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage` interface. 
+This interface represents a unit or stage of a computation.
+When the associated computation completes, the value contained can be retrieved. 
+The [hotspot=rx file=0]`rx()` method calls the `CompletionStage` interface. 
+It retrieves the `CompletionStageRxInvoker` class and allows for these methods to function correctly with the `CompletionStage` interface return type.
 
 [role="code_command hotspot=0", subs="quotes"]
 ----
@@ -85,7 +90,12 @@ The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage`
 
 The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` and serves the data when all of the services have responded. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only when the `CompletionStage` interface has finished retrieving it. When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
-A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. The [hotspot=countdownlatch file=1]`CountDownLatch` object will countdown towards 0 after the completion of a thread via the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown` method call. This means that the value will only return once the thread that's retrieving the value is complete. The [hotspot=await file=1]`await` method stops and waits until all of the requests have completed. While waiting for this countdown to complete, the main thread is free to perform other tasks. In this case, no such task is present, but a simple task can be given to occupy the thread.
+A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. 
+The [hotspot=countdownlatch file=1]`CountDownLatch` object will countdown towards 0 after the completion of a thread via the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown` method call. 
+This means that the value returns only after the thread that's retrieving the value is complete.
+The [hotspot=await file=1]`await` method stops and waits until all of the requests have completed. 
+While waiting for this countdown to complete, the main thread is free to perform other tasks. 
+In this case, no such task is present, but a simple task can be given to occupy the thread.
 
 InventoryClient.java
 [source, Java, linenums, role='code_column hide_tags=copyright']
@@ -177,7 +187,10 @@ docker stop query
 
 == Updating the web client to use an alternative reactive provider
 
-Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. You'll now update the the web client to use the Jersey reactive provider instead of CXF. This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
+Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. 
+You'll now update the web client to use the Jersey reactive provider instead of CXF. 
+This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. 
+These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
 
 The [hotspot=rxjava file=2]`rxjava` dependency allows the application to use the RxJava API. The [hotspot=jerseyRxjava file=2]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=2]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=2]`jersey-client` client-builder.
 
