@@ -71,12 +71,6 @@ InventoryClient.java
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-QueryResource.java
-[source, java, linenums, role='code_column hide_tags=copyright']
-----
-include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
-----
-
 Navigate to the `start` directory to begin.
 
 The CXF reactive provider is provided by default in Open Liberty so that you can write applications using reactive APIs like RxJava. 
@@ -98,6 +92,12 @@ It retrieves the `CompletionStageRxInvoker` class and allows for these methods t
 ----
 #Create the `QueryResource` class.#
 `query/src/main/java/io/openliberty/guides/query/QueryResource.java`
+----
+
+QueryResource.java
+[source, java, linenums, role='code_column hide_tags=copyright']
+----
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
 The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` and serves the data when all of the services have responded. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only when the `CompletionStage` interface has finished retrieving it. When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
@@ -187,10 +187,10 @@ docker stop query
 
 == Updating the web client to use an alternative reactive provider
 
-InventoryClient.java
-[source, java, linenums, role='code_column hide_tags=copyright']
+pom.xml
+[source, xml, linenums, role="code_column"]
 ----
-include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+include::finish/query/pom.xml[]
 ----
 
 Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. 
@@ -201,24 +201,24 @@ These custom objects provide a simpler and faster way for you to create scalable
 The [hotspot=rxjava file=0]`rxjava` dependency allows the application to use the RxJava API. 
 The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the Rx Invoker provider classes which are then registered to the [hotspot=jerseyClient file=0]`jersey-client` client-builder.
 
-pom.xml
-[source,xml,linenums,role="code_column"]
-----
-include::finish/query/pom.xml[tags=**]
-----
-
 Update the client to accommodate the custom object types that you are trying to return. You'll need to register the type of object that you want inside the client invocation.
 
-[role="code_command hotspot file=0", subs="quotes"]
+[role="code_command hotspot file=1", subs="quotes"]
 ----
 #Replace the `InventoryClient` interface.#
 `query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
 ----
 
-The return types of the [hotspot=getSystem file=0]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. 
+InventoryClient.java
+[source, java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+----
+
+The return types of the [hotspot=getSystem file=1]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. 
 http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that awaits to be subscribed to before it can release any data and is part of RxJava. 
-The [hotspot=rx file=0]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. 
-In the [hotspot=getSystem file=0]`getSystem()` method, the [hotspot=register file=0]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. 
+In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
 
 Sometimes there are scenarios where a producer will generate more data than the consumers can handle. 
 In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. 
