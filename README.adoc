@@ -66,13 +66,13 @@ include::{common-includes}/gitclone.adoc[]
 == Creating a web client using the CXF reactive provider
 
 InventoryClient.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright']
 ----
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
 QueryResource.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright']
 ----
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
@@ -188,7 +188,7 @@ docker stop query
 == Updating the web client to use an alternative reactive provider
 
 InventoryClient.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright']
 ----
 include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
@@ -215,28 +215,39 @@ Update the client to accommodate the custom object types that you are trying to 
 `query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
 ----
 
-The return types of the [hotspot=getSystem file=0]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that awaits to be subscribed to before it can release any data and is part of RxJava. The [hotspot=rx file=0]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. In the [hotspot=getSystem file=0]`getSystem()` method, the [hotspot=register file=0]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+The return types of the [hotspot=getSystem file=0]`getSystem()` method are now an `Observable` object instead of a `CompletionStage` interface. 
+http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that awaits to be subscribed to before it can release any data and is part of RxJava. 
+The [hotspot=rx file=0]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This is to call the specific invoker, `RxObservableInvoker`, for the Observable class provided by Jersey. 
+In the [hotspot=getSystem file=0]`getSystem()` method, the [hotspot=register file=0]`register(RxObservableInvokerProvider)` call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
 
-Sometimes there are scenarios where a producer will generate more data than the consumers can handle. In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html?fbclid=IwAR00IgA2lwRsp0_lRTOVTibTw7oZTwkHr_pCDLXKxIxwA8EgE_xrxk22r5A[JAX-RS reactive extensions with RxJava Backpressure^]
+Sometimes there are scenarios where a producer will generate more data than the consumers can handle. 
+In cases like these, JAX-RS can deal with this issue using RxJava's `Flowable` with `backpressure`. 
+You can learn more with this post about https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava Backpressure^]
 
 == Updating the REST resource to support the reactive JAX-RS client
 
-Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
-
-[role="code_command hotspot=1", subs="quotes"]
-----
-#Replace the `QueryResource` class.#
-`query/src/main/java/io/openliberty/guides/query/QueryResource.java`
-----
 QueryResource.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright']
 ----
 include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-The goal of the [hotspot=systemload file=1]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=1]`getSystems()`. Then it loops through each one and calls [hotspot=getSystem file=1]`getSystem()` on them.
+Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
 
-Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=1]`subscribe()` method to asynchronously process data. Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holderClass file=1]`holder` class. The temporary `holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=1]`updateHighest()` and [hotspot=updateLowestMethod file=1]`updateLowest()` methods respectively.
+[role="code_command hotspot file=0", subs="quotes"]
+----
+#Replace the `QueryResource` class.#
+`query/src/main/java/io/openliberty/guides/query/QueryResource.java`
+----
+
+The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. 
+The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=getSystems file=0]`getSystems()`. 
+Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
+
+Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
+Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holderClass file=0]`Holder` class. 
+The temporary `Holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. 
+The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
 
 == Re-Building and running the application
 
@@ -316,7 +327,7 @@ A few tests are included for you to test the basic functionality of the `query` 
 The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
 
 QueryServiceIT.java
-[source, Java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright']
 ----
 include::finish/query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java[]
 ----
