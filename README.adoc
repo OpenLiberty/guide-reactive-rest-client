@@ -65,7 +65,7 @@ You need to have Docker installed. For installation instructions, refer to the o
 [role='command']
 include::{common-includes}/gitclone.adoc[]
 
-== Creating a web client using the CXF reactive provider
+== Creating a web client using the default JAX-RS API
 
 InventoryClient.java
 [source, java, linenums, role='code_column hide_tags=copyright']
@@ -75,7 +75,11 @@ include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/Invent
 
 Navigate to the `start` directory to begin.
 
-The CXF reactive provider is provided by default in Open Liberty so that you can write applications using reactive APIs like RxJava. 
+JAX-RS supports the usage of third-party libraries like https://eclipse-ee4j.github.io/jersey[Jersey^]. 
+Jersey provides a client-builder interface which allows users to make a request for the data. 
+It allows the use of specific invokers as configuration so that the client can support https://github.com/ReactiveX/RxJava[RxJava^] objects instead of only the `CompletionStage` interface. 
+These custom objects are useful for covering use cases that the `CompletionStage` interface cannot. 
+
 Create an [hotspot file=0]`InventoryClient` class which is used to retrieve the inventory data, and a [hotspot file=1]`QueryResource` class, which queries data from the Inventory service.
 
 [role="code_command hotspot file=0", subs="quotes"]
@@ -195,8 +199,9 @@ pom.xml
 include::finish/query/pom.xml[]
 ----
 
-Although Open Liberty provides the Apache CXF JAX-RS reactive provider by default, you can alternatively use another provider, such as Eclipse Jersey or RESTEasy, which also support the use of https://github.com/ReactiveX/RxJava[RxJava^] reactive libraries. 
-You'll now update the web client to use the Jersey reactive provider instead of CXF. 
+Although Open Liberty provides the default reactive provider which returns `CompletionStage` types, you can alternatively use another provider that supports the use of other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. 
+The Apache CXF and Eclipse Jersey projects produce such providers.
+You'll now update the web client to use the Jersey reactive provider for RxJava. 
 This means that you can write clients that use RxJava objects instead of just the CompletionStage interface. 
 These custom objects provide a simpler and faster way for you to create scalable RESTful services over a CompletionStage interface.
 
@@ -371,6 +376,6 @@ Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 
 == Great work! You're done!
 
-You have just modified an application to make HTTP requests using a reactive JAX-RS client with Open Liberty and Jersey.
+You have just modified an application to make HTTP requests using a reactive JAX-RS client with Open Liberty and Jersey's RxJava provider.
 
 include::{common-includes}/attribution.adoc[subs="attributes"]
