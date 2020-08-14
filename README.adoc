@@ -266,7 +266,7 @@ Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()`
 Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
 Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holderClass file=0]`Holder` class. 
 The `Holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. 
-The highest and lowest load systems are updated in the [hotspot=updateHighestMethod file=0]`updateHighest()` and [hotspot=updateLowestMethod file=0]`updateLowest()` methods respectively.
+The highest and lowest load systems are updated in the [hotspot=updateValues file=0]`updateValues()` method.
 
 == Re-building and running the application
 

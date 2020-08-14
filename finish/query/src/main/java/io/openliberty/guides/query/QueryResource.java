@@ -57,12 +57,7 @@ public class QueryResource {
                             // tag::subscribe[]
                            .subscribe(p -> {
                                 if (p != null) {
-                                    // tag::updateHighestCall[]
-                                    systemLoads.updateHighest(p);
-                                    // end::updateHighestCall[]
-                                    // tag::updateLowestCall[]
-                                    systemLoads.updateLowest(p);
-                                    // end::updateLowestCall[]
+                                    systemLoads.updateValues(p);
                                 }
                                 // tag::countdown[]
                                 remainingSystems.countDown();
@@ -85,14 +80,14 @@ public class QueryResource {
             e.printStackTrace();
         }
         
-        return systemLoads.values;
+        return systemLoads.getValues();
     }
     // end::systemload[]
 
     // tag::holderClass[]
     private class Holder {
         // tag::volatile[]
-        public volatile Map<String, Properties> values;
+        private volatile Map<String, Properties> values;
         // end::volatile[]
 
         public Holder() {
@@ -102,25 +97,24 @@ public class QueryResource {
             init();
         }
 
-        // tag::updateHighestMethod[]
-        public void updateHighest(Properties p) {
-            BigDecimal load = (BigDecimal) p.get("systemLoad");
-            BigDecimal highest = (BigDecimal) this.values.get("highest").get("systemLoad");
-            if (load.compareTo(highest) > 0) {
-                this.values.put("highest", p);
-            }
+        public Map<String, Properties> getValues() {
+            return this.values;
         }
-        // end::updateHighestMethod[]
 
-        // tag::updateLowestMethod[]
-        public void updateLowest(Properties p) {
-            BigDecimal load = (BigDecimal) p.get("systemLoad");
-            BigDecimal lowest = (BigDecimal) this.values.get("lowest").get("systemLoad");
-            if (load.compareTo(lowest) < 0) {
-                this.values.put("lowest", p);
-            }
+        // tag::updateValues[]
+        public void updateValues(Properties p) {
+            final BigDecimal load = (BigDecimal) p.get("systemLoad");
+
+            this.values.computeIfPresent("lowest", (key, curr_val) -> {
+                BigDecimal lowest = (BigDecimal) curr_val.get("systemLoad");
+                return load.compareTo(lowest) < 0 ? p : curr_val;
+            });
+            this.values.computeIfPresent("highest", (key, curr_val) -> {
+                BigDecimal highest = (BigDecimal) curr_val.get("systemLoad");
+                return load.compareTo(highest) > 0 ? p : curr_val;
+            });
         }
-        // end::updateLowestMethod[]
+        // end::updateValues[]
 
         private void init() {
             // Initialize highest and lowest values
