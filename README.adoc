@@ -32,13 +32,19 @@ NOTE: This repository contains the guide documentation source. To view the guide
 Learn how to use a reactive JAX-RS client to invoke RESTful microservices over HTTP asynchronously.
 
 == What you'll learn
-You'll learn how to create a reactive JAX-RS client application using two different JAX-RS reactive providers, Apache CXF and Eclipse Jersey. The JAX-RS client is an API used to communicate with RESTful web services. The API makes it very easy to consume a web service exposed using the HTTP protocol and means that you can efficiently implement client-side applications. The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
+
+You'll learn how to create a reactive JAX-RS client application using the default JAX-RS reactive provider and a pluggable reactive provider for RxJava published by Eclipse Jersey. 
+The JAX-RS client is an API used to communicate with RESTful web services. 
+The API makes it very easy to consume a web service exposed using the HTTP protocol and means that you can efficiently implement client-side applications. 
+The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
 
 Reactive programming is an extension of asynchronous programming and focuses on the flow of data through data streams. 
 Reactive applications process data when it becomes available and responds to requests as soon as the processing is complete; the request and response to the application are decoupled so that the application is not blocked from responding to other requests in the meantime. 
 Reactive applications can run faster than synchronous applications, which provides a much smoother user experience.
 
-The application in this guide demonstrates how the JAX-RS client accesses remote RESTful services using asynchronous method calls. You'll first take a look at the supplied client application which uses CXF, the JAX-RS reactive provider used by default in Open Liberty, then you'll modify the client application to instead use Jersey, an alternative JAX-RS reactive provider. Both CXF and Jersey provide third-party reactive libraries, including RxJava, and have been tested for use in Open Liberty.
+The application in this guide demonstrates how the JAX-RS client accesses remote RESTful services using asynchronous method calls.
+You'll first take a look at the supplied client application which uses JAX-RS's default `CompletionStage`-based provider, then you'll modify the client application to instead use Jersey's RxJava provider, an alternative JAX-RS reactive provider.
+Both Jersey and Apache CXF provide third-party reactive libraries for RxJava, and have been tested for use in Open Liberty.
 
 The application you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
 Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
