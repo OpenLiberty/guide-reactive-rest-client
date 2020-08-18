@@ -115,7 +115,7 @@ include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource
 The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` and serves the data when all of the services have responded. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only when the `CompletionStage` interface has finished retrieving it. When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
 A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to keep track of how many asynchronous requests are being waited on. 
-The `CountDownLatch` object will countdown towards 0 after each completion of a thread via the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown` method call. 
+The `CountDownLatch` object counts down towards `0` after each completion of a thread via the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown` method call. 
 This means that the value returns only after the thread that's retrieving the value is complete.
 The [hotspot=await file=1]`await` method stops and waits until all of the requests have completed. 
 While waiting for this countdown to complete, the main thread is free to perform other tasks. 
@@ -264,7 +264,8 @@ The `systemLoad` endpoint first gets all of the hostnames by calling [hotspot=ge
 Then it loops through each one and calls [hotspot=getSystem file=0]`getSystem()` on them.
 
 Instead of using `thenAcceptAsync()`, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
-Thus, any required processing of data will be performed inside the `subscribe()` method. In this case, it is simply saving the data in the temporary [hotspot=holderClass file=0]`Holder` class. 
+Thus, any required processing of data is performed inside the `subscribe()` method. 
+In this case, it is simply saving the data in the temporary [hotspot=holderClass file=0]`Holder` class. 
 The `Holder` class is used to store the value returned from the client because values cannot be returned inside the `subscribe()` method. 
 The highest and lowest load systems are updated in the [hotspot=updateValues file=0]`updateValues()` method.
 
