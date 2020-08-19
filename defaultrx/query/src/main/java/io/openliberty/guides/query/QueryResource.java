@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,8 +27,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import io.openliberty.guides.query.client.InventoryClient;
 
 @ApplicationScoped
@@ -35,7 +34,6 @@ import io.openliberty.guides.query.client.InventoryClient;
 public class QueryResource {
     
     @Inject
-    @RestClient
     private InventoryClient inventoryClient;
 
     // tag::systemLoad[]
@@ -58,17 +56,19 @@ public class QueryResource {
                            // tag::thenAcceptAsync[]
                            .thenAcceptAsync(p -> {
                                 if (p != null) {
-                                    systemLoads.updateHighest(p);
-                                    systemLoads.updateLowest(p);
+                                    systemLoads.updateValues(p);
                                 }
+                                // tag::countdown1[]
                                 remainingSystems.countDown();
+                                // end::countdown1[]
                            })
                            // end::thenAcceptAsync[]
                            // tag::exceptionally[]
                            .exceptionally(ex -> {
-                                // tag::countdown3[]
+                                // tag::countdown2[]
                                 remainingSystems.countDown();
-                                // end::countdown3[]
+                                // end::countdown2[]
+                                ex.printStackTrace();
                                 return null;
                            });
                            // end::exceptionally[]
@@ -77,19 +77,19 @@ public class QueryResource {
         // Wait for all remaining systems to be checked
         try {
             // tag::await[]
-            remainingSystems.await();
+            remainingSystems.await(30, TimeUnit.SECONDS);
             // end::await[]
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        return systemLoads.values;
+        return systemLoads.getValues();
     }
     // end::systemLoad[]
 
     private class Holder {
         // tag::volatile[]
-        public volatile Map<String, Properties> values;
+        private volatile Map<String, Properties> values;
         // end::volatile[]
 
         public Holder() {
@@ -99,20 +99,21 @@ public class QueryResource {
             init();
         }
 
-        public void updateHighest(Properties p) {
-            BigDecimal load = (BigDecimal) p.get("systemLoad");
-            BigDecimal highest = (BigDecimal) this.values.get("highest").get("systemLoad");
-            if (load.compareTo(highest) > 0) {
-                this.values.put("highest", p);
-            }
+        public Map<String, Properties> getValues() {
+            return this.values;
         }
 
-        public void updateLowest(Properties p) {
-            BigDecimal load = (BigDecimal) p.get("systemLoad");
-            BigDecimal lowest = (BigDecimal) this.values.get("lowest").get("systemLoad");
-            if (load.compareTo(lowest) < 0) {
-                this.values.put("lowest", p);
-            }
+        public void updateValues(Properties p) {
+            final BigDecimal load = (BigDecimal) p.get("systemLoad");
+
+            this.values.computeIfPresent("lowest", (key, curr_val) -> {
+                BigDecimal lowest = (BigDecimal) curr_val.get("systemLoad");
+                return load.compareTo(lowest) < 0 ? p : curr_val;
+            });
+            this.values.computeIfPresent("highest", (key, curr_val) -> {
+                BigDecimal highest = (BigDecimal) curr_val.get("systemLoad");
+                return load.compareTo(highest) > 0 ? p : curr_val;
+            });
         }
 
         private void init() {

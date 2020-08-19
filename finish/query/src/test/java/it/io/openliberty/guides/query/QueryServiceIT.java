@@ -90,7 +90,6 @@ public class QueryServiceIT {
     @Test
     public void testSystemLoad() {
         Map<String, Properties> response = queryResource.systemLoad();
-
         assertEquals(
             "testHost2",
             response.get("highest").get("hostname"),
