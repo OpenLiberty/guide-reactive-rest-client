@@ -15,7 +15,7 @@ after_script:
      result="failed";\
      echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n";\
   fi;
-echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
+- echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
 notifications:
   slack:
     template:
