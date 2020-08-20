@@ -10,7 +10,8 @@ after_script:
 - echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
 - result="failed"
 - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then result="passed"; fi;
-- echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
+- echo result: $result
+- echo -e "\033[1;34m result: \033[0m\033[1;36m $result \033[0m \n"
 notifications:
   slack:
     template:
