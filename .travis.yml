@@ -8,8 +8,14 @@ script:
 - ../scripts/travisTest.sh
 after_script:
 - echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
-- if [ $TRAVIS_TEST_RESULT -eq 0 ]; then result="passed"; else result="failed"; fi;
-- echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
+- if [ $TRAVIS_TEST_RESULT -eq 0 ]; then\
+     result="passed";\
+     echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"\
+  else\
+     result="failed";\
+     echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"\
+  fi;
+echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
 notifications:
   slack:
     template:
