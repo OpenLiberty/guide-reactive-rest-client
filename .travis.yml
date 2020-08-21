@@ -5,12 +5,11 @@ before_script:
 - sudo apt-get install jq
 - chmod +x ../scripts/travisTest.sh
 script:
-- ../scripts/travisTest.sh
+- echo tested
 after_script:
 - echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
 - if [[ "$TRAVIS_TEST_RESULT" == "0" ]]; then export result="passed"; else export result="failed"; fi
-- echo -e "\n"\
-    "\033[1;34m result:\033[0m\033[1;36m $result " \033[0m \n"
+- echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
 notifications:
   slack:
     template:
