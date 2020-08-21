@@ -6,12 +6,14 @@ before_script:
 - chmod +x ../scripts/travisTest.sh
 script:
 - ../scripts/travisTest.sh
-after_script:
+after_success:
 - echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
-- if [ $TRAVIS_TEST_RESULT -eq 0 ]; then result="passed"; else result="failed"; fi;
-- echo result="$result"
 - echo -e "\n"\
-  "\033[1;34m result:\033[0m\033[1;36m "$result" \033[0m \n"
+  "\033[1;34m result:\033[0m\033[1;36m passed " \033[0m \n"
+after_failure:
+- echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
+- echo -e "\n"\
+  "\033[1;34m result:\033[0m\033[1;36m failed " \033[0m \n"
 notifications:
   slack:
     template:
