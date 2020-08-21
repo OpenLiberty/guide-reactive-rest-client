@@ -8,8 +8,8 @@ script:
 - echo tested
 after_script:
 - echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
-- if [[ "$TRAVIS_TEST_RESULT" == "0" ]]; then export result="passed"; else export result="failed"; fi
-- echo -e "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
+- if [[ "$TRAVIS_TEST_RESULT" == "0" ]]; then export RESULT="passed"; else export RESULT="failed"; fi
+- echo -e "\033[1;34m result:\033[0m\033[1;36m $RESULT \033[0m \n"
 after_success:
 - echo -e "\033[1;34m result:\033[0m\033[1;36m passed \033[0m \n"
 after_failure:
