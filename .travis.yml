@@ -5,10 +5,8 @@ before_script:
 - sudo apt-get install jq
 - chmod +x ../scripts/travisTest.sh
 script:
-- echo tested
+- ../scripts/travisTest.sh
 after_script:
-- repo_name=$(echo "$TRAVIS_REPO_SLUG" | sed -e "s/\//-/g");
-- echo -e "\033[1;34m repo_name:\033[0m\033[1;36m $repo_name \033[0m \n"
 - docker images
 - if [[ "$TRAVIS_TEST_RESULT" == "0" ]]; then RESULT="passed"; else RESULT="failed"; fi
 - echo -e "\033[1;34m result:\033[0m\033[1;36m $RESULT \033[0m \n"
