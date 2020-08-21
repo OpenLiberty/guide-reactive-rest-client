@@ -9,9 +9,9 @@ script:
 after_script:
 - echo TRAVIS_TEST_RESULT="$TRAVIS_TEST_RESULT"
 - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then result="passed"; else result="failed"; fi;
-- echo result=$result
+- echo result="$result"
 - echo -e "\n"\
-  "\033[1;34m result:\033[0m\033[1;36m $result \033[0m \n"
+  "\033[1;34m result:\033[0m\033[1;36m "$result" \033[0m \n"
 notifications:
   slack:
     template:
