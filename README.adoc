@@ -33,7 +33,7 @@ Learn how to use a reactive JAX-RS client to asynchronously invoke RESTful micro
 
 == What you'll learn
 
-You'll learn how to create a reactive JAX-RS client application using the default JAX-RS reactive provider and a pluggable reactive provider for RxJava that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^]. 
+You'll first learn how to create a reactive JAX-RS client application using the default JAX-RS reactive provider APIs. You will then learn how to improve the application to take advantage of the RxJava reactive extensions with a pluggable reactive provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^].
 The JAX-RS client is an API used to communicate with RESTful web services. 
 The API makes it easy to consume a web service that is exposed by using the HTTP protocol, which means that you can efficiently implement client-side applications. 
 The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
