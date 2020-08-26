@@ -111,9 +111,9 @@ QueryResource.java
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of services respond. 
+The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of the services respond. 
 The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. 
-The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only after `CompletionStage` interface finishes retrieving it. 
+The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only after the `CompletionStage` interface finishes retrieving it. 
 When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
 A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to track how many asynchronous requests are being waited on. 
@@ -191,10 +191,10 @@ This example was formatted for readability:
 
 The JSON output contains a `highest` attribute that represents the system with the highest load.
 Similarly, the `lowest` attribute represents the system with the lowest load. 
-The JSON output for each of these attributes features the respective `hostname` and `systemLoad` of the system.
+The JSON output for each of these attributes contains the `hostname` and `systemLoad` of the system.
 
 When you are done checking out the application, run the following command to stop the `query` microservice. 
-We will leave the `system` and `inventory` services running because they will be used when the application is rebuilt later in the guide:
+Leave the `system` and `inventory` services running because they will be used when the application is rebuilt later in the guide:
 
 --
 [role='command']
@@ -249,7 +249,7 @@ In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register fil
 
 In some scenarios, a producer might generate more data than the consumers can handle. 
 JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. 
-To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava Backpressure^]
+To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
 
 == Updating the REST resource to support the reactive JAX-RS client
 
@@ -316,7 +316,7 @@ include::{common-includes}/os-tabs.adoc[]
 
 You can access the application by making requests to the `query/systemLoad` endpoint at the http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
 
-Switching to a reactive programming model freed up the thread that was handling your request to `/query/systemLoad`. 
+Switching to a reactive programming model freed up the thread that was handling your request to `query/systemLoad`. 
 While the client request is being handled, the thread can handle other work.
 
 When you are done checking out the application, run the following script to stop the application:
