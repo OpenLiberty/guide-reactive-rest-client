@@ -283,8 +283,7 @@ Run the Maven `install` and `package` goals from the command-line session in the
 
 [role='command']
 ```
-mvn -pl models install
-mvn package
+mvn -pl query package
 ```
 
 Run the following command to containerize the `query` microservice:
@@ -373,6 +372,7 @@ Navigate to the `query` directory, then verify that the tests pass by running th
 
 [role='command']
 ```
+cd query
 mvn verify
 ```
 
