@@ -8,7 +8,7 @@
 :projectid: reactive-rest-client
 :page-layout: guide-multipane
 :page-duration: 25 minutes
-:page-releasedate: 2020-08-26
+:page-releasedate: 2020-08-27
 :page-guide-category: microprofile
 :page-essential: false
 :page-description: Learn how to use a reactive JAX-RS client to asynchronously invoke RESTful microservices over HTTP.
