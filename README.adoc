@@ -13,7 +13,7 @@
 :page-essential: false
 :page-description: Learn how to use a reactive JAX-RS client to asynchronously invoke RESTful microservices over HTTP.
 :page-seo-title: Consuming RESTful Java microservices asynchronously using the reactive JAX-RS client
-:page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client and with Eclipse Jersey/RxJava reactive client library.
+:page-seo-description: A getting started tutorial and an example on how to consume RESTful Java microservices asynchronously using reactive Java API for RESTful Web Services (JAX-RS) client with Eclipse Jersey/RxJava reactive client library.
 :guide-author: Open Liberty
 :page-tags: ['MicroProfile', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
