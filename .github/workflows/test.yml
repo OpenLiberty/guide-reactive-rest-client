@@ -20,7 +20,7 @@ jobs:
            URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
            FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
            echo $FILES
-           run: echo "::set-output name=canSkip::true"
+           echo "::set-output name=canSkip::true"
   java8build:
     runs-on: ubuntu-latest
     needs: [needTest]
