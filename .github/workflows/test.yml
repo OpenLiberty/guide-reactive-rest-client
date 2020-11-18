@@ -21,7 +21,7 @@ jobs:
            FILES_CHANGED=$(curl -s -X GET -G $PR_FILES_URL | jq -r '.[] | .filename')
            echo $FILES_CHANGED
            echo ${FILES_CHANGED[0]}
-           if [ [ ${#FILES_CHANGED[@]} == 1 ] && [ "${FILES_CHANGED[0]}" =~ "test.yml" ] ]; then
+           if [ ${#FILES_CHANGED[@]} == 1 ] && [[ ${FILES_CHANGED[0]} =~ .*test.yml ]]; then
              echo "Test can be skipped because only updated README.adoc"
              echo "::set-output name=canSkip::true"
            else
