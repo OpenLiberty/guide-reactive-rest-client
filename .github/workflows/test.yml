@@ -17,10 +17,14 @@ jobs:
     - name: get list of files in PR
       id: checkFiles
       run: |
-           URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
-           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
-           echo $FILES
-           echo "::set-output name=canSkip::true"
+           fileURL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{github.event.pull_request.number}}/files"
+           changedFiles=$(curl -s -X GET -G $fileURL | jq -r '.[] | .filename')
+           echo $changedFiles
+           if [ ${#changedFiles[@]} == 1 && ${changedFiles[0]} =~ README.adoc ]; then
+             echo "::set-output name=canSkip::true"
+           else
+             echo "::set-output name=canSkip::false"
+           fi
   java8build:
     runs-on: ubuntu-latest
     needs: [needTest]
