@@ -9,8 +9,22 @@ on:
     branches: [ qa ]
 
 jobs:
+  needTest:
+    runs-on: ubuntu-latest
+    outputs:
+        canSkip: ${{ steps.checkFiles.outputs.canSkip }}
+    steps:
+    - name: get list of files in PR
+      id: checkFiles
+      run: |
+           URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+           echo $FILES
+           run: echo "::set-output name=canSkip::true"
   java8build:
     runs-on: ubuntu-latest
+    needs: [needTest]
+    if: "!contains(needs.needTest.outputs.canSkip, 'true')"
     defaults:
       run:
         working-directory: finish
