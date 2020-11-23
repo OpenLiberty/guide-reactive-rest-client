@@ -222,7 +222,7 @@ These custom objects provide a simpler and faster way for you to create scalable
 `query/pom.xml`
 ----
 
-The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
+The [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependency provides the `RxInvokerProvider` class, which is registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
 
 Update the client to accommodate the custom object types that you are trying to return. 
 You'll need to register the type of object that you want inside the client invocation.
