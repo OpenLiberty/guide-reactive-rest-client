@@ -222,7 +222,7 @@ These custom objects provide a simpler and faster way for you to create scalable
 `query/pom.xml`
 ----
 
-The [hotspot=jerseyRxJava file=0]`jersey-rx-client-rxjava` dependency provides us the `RxObservableInvoker` and `RxObservableInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
+The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` dependency provides us the `RxObservableInvoker` and `RxObservableInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
 
 Update the client to accommodate the custom object types that you are trying to return. 
 You'll need to register the type of object that you want inside the client invocation.
@@ -247,7 +247,6 @@ In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register fil
 
 In some scenarios, a producer might generate more data than the consumers can handle. 
 JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. 
-The `RxFlowableInvoker` and `RxFlowableInvokerProvider` classes are provided by the [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependency, which is included to try as an optional exercise. 
 To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
 
 == Updating the REST resource to support the reactive JAX-RS client
