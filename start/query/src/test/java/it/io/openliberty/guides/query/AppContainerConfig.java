@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *******************************************************************************/
 // end::copyright[]
 package it.io.openliberty.guides.query;
+
+import java.time.Duration;
 
 import org.microshed.testing.SharedContainerConfiguration;
 import org.microshed.testing.testcontainers.ApplicationContainer;
@@ -36,8 +38,9 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                     .withExposedPorts(9080)
                     .withReadinessPath("/health/ready")
                     .withNetwork(network)
+                    .withStartupTimeout(Duration.ofMinutes(3))
                     .withEnv("INVENTORY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
-    
+
     @Override
     public void startContainers() {
         mockServer.start();
@@ -46,5 +49,5 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                 mockServer.getServerPort());
         query.start();
     }
-                
+  
 }
