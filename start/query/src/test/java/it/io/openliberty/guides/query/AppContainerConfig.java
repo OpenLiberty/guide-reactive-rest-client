@@ -39,7 +39,8 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                     .withReadinessPath("/health/ready")
                     .withNetwork(network)
                     .withStartupTimeout(Duration.ofMinutes(3))
-                    .withEnv("INVENTORY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
+                    .withEnv("INVENTORY_BASE_URI",
+                             "http://mock-server:" + MockServerContainer.PORT);
 
     @Override
     public void startContainers() {
@@ -49,5 +50,5 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                 mockServer.getServerPort());
         query.start();
     }
-  
+
 }
