@@ -153,19 +153,18 @@ Next, use the provided script to start the application in Docker containers. The
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/startContainers.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\startContainers.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startContainers.sh
 ```
 --
 
@@ -295,19 +294,18 @@ Next, use the provided script to restart the query service in a Docker container
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/startQueryContainer.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\startQueryContainer.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startQueryContainer.sh
 ```
 --
 
@@ -320,19 +318,18 @@ When you are done checking out the application, run the following script to stop
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/stopContainers.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\stopContainers.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/stopContainers.sh
 ```
 --
 
