@@ -1,3 +1,5 @@
+#!/bin/bash
+
 NETWORK=reactive-app
 
 docker run -d \
