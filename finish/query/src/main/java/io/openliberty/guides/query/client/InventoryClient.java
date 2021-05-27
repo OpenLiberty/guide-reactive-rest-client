@@ -34,7 +34,7 @@ public class InventoryClient {
     @Inject
     @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
-    private Class < T > generic;
+    private final Class <T> generic;
 
     public List<String> getSystems() {
         return ClientBuilder.newClient()
