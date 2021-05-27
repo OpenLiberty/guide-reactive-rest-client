@@ -34,7 +34,6 @@ public class InventoryClient {
     @Inject
     @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
-    private final Class<T> generic;
 
     public List<String> getSystems() {
         return ClientBuilder.newClient()
@@ -48,19 +47,18 @@ public class InventoryClient {
 
     // tag::getSystem[]
     public Observable<Properties> getSystem(String hostname) {
-        generic = RxObservableInvoker.class;
         return ClientBuilder.newClient()
+                            .target(baseUri)
                             // tag::register[]
                             .register(RxObservableInvokerProvider.class)
                             // end::register[]
-                            .target(baseUri)
                             .path("/inventory/systems")
                             .path(hostname)
                             .request()
                             .header(HttpHeaders.CONTENT_TYPE,
                             MediaType.APPLICATION_JSON)
                             // tag::rx[]
-                            .rx(generic)
+                            .rx(RxObservableInvoker.class)
                             // end::rx[]
                             .get(new GenericType<Properties>() { });
     }

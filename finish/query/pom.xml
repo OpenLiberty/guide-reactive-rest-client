@@ -57,21 +57,21 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>3.0.2</version>
+            <version>2.34</version>
         </dependency>
         <!-- end::jerseyClient[] -->
         <!-- tag::jerseyRxjava[] -->
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava</artifactId>
-            <version>3.0.2</version>
+            <version>2.34</version>
         </dependency>
         <!-- end::jerseyRxjava[] -->
         <!-- tag::jerseyRxjava2[] -->
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava2</artifactId>
-            <version>3.0.2</version>
+            <version>2.34</version>
         </dependency>
         <!-- end::jerseyRxjava2[] -->
         <!-- For tests -->
