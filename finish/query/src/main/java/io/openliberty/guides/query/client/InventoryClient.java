@@ -57,7 +57,7 @@ public class InventoryClient {
                             .request()
                             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                             // tag::rx[]
-                            .rx(RxObservableInvoker.class)
+                            .rx(Class<T> RxObservableInvoker.class)
                             // end::rx[]
                             .get(new GenericType<Properties>(){});
     }
