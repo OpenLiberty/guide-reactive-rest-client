@@ -47,7 +47,7 @@ public class InventoryClient {
     }
 
     // tag::getSystem[]
-    public Observable<Properties> getSystem(String final hostname) {
+    public Observable<Properties> getSystem(String hostname) {
         generic = RxObservableInvoker.class;
         return ClientBuilder.newClient()
                             // tag::register[]
