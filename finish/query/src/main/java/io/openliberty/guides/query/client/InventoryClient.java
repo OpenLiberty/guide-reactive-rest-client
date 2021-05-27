@@ -49,17 +49,17 @@ public class InventoryClient {
     // tag::getSystem[]
     public Observable<Properties> getSystem(String hostname) {
         return ClientBuilder.newClient()
-                            .target(baseUri)
                             // tag::register[]
                             .register(RxObservableInvokerProvider.class)
                             // end::register[]
+                            .target(baseUri)
                             .path("/inventory/systems")
                             .path(hostname)
                             .request()
                             .header(HttpHeaders.CONTENT_TYPE,
                             MediaType.APPLICATION_JSON)
                             // tag::rx[]
-                            .rx(Class < T > RxObservableInvoker.class)
+                            .rx(RxObservableInvoker.class)
                             // end::rx[]
                             .get(new GenericType<Properties>() { });
     }
