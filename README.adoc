@@ -34,14 +34,17 @@ Learn how to use a reactive JAX-RS client to asynchronously invoke RESTful micro
 == What you'll learn
 
 You'll first learn how to create a reactive JAX-RS client application using the default JAX-RS reactive provider APIs.
-You will then learn how to improve the application to take advantage of the RxJava reactive extensions with a pluggable reactive provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^].
+You will then learn how to improve the application to take advantage of the RxJava reactive extensions with a
+pluggable reactive provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^].
 The JAX-RS client is an API used to communicate with RESTful web services. 
-The API makes it easy to consume a web service that is exposed by using the HTTP protocol, which means that you can efficiently implement client-side applications. 
+The API makes it easy to consume a web service that is exposed by using the HTTP protocol,
+which means that you can efficiently implement client-side applications. 
 The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
 
 Reactive programming is an extension of asynchronous programming and focuses on the flow of data through data streams. 
 Reactive applications process data when it becomes available and respond to requests as soon as processing is complete. 
-The request to the application and response from the application are decoupled so that the application is not blocked from responding to other requests in the meantime. 
+The request to the application and response from the application are decoupled so that
+the application is not blocked from responding to other requests in the meantime. 
 Because reactive applications can run faster than synchronous applications, they provide a much smoother user experience.
 
 The application in this guide demonstrates how the JAX-RS client accesses remote RESTful services by using asynchronous method calls. 
@@ -51,8 +54,8 @@ Both Jersey and Apache CXF provide third-party reactive libraries for RxJava and
 
 The application that you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
 Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
-The `inventory` microservice subscribes to that information so that it can keep an updated list of all the systems and their 
-current system loads.
+The `inventory` microservice subscribes to that information so that it can keep an updated list of all the systems
+and their current system loads.
 
 image::QueryService.png[Reactive Query Service, width=253, height=327, align="center"]
 
@@ -131,7 +134,8 @@ In this case, no such task is present.
 == Building and running the application
 
 The `system`, `inventory`, and `query` microservices will be built in Docker containers. 
-If you want to learn more about Docker containers, check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+If you want to learn more about Docker containers,
+check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
 Start your Docker environment.
 
@@ -178,7 +182,8 @@ include::{common-includes}/os-tabs.adoc[]
 --
 
 The services will take some time to become available.
-You can access the application by making requests to the `query/systemLoad` endpoint at the http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+You can access the application by making requests to the `query/systemLoad` endpoint at the
+http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
 endif::[]
 
 // Cloud hosted guide instruction
@@ -235,7 +240,8 @@ pom.xml
 include::finish/query/pom.xml[]
 ----
 
-Although JAX-RS provides the default reactive provider that returns `CompletionStage` types, you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. 
+Although JAX-RS provides the default reactive provider that returns `CompletionStage` types,
+you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. 
 The Apache CXF and Eclipse Jersey projects produce such providers.
 You'll now update the web client to use the Jersey reactive provider for RxJava. 
 With this updated reactive provider, you can write clients that use RxJava objects instead of clients that use only the `CompletionStage` interface. 
@@ -247,7 +253,8 @@ These custom objects provide a simpler and faster way for you to create scalable
 `query/pom.xml`
 ----
 
-The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
+The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes,
+which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
 
 Update the client to accommodate the custom object types that you are trying to return. 
 You'll need to register the type of object that you want inside the client invocation.
@@ -268,11 +275,14 @@ The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an 
 http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
 The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument.
 This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. 
-In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+In the [hotspot=getSystem file=1]`getSystem()` method,
+the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class,
+which means that the client can recognize the invoker provider.
 
 In some scenarios, a producer might generate more data than the consumers can handle. 
 JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. 
-To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
+To learn more about RxJava and backpressure, see
+https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
 
 == Updating the REST resource to support the reactive JAX-RS client
 
@@ -335,7 +345,8 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
-You can access the application by making requests to the `query/systemLoad` endpoint at the http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+You can access the application by making requests to the `query/systemLoad` endpoint at the
+http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
 
 Switching to a reactive programming model freed up the thread that was handling your request to `query/systemLoad`. 
 While the client request is being handled, the thread can handle other work.
