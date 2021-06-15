@@ -119,13 +119,16 @@ QueryResource.java
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of the services respond. 
-The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. 
+The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is
+retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of the services respond. 
+The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()`
+methods together behave like an asynchronous try-catch block. 
 The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only after the `CompletionStage` interface finishes retrieving it. 
 When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
 A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to track how many asynchronous requests are being waited on. 
-After each thread is completed, the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown()` method counts the [hotspot=countdownlatch file=1]`CountDownLatch` object down towards `0`. 
+After each thread is completed, the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown()` method
+counts the [hotspot=countdownlatch file=1]`CountDownLatch` object down towards `0`. 
 This means that the value returns only after the thread that's retrieving the value is complete.
 The [hotspot=await file=1]`await()` method stops and waits until all of the requests are complete. 
 While the countdown completes, the main thread is free to perform other tasks. 
@@ -272,7 +275,8 @@ include::finish/query/src/main/java/io/openliberty/guides/query/client/Inventory
 ----
 
 The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an `Observable` object instead of a `CompletionStage` interface. 
-http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
+http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a
+collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
 The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument.
 This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. 
 In the [hotspot=getSystem file=1]`getSystem()` method,
@@ -328,6 +332,8 @@ docker build -t query:1.0-SNAPSHOT query/.
 
 Next, use the provided script to restart the query service in a Docker container. 
 
+// Static guide instruction
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -347,12 +353,31 @@ include::{common-includes}/os-tabs.adoc[]
 
 You can access the application by making requests to the `query/systemLoad` endpoint at the
 http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+```
+./scripts/startQueryContainer.sh
+```
+{: codeblock}
+
+You can access the application by making requests to the `query/systemLoad` endpoint using
+the following `curl` command:
+
+```
+curl http://localhost:9080/query/systemLoad
+```
+{: codeblock}
+endif::[]
 
 Switching to a reactive programming model freed up the thread that was handling your request to `query/systemLoad`. 
 While the client request is being handled, the thread can handle other work.
 
 When you are done checking out the application, run the following script to stop the application:
 
+// Static guide instruction
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -369,6 +394,16 @@ include::{common-includes}/os-tabs.adoc[]
 ./scripts/stopContainers.sh
 ```
 --
+endif::[]
+
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+```
+./scripts/stopContainers.sh
+```
+{: codeblock}
+endif::[]
 
 // =================================================================================================
 // Testing
@@ -385,7 +420,8 @@ If a test failure occurs, then you might have introduced a bug into the code.
 `query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
-The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
+The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the
+`query` service can correctly calculate the highest and lowest system loads. 
 
 QueryServiceIT.java
 [source, java, linenums, role='code_column hide_tags=copyright']
