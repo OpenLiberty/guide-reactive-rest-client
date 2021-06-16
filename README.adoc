@@ -105,7 +105,8 @@ The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage`
 This interface represents a unit or stage of a computation.
 When the associated computation completes, the value can be retrieved. 
 The [hotspot=rx file=0]`rx()` method calls the `CompletionStage` interface. 
-It retrieves the `CompletionStageRxInvoker` class and allows these methods to function correctly with the `CompletionStage` interface return type.
+It retrieves the `CompletionStageRxInvoker` class and allows these methods to
+function correctly with the `CompletionStage` interface return type.
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
@@ -256,7 +257,8 @@ These custom objects provide a simpler and faster way for you to create scalable
 `query/pom.xml`
 ----
 
-The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes,
+The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and
+[hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes,
 which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
 
 Update the client to accommodate the custom object types that you are trying to return. 
@@ -308,7 +310,8 @@ The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return th
 The `systemLoad` endpoint first gets all of the hostnames by calling the [hotspot=getSystems file=0]`getSystems()` method. 
 Then it loops through the hostnames and calls the [hotspot=getSystem file=0]`getSystem()` method on each one.
 
-Instead of using the `thenAcceptAsync()` method, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
+Instead of using the `thenAcceptAsync()` method,
+`Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
 Thus, any necessary data processing happens inside the `subscribe()` method. 
 In this case, the necessary data processing is saving the data in the temporary [hotspot=holderClass file=0]`Holder` class.
 The `Holder` class is used to store the value that is returned from the client because values cannot be returned inside the `subscribe()` method. 
