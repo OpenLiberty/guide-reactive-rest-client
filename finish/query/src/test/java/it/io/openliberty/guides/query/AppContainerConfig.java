@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *******************************************************************************/
 // end::copyright[]
 package it.io.openliberty.guides.query;
+
+import java.time.Duration;
 
 import org.microshed.testing.SharedContainerConfiguration;
 import org.microshed.testing.testcontainers.ApplicationContainer;
@@ -24,7 +26,7 @@ public class AppContainerConfig implements SharedContainerConfiguration {
     private static Network network = Network.newNetwork();
 
     @Container
-    public static MockServerContainer mockServer = new MockServerContainer("5.10.0")
+    public static MockServerContainer mockServer = new MockServerContainer("5.11.2")
                     .withNetworkAliases("mock-server")
                     .withNetwork(network);
 
@@ -36,8 +38,10 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                     .withExposedPorts(9080)
                     .withReadinessPath("/health/ready")
                     .withNetwork(network)
-                    .withEnv("INVENTORY_BASE_URI", "http://mock-server:" + MockServerContainer.PORT);
-    
+                    .withStartupTimeout(Duration.ofMinutes(3))
+                    .withEnv("INVENTORY_BASE_URI",
+                             "http://mock-server:" + MockServerContainer.PORT);
+
     @Override
     public void startContainers() {
         mockServer.start();
@@ -46,5 +50,5 @@ public class AppContainerConfig implements SharedContainerConfiguration {
                 mockServer.getServerPort());
         query.start();
     }
-                
+
 }

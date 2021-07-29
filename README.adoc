@@ -1,4 +1,4 @@
-// Copyright (c) 2020 IBM Corporation and others.
+// Copyright (c) 2020, 2021 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -18,7 +18,7 @@
 :page-tags: ['MicroProfile', 'Jakarta EE']
 :page-permalink: /guides/{projectid}
 :page-related-guides: ['microprofile-reactive-messaging', 'microprofile-rest-client-async']
-:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/master
+:common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/prod
 :imagesdir: /img/guide/{projectid}
 :source-highlighter: prettify
 :mac: MAC
@@ -138,7 +138,7 @@ mvn -pl models install
 mvn package
 ```
 
-include::{common-includes}/ol-kernel-docker-pull.adoc[]
+include::{common-includes}/ol-full-docker-pull.adoc[]
 
 Run the following commands to containerize the microservices:
 
@@ -153,19 +153,18 @@ Next, use the provided script to start the application in Docker containers. The
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/startContainers.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\startContainers.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startContainers.sh
 ```
 --
 
@@ -295,19 +294,18 @@ Next, use the provided script to restart the query service in a Docker container
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/startQueryContainer.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\startQueryContainer.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/startQueryContainer.sh
 ```
 --
 
@@ -320,19 +318,18 @@ When you are done checking out the application, run the following script to stop
 
 include::{common-includes}/os-tabs.adoc[]
 
-[.tab_content.mac_section.linux_section]
---
-[role='command']
-```
-./scripts/stopContainers.sh
-```
---
-
 [.tab_content.windows_section]
 --
 [role='command']
 ```
 .\scripts\stopContainers.bat
+```
+--
+[.tab_content.mac_section.linux_section]
+--
+[role='command']
+```
+./scripts/stopContainers.sh
 ```
 --
 
