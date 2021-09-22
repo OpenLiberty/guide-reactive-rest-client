@@ -82,12 +82,6 @@ include::{common-includes}/gitclone.adoc[]
 
 == Creating a web client using the default JAX-RS API
 
-InventoryClient.java
-[source, java, linenums, role='code_column hide_tags=copyright']
-----
-include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
-----
-
 Navigate to the `start` directory to begin.
 
 JAX-RS provides a default reactive provider that you can use to create a reactive REST client using the `CompletionStage` interface.
@@ -99,6 +93,12 @@ and a [hotspot file=1]`QueryResource` class, which queries data from the `invent
 ----
 #Create the `InventoryClient` interface.#
 `query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
+----
+
+InventoryClient.java
+[source, java, linenums, role='code_column hide_tags=copyright']
+----
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
 The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage` interface. 
