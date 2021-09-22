@@ -14,6 +14,9 @@ package io.openliberty.guides.query.client;
 
 import java.util.List;
 import java.util.Properties;
+// tag::importjava[]
+import java.util.concurrent.CompletionStage;
+// end::importjava[]
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -21,12 +24,18 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+// tag::importjavax[]
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+// end::importjavax[]
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+// tag::importobservable[]
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
 
 import rx.Observable;
+// end::importobservable[]
 
 @RequestScoped
 public class InventoryClient {
@@ -45,7 +54,20 @@ public class InventoryClient {
                             .get(new GenericType<List<String>>() { });
     }
 
-    // tag::getSystem[]
+    // tag::firstgetSystem[]
+    public CompletionStage<Properties> getSystem(String hostname) {
+        return ClientBuilder.newClient()
+                            .target(baseUri)
+                            .path("/inventory/systems")
+                            .path(hostname)
+                            .request()
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                            .rx()
+                            .get(Properties.class);
+    }
+    // end::firstgetSystem[]
+
+    // tag::secondgetSystem[]
     public Observable<Properties> getSystem(String hostname) {
         return ClientBuilder.newClient()
                             .target(baseUri)
@@ -62,5 +84,5 @@ public class InventoryClient {
                             // end::rx[]
                             .get(new GenericType<Properties>() { });
     }
-    // end::getSystem[]
+    // end::secondgetSystem[]
 }

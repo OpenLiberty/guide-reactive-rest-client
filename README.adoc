@@ -83,7 +83,7 @@ include::{common-includes}/gitclone.adoc[]
 == Creating a web client using the default JAX-RS API
 
 InventoryClient.java
-[source, java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright,importobservable,secondgetSystem']
 ----
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
@@ -271,7 +271,7 @@ You'll need to register the type of object that you want inside the client invoc
 ----
 
 InventoryClient.java
-[source, java, linenums, role='code_column hide_tags=copyright']
+[source, java, linenums, role='code_column hide_tags=copyright,importjava,importjavax,firstgetSystem']
 ----
 include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
