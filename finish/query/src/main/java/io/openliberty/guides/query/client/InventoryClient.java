@@ -61,8 +61,7 @@ public class InventoryClient {
                             .path("/inventory/systems")
                             .path(hostname)
                             .request()
-                            .header(HttpHeaders.CONTENT_TYPE,
-                            MediaType.APPLICATION_JSON)
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                             .rx()
                             .get(Properties.class);
     }
