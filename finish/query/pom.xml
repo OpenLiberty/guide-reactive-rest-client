@@ -67,13 +67,6 @@
             <version>2.34</version>
         </dependency>
         <!-- end::jerseyRxjava[] -->
-        <!-- tag::jerseyRxjava2[] -->
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.rx</groupId>
-            <artifactId>jersey-rx-client-rxjava2</artifactId>
-            <version>2.34</version>
-        </dependency>
-        <!-- end::jerseyRxjava2[] -->
         <!-- For tests -->
         <dependency>
             <groupId>org.microshed</groupId>

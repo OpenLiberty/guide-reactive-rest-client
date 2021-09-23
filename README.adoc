@@ -209,9 +209,29 @@ pom.xml
 include::finish/query/pom.xml[]
 ----
 
+InventoryClient.java
+[source, java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+----
+
 Although JAX-RS provides the default reactive provider that returns `CompletionStage` types, you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. 
 The Apache CXF and Eclipse Jersey projects produce such providers.
 You'll now update the web client to use the Jersey reactive provider for RxJava. 
+Update the client to use the `Observable` object type. 
+
+[role="code_command hotspot file=1", subs="quotes"]
+----
+#Replace the `InventoryClient` interface.#
+`query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
+----
+
+The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an `Observable` object instead of a `CompletionStage` interface. 
+http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
+The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument.
+This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. 
+In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+
 With this updated reactive provider, you can write clients that use RxJava objects instead of clients that use only the `CompletionStage` interface. 
 These custom objects provide a simpler and faster way for you to create scalable RESTful services with a `CompletionStage` interface.
 
@@ -221,28 +241,7 @@ These custom objects provide a simpler and faster way for you to create scalable
 `query/pom.xml`
 ----
 
-The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
-
-Update the client to accommodate the custom object types that you are trying to return. 
-You'll need to register the type of object that you want inside the client invocation.
-
-[role="code_command hotspot file=1", subs="quotes"]
-----
-#Replace the `InventoryClient` interface.#
-`query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
-----
-
-InventoryClient.java
-[source, java, linenums, role='code_column hide_tags=copyright']
-----
-include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
-----
-
-The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an `Observable` object instead of a `CompletionStage` interface. 
-http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
-The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument.
-This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. 
-In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` dependency provides us the `RxObservableInvoker` and `RxObservableInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
 
 In some scenarios, a producer might generate more data than the consumers can handle. 
 JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. 
