@@ -166,8 +166,6 @@ Next, use the provided script to start the application in Docker containers.
 The script creates a network for the containers to communicate with each other.
 It creates containers for Kafka, Zookeeper, and all of the microservices in the project.
 
-// Static guide instruction
-ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -185,20 +183,30 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
-The services will take some time to become available.
-You can access the application by making requests to the `query/systemLoad` endpoint at the
+// Static guide instruction
+ifndef::cloud-hosted[]
+The microservices will take some time to become available.
+See the http://localhost:9085/health[^] and http://localhost:9080/health[^] URLs to confirm that
+the `inventory` and `query` microservices are up and running.
+Once the microservices are up and running, you can access the application by making requests to the `query/systemLoad` endpoint at the
 http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
 endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
+The microservices will take some time to become available.
+Run the following commands to confirm that the **inventory** and **query** microservices are up and running:
 ```
-./scripts/startContainers.sh
+curl http://localhost:9085/health | jq
 ```
 {: codeblock}
 
-The services will take some time to become available.
-You can access the application by using the following `curl` command:
+```
+curl http://localhost:9080/health | jq
+```
+{: codeblock}
+
+Once the microservices are up and running, you can access the application by using the following `curl` command:
 
 ```
 curl http://localhost:9080/query/systemLoad
@@ -335,8 +343,6 @@ docker build -t query:1.0-SNAPSHOT query/.
 
 Next, use the provided script to restart the query service in a Docker container. 
 
-// Static guide instruction
-ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -354,22 +360,27 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
-You can access the application by making requests to the `query/systemLoad` endpoint at the
+// Static guide instruction
+ifndef::cloud-hosted[]
+See the http://localhost:9080/health[^] URL to confirm that the `query` microservice is up and running.
+Once the `query` microservice is up and running, you can access the application by making requests to the `query/systemLoad` endpoint at the
 http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
 endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
+The **query** microservice will take some time to become available.
+Run the following command to confirm that the **query** microservice is up and running:
 ```
-./scripts/startQueryContainer.sh
+curl http://localhost:9080/health | jq
 ```
 {: codeblock}
 
-You can access the application by making requests to the `query/systemLoad` endpoint using
+Once the **query** microservice is up and running, 
+you can access the application by making requests to the `query/systemLoad` endpoint using
 the following `curl` command:
-
 ```
-curl http://localhost:9080/query/systemLoad
+curl http://localhost:9080/query/systemLoad | jq
 ```
 {: codeblock}
 endif::[]
