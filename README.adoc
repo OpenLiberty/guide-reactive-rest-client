@@ -33,14 +33,18 @@ Learn how to use a reactive JAX-RS client to asynchronously invoke RESTful micro
 
 == What you'll learn
 
-You'll first learn how to create a reactive JAX-RS client application using the default JAX-RS reactive provider APIs. You will then learn how to improve the application to take advantage of the RxJava reactive extensions with a pluggable reactive provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^].
+First, you'll learn how to create a reactive JAX-RS client application by using the default reactive JAX-RS client APIs.
+You will then learn how to take advantage of the RxJava reactive extensions with a
+pluggable reactive JAX-RS client provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^].
 The JAX-RS client is an API used to communicate with RESTful web services. 
-The API makes it easy to consume a web service that is exposed by using the HTTP protocol, which means that you can efficiently implement client-side applications. 
+The API makes it easy to consume a web service by using the HTTP protocol,
+which means that you can efficiently implement client-side applications. 
 The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
 
 Reactive programming is an extension of asynchronous programming and focuses on the flow of data through data streams. 
 Reactive applications process data when it becomes available and respond to requests as soon as processing is complete. 
-The request to the application and response from the application are decoupled so that the application is not blocked from responding to other requests in the meantime. 
+The request to the application and response from the application are decoupled so that
+the application is not blocked from responding to other requests in the meantime. 
 Because reactive applications can run faster than synchronous applications, they provide a much smoother user experience.
 
 The application in this guide demonstrates how the JAX-RS client accesses remote RESTful services by using asynchronous method calls. 
@@ -50,8 +54,8 @@ Both Jersey and Apache CXF provide third-party reactive libraries for RxJava and
 
 The application that you will be working with consists of three microservices, `system`, `inventory`, and `query`. 
 Every 15 seconds, the `system` microservice calculates and publishes an event that contains its current average system load. 
-The `inventory` microservice subscribes to that information so that it can keep an updated list of all the systems and their 
-current system loads.
+The `inventory` microservice subscribes to that information so that it can keep an updated list of all the systems
+and their current system loads.
 
 image::QueryService.png[Reactive Query Service, width=253, height=327, align="center"]
 
@@ -64,7 +68,10 @@ https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reac
 
 == Additional prerequisites
 
-You need to have Docker installed. For installation instructions, refer to the official https://docs.docker.com/get-docker/[Docker documentation^]. You will build and run the microservices in Docker containers. An installation of Apache Kafka is provided in another Docker container.
+You need to have Docker installed.
+For installation instructions, refer to the official https://docs.docker.com/get-docker/[Docker documentation^].
+You will build and run the microservices in Docker containers.
+An installation of Apache Kafka is provided in another Docker container.
 
 // =================================================================================================
 // Getting started
@@ -75,17 +82,12 @@ include::{common-includes}/gitclone.adoc[]
 
 == Creating a web client using the default JAX-RS API
 
-InventoryClient.java
-[source, java, linenums, role='code_column hide_tags=copyright']
-----
-include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
-----
-
 Navigate to the `start` directory to begin.
 
 JAX-RS provides a default reactive provider that you can use to create a reactive REST client using the `CompletionStage` interface.
 
-Create an [hotspot file=0]`InventoryClient` class, which is used to retrieve inventory data, and a [hotspot file=1]`QueryResource` class, which queries data from the `inventory` service.
+Create an [hotspot file=0]`InventoryClient` class, which retrieves inventory data,
+and a [hotspot file=1]`QueryResource` class, which queries data from the `inventory` service.
 
 [role="code_command hotspot file=0", subs="quotes"]
 ----
@@ -93,11 +95,18 @@ Create an [hotspot file=0]`InventoryClient` class, which is used to retrieve inv
 `query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java`
 ----
 
+InventoryClient.java
+[source, java, linenums, role='code_column hide_tags=copyright']
+----
+include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+----
+
 The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage` interface. 
 This interface represents a unit or stage of a computation.
 When the associated computation completes, the value can be retrieved. 
 The [hotspot=rx file=0]`rx()` method calls the `CompletionStage` interface. 
-It retrieves the `CompletionStageRxInvoker` class and allows these methods to function correctly with the `CompletionStage` interface return type.
+It retrieves the `CompletionStageRxInvoker` class and allows these methods to
+function correctly with the `CompletionStage` interface return type.
 
 [role="code_command hotspot file=1", subs="quotes"]
 ----
@@ -111,13 +120,16 @@ QueryResource.java
 include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
-The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of the services respond. 
-The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. 
+The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is
+retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of the services respond. 
+The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()`
+methods together behave like an asynchronous try-catch block. 
 The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only after the `CompletionStage` interface finishes retrieving it. 
 When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
 A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to track how many asynchronous requests are being waited on. 
-After each thread is completed, the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown()` method counts the [hotspot=countdownlatch file=1]`CountDownLatch` object down towards `0`. 
+After each thread is completed, the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown()` method
+counts the [hotspot=countdownlatch file=1]`CountDownLatch` object down towards `0`. 
 This means that the value returns only after the thread that's retrieving the value is complete.
 The [hotspot=await file=1]`await()` method stops and waits until all of the requests are complete. 
 While the countdown completes, the main thread is free to perform other tasks. 
@@ -126,7 +138,8 @@ In this case, no such task is present.
 == Building and running the application
 
 The `system`, `inventory`, and `query` microservices will be built in Docker containers. 
-If you want to learn more about Docker containers, check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
+If you want to learn more about Docker containers,
+check out the https://openliberty.io/guides/containerize.html[Containerizing microservices^] guide.
 
 Start your Docker environment.
 
@@ -149,7 +162,9 @@ docker build -t inventory:1.0-SNAPSHOT inventory/.
 docker build -t query:1.0-SNAPSHOT query/.
 ```
 
-Next, use the provided script to start the application in Docker containers. The script creates a network for the containers to communicate with each other. It creates containers for Kafka, Zookeeper, and all of the microservices in the project.
+Next, use the provided script to start the application in Docker containers.
+The script creates a network for the containers to communicate with each other.
+It creates containers for Kafka, Zookeeper, and all of the microservices in the project.
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -168,8 +183,36 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
-The services will take some time to become available.
-You can access the application by making requests to the `query/systemLoad` endpoint at the http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+// Static guide instruction
+ifndef::cloud-hosted[]
+The microservices will take some time to become available.
+See the http://localhost:9085/health[^] and http://localhost:9080/health[^] URLs to confirm that
+the `inventory` and `query` microservices are up and running.
+Once the microservices are up and running, you can access the application by making requests to the `query/systemLoad` endpoint at the
+http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+The microservices will take some time to become available.
+Run the following commands to confirm that the **inventory** and **query** microservices are up and running:
+```
+curl -s http://localhost:9085/health | jq
+```
+{: codeblock}
+
+```
+curl -s http://localhost:9080/health | jq
+```
+{: codeblock}
+
+Once the microservices are up and running, you can access the application by making requests to the **query/systemLoad** endpoint
+by using the following **curl** command:
+```
+curl -s http://localhost:9080/query/systemLoad | jq
+```
+{: codeblock}
+endif::[]
 
 When the service is ready, you see an output similar to the following example. 
 This example was formatted for readability:
@@ -209,7 +252,8 @@ pom.xml
 include::finish/query/pom.xml[]
 ----
 
-Although JAX-RS provides the default reactive provider that returns `CompletionStage` types, you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. 
+Although JAX-RS provides the default reactive provider that returns `CompletionStage` types,
+you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. 
 The Apache CXF and Eclipse Jersey projects produce such providers.
 You'll now update the web client to use the Jersey reactive provider for RxJava. 
 With this updated reactive provider, you can write clients that use RxJava objects instead of clients that use only the `CompletionStage` interface. 
@@ -221,7 +265,9 @@ These custom objects provide a simpler and faster way for you to create scalable
 `query/pom.xml`
 ----
 
-The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
+The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and
+[hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes,
+which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
 
 Update the client to accommodate the custom object types that you are trying to return. 
 You'll need to register the type of object that you want inside the client invocation.
@@ -239,14 +285,18 @@ include::finish/query/src/main/java/io/openliberty/guides/query/client/Inventory
 ----
 
 The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an `Observable` object instead of a `CompletionStage` interface. 
-http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
+http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a
+collection of data that waits to be subscribed to before it can release any data and is part of RxJava. 
 The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument.
 This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. 
-In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class, which means that the client can recognize the invoker provider.
+In the [hotspot=getSystem file=1]`getSystem()` method,
+the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class,
+which means that the client can recognize the invoker provider.
 
 In some scenarios, a producer might generate more data than the consumers can handle. 
 JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. 
-To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
+To learn more about RxJava and backpressure, see
+https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
 
 == Updating the REST resource to support the reactive JAX-RS client
 
@@ -268,7 +318,8 @@ The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return th
 The `systemLoad` endpoint first gets all of the hostnames by calling the [hotspot=getSystems file=0]`getSystems()` method. 
 Then it loops through the hostnames and calls the [hotspot=getSystem file=0]`getSystem()` method on each one.
 
-Instead of using the `thenAcceptAsync()` method, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
+Instead of using the `thenAcceptAsync()` method,
+`Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. 
 Thus, any necessary data processing happens inside the `subscribe()` method. 
 In this case, the necessary data processing is saving the data in the temporary [hotspot=holderClass file=0]`Holder` class.
 The `Holder` class is used to store the value that is returned from the client because values cannot be returned inside the `subscribe()` method. 
@@ -309,13 +360,38 @@ include::{common-includes}/os-tabs.adoc[]
 ```
 --
 
-You can access the application by making requests to the `query/systemLoad` endpoint at the http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+// Static guide instruction
+ifndef::cloud-hosted[]
+See the http://localhost:9080/health[^] URL to confirm that the `query` microservice is up and running.
+Once the `query` microservice is up and running, you can access the application by making requests to the `query/systemLoad` endpoint at the
+http://localhost:9080/query/systemLoad[http://localhost:9080/query/systemLoad^] URL. 
+endif::[]
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+The **query** microservice will take some time to become available.
+Run the following command to confirm that the **query** microservice is up and running:
+```
+curl -s http://localhost:9080/health | jq
+```
+{: codeblock}
+
+Once the **query** microservice is up and running, 
+you can access the application by making requests to the **query/systemLoad** endpoint using
+the following **curl** command:
+```
+curl -s http://localhost:9080/query/systemLoad | jq
+```
+{: codeblock}
+endif::[]
 
 Switching to a reactive programming model freed up the thread that was handling your request to `query/systemLoad`. 
 While the client request is being handled, the thread can handle other work.
 
 When you are done checking out the application, run the following script to stop the application:
 
+// Static guide instruction
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -332,6 +408,16 @@ include::{common-includes}/os-tabs.adoc[]
 ./scripts/stopContainers.sh
 ```
 --
+endif::[]
+
+
+// Cloud hosted guide instruction
+ifdef::cloud-hosted[]
+```
+./scripts/stopContainers.sh
+```
+{: codeblock}
+endif::[]
 
 // =================================================================================================
 // Testing
@@ -348,7 +434,8 @@ If a test failure occurs, then you might have introduced a bug into the code.
 `query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
-The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
+The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the
+`query` service can correctly calculate the highest and lowest system loads. 
 
 QueryServiceIT.java
 [source, java, linenums, role='code_column hide_tags=copyright']
