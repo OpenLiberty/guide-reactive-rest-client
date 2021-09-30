@@ -37,7 +37,7 @@ First, you'll learn how to create a reactive JAX-RS client application by using 
 You will then learn how to take advantage of the RxJava reactive extensions with a
 pluggable reactive JAX-RS client provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^].
 The JAX-RS client is an API used to communicate with RESTful web services. 
-The API makes it easy to consume a web service that is exposed by using the HTTP protocol,
+The API makes it easy to consume a web service by using the HTTP protocol,
 which means that you can efficiently implement client-side applications. 
 The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
 
