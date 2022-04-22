@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 IBM Corporation and others.
+// Copyright (c) 2020, 2022 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -85,10 +85,9 @@ include::{common-includes}/gitclone.adoc[]
 Navigate to the `start` directory to begin.
 // cloud-hosted guide instructions:
 ifdef::cloud-hosted[]
-```
+```bash
 cd /home/project/guide-reactive-rest-client/start
 ```
-{: codeblock}
 endif::[]
 
 JAX-RS provides a default reactive provider that you can use to create a reactive REST client using the `CompletionStage` interface.
@@ -202,23 +201,21 @@ endif::[]
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
 The microservices will take some time to become available.
-Run the following commands to confirm that the **inventory** and **query** microservices are up and running:
-```
+Run the following commands to confirm that the ***inventory*** and ***query*** microservices are up and running:
+```bash
 curl -s http://localhost:9085/health | jq
 ```
-{: codeblock}
 
-```
+```bash
 curl -s http://localhost:9080/health | jq
 ```
-{: codeblock}
 
-Once the microservices are up and running, you can access the application by making requests to the **query/systemLoad** endpoint
-by using the following **curl** command:
-```
+Once the microservices are up and running, you can access the application by making requests to the ***query/systemLoad*** endpoint
+by using the following ***curl*** command:
+```bash
 curl -s http://localhost:9080/query/systemLoad | jq
 ```
-{: codeblock}
+
 endif::[]
 
 When the service is ready, you see an output similar to the following example. 
@@ -376,20 +373,19 @@ endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
-The **query** microservice will take some time to become available.
-Run the following command to confirm that the **query** microservice is up and running:
-```
+The ***query*** microservice will take some time to become available.
+Run the following command to confirm that the ***query*** microservice is up and running:
+```bash
 curl -s http://localhost:9080/health | jq
 ```
-{: codeblock}
 
-Once the **query** microservice is up and running, 
-you can access the application by making requests to the **query/systemLoad** endpoint using
-the following **curl** command:
-```
+Once the ***query*** microservice is up and running, 
+you can access the application by making requests to the ***query/systemLoad*** endpoint using
+the following ***curl*** command:
+```bash
 curl -s http://localhost:9080/query/systemLoad | jq
 ```
-{: codeblock}
+
 endif::[]
 
 Switching to a reactive programming model freed up the thread that was handling your request to `query/systemLoad`. 
@@ -420,10 +416,10 @@ endif::[]
 
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
-```
+```bash
 ./scripts/stopContainers.sh
 ```
-{: codeblock}
+
 endif::[]
 
 // =================================================================================================
