@@ -197,11 +197,7 @@ docker stop query
 
 == Updating the web client to use an alternative reactive provider
 
-pom.xml
-[source, xml, linenums, role="code_column"]
-----
-include::finish/query/pom.xml[]
-----
+
 
 Although JAX-RS provides the default reactive provider that returns `CompletionStage` types, you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. The Apache CXF and Eclipse Jersey projects produce such providers. You'll now update the web client to use the Jersey reactive provider for RxJava. With this updated reactive provider, you can write clients that use RxJava objects instead of clients that use only the `CompletionStage` interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services with a `CompletionStage` interface.
 
@@ -209,6 +205,12 @@ Although JAX-RS provides the default reactive provider that returns `CompletionS
 ----
 #Replace the Maven configuration file.#
 `query/pom.xml`
+----
+
+pom.xml
+[source, xml, linenums, role="code_column"]
+----
+include::finish/query/pom.xml[]
 ----
 
 The [hotspot=jerseyRxjava file=0]`jersey-rx-client-rxjava` and [hotspot=jerseyRxjava2 file=0]`jersey-rx-client-rxjava2` dependencies provide the `RxInvokerProvider` classes, which are registered to the [hotspot=jerseyClient file=0]`jersey-client` `ClientBuilder` class.
@@ -233,11 +235,6 @@ In some scenarios, a producer might generate more data than the consumers can ha
 
 == Updating the REST resource to support the reactive JAX-RS client
 
-QueryResource.java
-[source, java, linenums, role='code_column hide_tags=copyright']
-----
-include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
-----
 
 Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
 
@@ -245,6 +242,12 @@ Now that the client methods return the `Observable` class, you must update the r
 ----
 #Replace the `QueryResource` class.#
 `query/src/main/java/io/openliberty/guides/query/QueryResource.java`
+----
+
+QueryResource.java
+[source, java, linenums, role='code_column hide_tags=copyright']
+----
+include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.java[]
 ----
 
 The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling the [hotspot=getSystems file=0]`getSystems()` method.  Then it loops through the hostnames and calls the [hotspot=getSystem file=0]`getSystem()` method on each one.
