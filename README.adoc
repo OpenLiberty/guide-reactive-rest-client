@@ -31,6 +31,7 @@ NOTE: This repository contains the guide documentation source. To view the guide
 
 Learn how to use a reactive JAX-RS client to asynchronously invoke RESTful microservices over HTTP.
 
+
 == What you'll learn
 
 First, you'll learn how to create a reactive JAX-RS client application by using the default reactive JAX-RS client APIs. You will then learn how to take advantage of the RxJava reactive extensions with a pluggable reactive JAX-RS client provider that's published by https://eclipse-ee4j.github.io/jersey[Eclipse Jersey^]. The JAX-RS client is an API used to communicate with RESTful web services.  The API makes it easy to consume a web service by using the HTTP protocol, which means that you can efficiently implement client-side applications. The reactive client extension to JAX-RS is an API that enables you to use the reactive programming model when using the JAX-RS client.
@@ -46,6 +47,7 @@ image::QueryService.png[Reactive Query Service, width=253, height=327, align="ce
 The microservice that you will modify is the `query` service. It communicates with the `inventory` service to determine which system has the highest system load and which system has the lowest system load.
 
 The `system` and `inventory` microservices use MicroProfile Reactive Messaging to send and receive the system load events. If you want to learn more about reactive messaging, see the  https://openliberty.io/guides/microprofile-reactive-messaging.html[Creating reactive Java microservices^] guide.
+
 
 == Additional prerequisites
 
@@ -101,6 +103,7 @@ include::defaultrx/query/src/main/java/io/openliberty/guides/query/QueryResource
 The [hotspot=systemLoadMethod file=1]`systemLoad` endpoint asynchronously processes the data that is retrieved by the [hotspot=getsystem file=1]`InventoryClient` interface and serves that data after all of the services respond. The [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` and [hotspot=exceptionally file=1]`exceptionally()` methods together behave like an asynchronous try-catch block. The data is processed in the [hotspot=thenAcceptAsync file=1]`thenAcceptAsync()` method only after the `CompletionStage` interface finishes retrieving it.  When you return a `CompletionStage` type in the resource, it doesn’t necessarily mean that the computation completed and the response was built.
 
 A [hotspot=countdownlatch file=1]`CountDownLatch` object is used to track how many asynchronous requests are being waited on. After each thread is completed, the [hotspot=countdown1 hotspot=countdown2 file=1]`countdown()` methodcounts the [hotspot=countdownlatch file=1]`CountDownLatch` object down towards `0`. This means that the value returns only after the thread that's retrieving the value is complete.The [hotspot=await file=1]`await()` method stops and waits until all of the requests are complete. While the countdown completes, the main thread is free to perform other tasks. In this case, no such task is present.
+
 
 == Building and running the application
 
@@ -166,7 +169,6 @@ Once the microservices are up and running, you can access the application by mak
 ```bash
 curl -s http://localhost:9080/query/systemLoad | jq
 ```
-
 endif::[]
 
 When the service is ready, you see an output similar to the following example. This example was formatted for readability:
@@ -196,8 +198,6 @@ docker stop query
 
 
 == Updating the web client to use an alternative reactive provider
-
-
 
 Although JAX-RS provides the default reactive provider that returns `CompletionStage` types, you can alternatively use another provider that supports other reactive frameworks like https://github.com/ReactiveX/RxJava[RxJava^]. The Apache CXF and Eclipse Jersey projects produce such providers. You'll now update the web client to use the Jersey reactive provider for RxJava. With this updated reactive provider, you can write clients that use RxJava objects instead of clients that use only the `CompletionStage` interface. These custom objects provide a simpler and faster way for you to create scalable RESTful services with a `CompletionStage` interface.
 
@@ -233,8 +233,8 @@ The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an 
 
 In some scenarios, a producer might generate more data than the consumers can handle. JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
 
-== Updating the REST resource to support the reactive JAX-RS client
 
+== Updating the REST resource to support the reactive JAX-RS client
 
 Now that the client methods return the `Observable` class, you must update the resource to accommodate these changes.
 
@@ -253,6 +253,7 @@ include::finish/query/src/main/java/io/openliberty/guides/query/QueryResource.ja
 The goal of the [hotspot=systemload file=0]`systemLoad()` method is to return the system with the largest load and the system with the smallest load. The `systemLoad` endpoint first gets all of the hostnames by calling the [hotspot=getSystems file=0]`getSystems()` method.  Then it loops through the hostnames and calls the [hotspot=getSystem file=0]`getSystem()` method on each one.
 
 Instead of using the `thenAcceptAsync()` method, `Observable` uses the [hotspot=subscribe file=0]`subscribe()` method to asynchronously process data. Thus, any necessary data processing happens inside the `subscribe()` method. In this case, the necessary data processing is saving the data in the temporary [hotspot=holderClass file=0]`Holder` class. The `Holder` class is used to store the value that is returned from the client because values cannot be returned inside the `subscribe()` method.  The highest and lowest load systems are updated in the [hotspot=updateValues file=0]`updateValues()` method.
+
 
 == Rebuilding and running the application
 
@@ -305,7 +306,6 @@ Once the ***query*** microservice is up and running, you can access the applicat
 ```bash
 curl -s http://localhost:9080/query/systemLoad | jq
 ```
-
 endif::[]
 
 Switching to a reactive programming model freed up the thread that was handling your request to `query/systemLoad`. While the client request is being handled, the thread can handle other work.
@@ -332,14 +332,13 @@ include::{common-includes}/os-tabs.adoc[]
 --
 endif::[]
 
-
 // Cloud hosted guide instruction
 ifdef::cloud-hosted[]
 ```bash
 ./scripts/stopContainers.sh
 ```
-
 endif::[]
+
 
 // =================================================================================================
 // Testing
@@ -355,14 +354,13 @@ A few tests are included for you to test the basic functionality of the `query` 
 `query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java`
 ----
 
-The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
-
 QueryServiceIT.java
 [source, java, linenums, role='code_column hide_tags=copyright']
 ----
 include::finish/query/src/test/java/it/io/openliberty/guides/query/QueryServiceIT.java[]
 ----
 
+The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that the `query` service can correctly calculate the highest and lowest system loads. 
 
 // =================================================================================================
 // Running the tests
