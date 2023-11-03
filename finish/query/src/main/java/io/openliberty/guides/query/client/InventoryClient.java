@@ -4,7 +4,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * http://www.eclipse.org/legal/epl-2.0/
  *
  * Contributors:
  *     IBM Corporation - Initial implementation
@@ -15,16 +15,22 @@ package io.openliberty.guides.query.client;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Invocation.Builder;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import rx.Observable;
 

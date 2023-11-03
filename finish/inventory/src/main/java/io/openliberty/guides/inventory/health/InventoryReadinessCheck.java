@@ -2,12 +2,11 @@
 /*******************************************************************************
  * Copyright (c) 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * http://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *     IBM Corporation - Initial implementation
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
 package io.openliberty.guides.inventory.health;
@@ -16,8 +15,8 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
@@ -45,7 +44,9 @@ public class InventoryReadinessCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         boolean up = isReady();
-        return HealthCheckResponse.named(this.getClass().getSimpleName()).state(up).build();
+        if (up) 
+            return HealthCheckResponse.named(this.getClass().getSimpleName()).up().build();
+        return HealthCheckResponse.named(this.getClass().getSimpleName()).down().build();
     }
 
     private boolean isReady() {

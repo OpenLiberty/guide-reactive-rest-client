@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,15 +9,20 @@
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
-package io.openliberty.guides.query;
+package test.java.it.io.openliberty.guides.query;
 
-// JAX-RS
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
+import java.util.Map;
 
-// tag::path1[]
-@ApplicationPath("/")
-// end::path1[]
-public class QueryApplication extends Application {
+import jakarta.ws.rs.GET;
+import java.util.Properties;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
+@Path("/query")
+public interface QueryResourceClient {
+    @GET
+    @Path("/systemLoad")
+    @Produces(MediaType.APPLICATION_JSON)
+    Map<String, Properties> systemLoad();
 }
