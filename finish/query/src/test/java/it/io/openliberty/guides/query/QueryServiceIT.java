@@ -11,23 +11,22 @@
 // end::copyright[]
 package it.io.openliberty.guides.query;
 
-// import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.file.Paths;
 import java.time.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockserver.client.MockServerClient;
-import org.junit.jupiter.api.Test;
-import org.microshed.testing.jaxrs.RESTClient;
-import org.microshed.testing.jupiter.MicroShedTest;
-import org.microshed.testing.SharedContainerConfig;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
+
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.GenericContainer;
@@ -36,19 +35,23 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+// import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.WebTarget;
+// import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+// import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.JerseyWebTarget;
+import org.glassfish.jersey.client.proxy.WebResourceFactory;
 
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.UriBuilder;
-import test.java.it.io.openliberty.guides.query.QueryResourceClient;
-import io.openliberty.guides.query.QueryResource;
-@Testcontainers
+
+
 public class QueryServiceIT {
 
-     private static Logger logger = LoggerFactory.getLogger(QueryServiceIT.class);
+    private static Logger logger = LoggerFactory.getLogger(QueryServiceIT.class);
 
     public static QueryResourceClient client;
 
@@ -72,9 +75,9 @@ public class QueryServiceIT {
             "\"systemLoad\" : 2.13" +
         "}";
 
-        private static ImageFromDockerfile queryImage
-        = new ImageFromDockerfile("query:1.0-SNAPSHOT")
-              .withDockerfile(Paths.get("./Dockerfile"));
+    private static ImageFromDockerfile queryImage
+    = new ImageFromDockerfile("query:1.0-SNAPSHOT")
+            .withDockerfile(Paths.get("./Dockerfile"));
 
     public static final DockerImageName MOCKSERVER_IMAGE = DockerImageName
         .parse("mockserver/mockserver")
@@ -101,13 +104,17 @@ public class QueryServiceIT {
             .withLogConsumer(new Slf4jLogConsumer(logger))
             .dependsOn(kafkaContainer);
 
-    private static QueryResourceClient createRestClient(String urlPath) {
-        ClientBuilder builder = ResteasyClientBuilder.newBuilder();
-        ResteasyClient client = (ResteasyClient) builder.build();
-        ResteasyWebTarget target = client.target(UriBuilder.fromPath(urlPath));
-        return target.proxy(QueryResourceClient.class);
+    private static QueryResourceClient createJerseyClient(String urlPath) {
+        
+        ClientConfig config = new ClientConfig();
+        config.register(new LoggingFilter(logger, true)); 
+        JerseyClient jerseyClient = JerseyClientBuilder.createClient(config);
+        JerseyWebTarget target = jerseyClient.target(urlPath);
+        return WebResourceFactory.newResource(ClientInt.class, target);
+
     }
 
+    @BeforeAll
     public static void startContainers() {
         mockServer.start();
         mockClient = new MockServerClient(
@@ -121,12 +128,14 @@ public class QueryServiceIT {
                 "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
 
-        client = createRestClient("http://"
+        client = createJerseyClient("http://"
             + queryContainer.getHost()
             + ":" + queryContainer.getFirstMappedPort());
     }
     @BeforeEach
     public void setup() throws InterruptedException {
+        System.out.println("printing mockserver port");
+        System.out.println(mockServer.getServerPort());
         mockClient.when(HttpRequest.request()
                         .withMethod("GET")
                         .withPath("/inventory/systems"))

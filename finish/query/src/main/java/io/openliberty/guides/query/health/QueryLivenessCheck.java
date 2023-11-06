@@ -28,6 +28,8 @@ public class QueryLivenessCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         boolean up = isAlive();
-        return HealthCheckResponse.named(this.getClass().getSimpleName()).state(up).build();
+        if (up) 
+            return HealthCheckResponse.named(this.getClass().getSimpleName()).up().build();
+        return HealthCheckResponse.named(this.getClass().getSimpleName()).down().build();
     }
 }

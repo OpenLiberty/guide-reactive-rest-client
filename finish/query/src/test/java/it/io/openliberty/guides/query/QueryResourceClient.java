@@ -9,9 +9,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
-package test.java.it.io.openliberty.guides.query;
+package it.io.openliberty.guides.query;
 
 import java.util.Map;
+import java.util.List;
 
 import jakarta.ws.rs.GET;
 import java.util.Properties;
@@ -19,10 +20,15 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/query")
 public interface QueryResourceClient {
+
     @GET
-    @Path("/systemLoad")
+    @Path("inventory/systems")
+    @Produces(MediaType.APPLICATION_JSON)
+    List<String> getSystems();
+
+    @GET
+    @Path("/query/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     Map<String, Properties> systemLoad();
 }
