@@ -17,20 +17,14 @@ import java.util.Properties;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.client.Invocation.Builder;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import org.glassfish.jersey.client.rx.rxjava.RxObservableInvokerProvider;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import rx.Observable;
 
@@ -38,7 +32,7 @@ import rx.Observable;
 public class InventoryClient {
 
     @Inject
-    @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
+    @ConfigProperty(name = "INVENTORY_BASE_URI")
     private String baseUri;
 
     public List<String> getSystems() {

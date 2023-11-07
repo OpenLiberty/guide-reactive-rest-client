@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletionStage;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.HttpHeaders;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @RequestScoped
@@ -32,6 +32,7 @@ public class InventoryClient {
     @Inject
     @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
+
 
     public List<String> getSystems() {
         return ClientBuilder.newClient()

@@ -89,7 +89,7 @@ public class QueryResource {
         private volatile Map<String, Properties> values;
         // end::volatile[]
 
-        Holder() {
+        public Holder() {
             // tag::concurrentHashMap[]
             this.values = new ConcurrentHashMap<String, Properties>();
             // end::concurrentHashMap[]

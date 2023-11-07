@@ -20,15 +20,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+@Path("/query")
 public interface QueryResourceClient {
-
     @GET
-    @Path("inventory/systems")
-    @Produces(MediaType.APPLICATION_JSON)
-    List<String> getSystems();
-
-    @GET
-    @Path("/query/systemLoad")
+    @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
     Map<String, Properties> systemLoad();
 }
