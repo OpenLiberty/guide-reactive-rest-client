@@ -12,6 +12,8 @@
 // end::copyright[]
 package io.openliberty.guides.query.client;
 
+import java.io.*;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -32,10 +34,11 @@ import rx.Observable;
 public class InventoryClient {
 
     @Inject
-    @ConfigProperty(name = "INVENTORY_BASE_URI")
+    @ConfigProperty(name = "INVENTORY_BASE_URI", defaultValue = "http://localhost:9085")
     private String baseUri;
 
     public List<String> getSystems() {
+        System.out.println("baseUri ==: " + baseUri);
         return ClientBuilder.newClient()
                             .target(baseUri)
                             .path("/inventory/systems")

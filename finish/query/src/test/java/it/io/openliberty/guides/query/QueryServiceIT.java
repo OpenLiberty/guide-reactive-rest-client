@@ -11,8 +11,6 @@
 // end::copyright[]
 package it.io.openliberty.guides.query;
 
-import java.io.*;
-
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
@@ -36,23 +34,20 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.glassfish.jersey.client.JerseyWebTarget;
-import org.glassfish.jersey.client.proxy.WebResourceFactory;
-
+import jakarta.ws.rs.client.ClientBuilder;
+// import org.glassfish.jersey.client.JerseyClientBuilder;
 
 public class QueryServiceIT {
 
     private static Logger logger = LoggerFactory.getLogger(QueryServiceIT.class);
 
-    public static QueryResourceClient client;
+    public static QueryResourceClient CLIENTT;
 
     private static Network network = Network.newNetwork();
 
@@ -103,10 +98,11 @@ public class QueryServiceIT {
             .withLogConsumer(new Slf4jLogConsumer(logger))
             .dependsOn(kafkaContainer);
             
-    private static QueryResourceClient createJerseyClient(String urlPath) {
-        JerseyClientBuilder clientBuilder = new JerseyClientBuilder();
-        JerseyWebTarget target = clientBuilder.build().target(urlPath);
-        return WebResourceFactory.newResource(QueryResourceClient.class, target);
+    private static QueryResourceClient createRestClient(String urlPath) {
+        ClientBuilder builder = ResteasyClientBuilder.newBuilder();
+        ResteasyClient client = (ResteasyClient) builder.build();
+        ResteasyWebTarget target = client.target(UriBuilder.fromPath(urlPath));
+        return target.proxy(QueryResourceClient.class);
     }
 
     @BeforeAll
@@ -116,18 +112,22 @@ public class QueryServiceIT {
             mockServer.getHost(),
             mockServer.getServerPort());
         
-        System.out.println("server port of mock server: "+ MockServerContainer.PORT);
+        // System.out.println("server port of mock server: "+ MockServerContainer.PORT);
 
         kafkaContainer.start();
 
         queryContainer.withEnv(
-            "InventoryClient/mp-rest/uri", 
-                "http://mock-server:" + MockServerContainer.PORT);
+            "InventoryClient/mp-rest/uri",
+                             "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
 
-        client = createJerseyClient("http://"
+        String uri = "http://"
             + queryContainer.getHost()
-            + ":" + queryContainer.getFirstMappedPort());
+            + ":" + queryContainer.getFirstMappedPort();
+
+        System.out.println(uri);
+
+       CLIENTT = createRestClient("http://google.com");
     }
     @BeforeEach
     public void setup() throws InterruptedException {
@@ -179,7 +179,7 @@ public class QueryServiceIT {
     // tag::testSystemLoad[]
     @Test
     public void testSystemLoad() {
-        Map<String, Properties> response = client.systemLoad();
+        Map<String, Properties> response = CLIENTT.systemLoad();
         assertEquals(
             "testHost2",
             response.get("highest").get("hostname"),

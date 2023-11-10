@@ -78,6 +78,7 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>3.1.3</version>
+            <scope>runtime</scope>
         </dependency>
         <!-- end::jerseyClient[] -->
         <!-- tag::jerseyRxjava[] -->
@@ -85,6 +86,7 @@
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava</artifactId>
             <version>3.1.3</version>
+            <!-- <scope>provided</scope> -->
         </dependency>
         <!-- end::jerseyRxjava[] -->
         <!-- tag::jerseyRxjava2[] -->
@@ -92,13 +94,15 @@
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava2</artifactId>
             <version>3.1.3</version>
+            <!-- <scope>runtime</scope> -->
         </dependency>
         <!-- end::jerseyRxjava2[] -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>3.1.3</version>
-        </dependency>
+            <scope>runtime</scope>
+        </dependency> -->
         <!-- <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
@@ -108,6 +112,7 @@
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-proxy-client</artifactId>
             <version>3.1.3</version>
+            <scope>runtime</scope>
         </dependency> 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -150,7 +155,7 @@
             <version>1.19.1</version>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency>
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
             <version>6.0.0.Final</version>
@@ -161,7 +166,31 @@
             <artifactId>resteasy-json-binding-provider</artifactId>
             <version>6.0.0.Final</version>
             <scope>test</scope>
-        </dependency> -->
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxb-provider</artifactId>
+            <version>6.0.0.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-client</artifactId>
+        <version>6.0.0.Final</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jackson2-provider</artifactId>
+        <version>6.0.0.Final</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-multipart-provider</artifactId>
+        <version>6.0.0.Final</version>
+        <scope>test</scope>
+    </dependency>
     </dependencies>
 
     <build>
