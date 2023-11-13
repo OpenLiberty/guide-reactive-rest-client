@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation and others.
+ * Copyright (c)  2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ public class QueryResource {
     public Map<String, Properties> systemLoad() {
         // tag::getSystems[]
         List<String> systems = inventoryClient.getSystems();
+        System.out.println("line 45");
         // end::getSystems[]
         // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());
@@ -89,7 +90,7 @@ public class QueryResource {
         private volatile Map<String, Properties> values;
         // end::volatile[]
 
-        public Holder() {
+        Holder() {
             // tag::concurrentHashMap[]
             this.values = new ConcurrentHashMap<String, Properties>();
             // end::concurrentHashMap[]
