@@ -35,25 +35,15 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
-// import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.glassfish.jersey.client.JerseyClient;
 
-// import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-// import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.glassfish.jersey.client.JerseyClient;
 import org.glassfish.jersey.client.ClientConfig;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.client.JerseyClient;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.client.JerseyWebTarget;
-
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.core.UriBuilder;
-
 
 public class QueryServiceIT {
 
@@ -139,8 +129,6 @@ public class QueryServiceIT {
     }
     @BeforeEach
     public void setup() throws InterruptedException {
-        System.out.println("printing mockserver port");
-        System.out.println(mockServer.getServerPort());
         mockClient.when(HttpRequest.request()
                         .withMethod("GET")
                         .withPath("/inventory/systems"))

@@ -42,7 +42,6 @@ public class QueryResource {
     public Map<String, Properties> systemLoad() {
         // tag::getSystems[]
         List<String> systems = inventoryClient.getSystems();
-        System.out.println("line 45");
         // end::getSystems[]
         // tag::countdownlatch[]
         CountDownLatch remainingSystems = new CountDownLatch(systems.size());

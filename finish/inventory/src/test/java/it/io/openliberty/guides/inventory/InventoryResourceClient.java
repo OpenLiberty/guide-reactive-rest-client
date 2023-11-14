@@ -12,6 +12,7 @@
 package it.io.openliberty.guides.inventory;
 
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -32,5 +33,9 @@ public interface InventoryResourceClient {
     @Path("/systems/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
     public Properties getSystem(@PathParam("hostname") String hostname);
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    Response resetSystems();
 
 }
