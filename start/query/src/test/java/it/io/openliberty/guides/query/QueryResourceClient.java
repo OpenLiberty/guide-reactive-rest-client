@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c)  2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,33 +9,20 @@
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
-package it.io.openliberty.guides.inventory;
+package it.io.openliberty.guides.query;
+
+import java.util.Map;
 
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.PathParam;
+import java.util.Properties;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-
-import java.util.List;
-import java.util.Properties;
-
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/inventory")
-public interface InventoryResourceClient {
+@Path("/query")
+public interface QueryResourceClient {
     @GET
-    @Path("/systems")
+    @Path("/systemLoad")
     @Produces(MediaType.APPLICATION_JSON)
-    List<String> getSystems();
-
-    @GET
-    @Path("/systems/{hostname}")
-    @Produces(MediaType.APPLICATION_JSON)
-    Properties getSystem(@PathParam("hostname") String hostname);
-
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    Response resetSystems();
-
+    public Map<String, Properties> systemLoad();
 }

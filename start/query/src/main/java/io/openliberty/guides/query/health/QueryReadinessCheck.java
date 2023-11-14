@@ -2,33 +2,27 @@
 /*******************************************************************************
  * Copyright (c) 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * http://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *     IBM Corporation - Initial implementation
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 // end::copyright[]
-package io.openliberty.guides.query.health;
+package it.io.openliberty.guides.query;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Map;
 
-import org.eclipse.microprofile.health.HealthCheck;
-import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.Readiness;
+import jakarta.ws.rs.GET;
+import java.util.Properties;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
-@Readiness
-@ApplicationScoped
-public class QueryReadinessCheck implements HealthCheck {
-
-    private boolean isAlive() {
-        return true;
-    }
-
-    @Override
-    public HealthCheckResponse call() {
-        boolean up = isAlive();
-        return HealthCheckResponse.named(this.getClass().getSimpleName()).state(up).build();
-    }
+@Path("/query")
+public interface QueryResourceClient {
+    @GET
+    @Path("/systemLoad")
+    @Produces(MediaType.APPLICATION_JSON)
+    Map<String, Properties> systemLoad();
 }

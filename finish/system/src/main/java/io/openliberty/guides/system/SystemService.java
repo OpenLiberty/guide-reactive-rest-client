@@ -28,7 +28,7 @@ import io.reactivex.rxjava3.core.Flowable;
 @ApplicationScoped
 public class SystemService {
 
-    private static final OperatingSystemMXBean osMean = 
+    private static final OperatingSystemMXBean OSMEAN =
             ManagementFactory.getOperatingSystemMXBean();
     private static String hostname = null;
 
@@ -47,7 +47,7 @@ public class SystemService {
     public Publisher<SystemLoad> sendSystemLoad() {
         return Flowable.interval(15, TimeUnit.SECONDS)
                 .map((interval -> new SystemLoad(getHostname(),
-                        new Double(osMean.getSystemLoadAverage()))));
+                        new Double(OSMEAN.getSystemLoadAverage()))));
     }
 
 }

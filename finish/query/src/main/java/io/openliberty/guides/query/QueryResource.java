@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c)  2023 IBM Corporation and others.
+ * Copyright (c) 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import io.openliberty.guides.query.client.InventoryClient;
 @ApplicationScoped
 @Path("/query")
 public class QueryResource {
-    
+
     @Inject
     private InventoryClient inventoryClient;
 
@@ -78,7 +78,7 @@ public class QueryResource {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        
+
         return systemLoads.getValues();
     }
     // end::systemload[]
@@ -121,8 +121,10 @@ public class QueryResource {
             this.values.put("lowest", new Properties());
             this.values.get("highest").put("hostname", "temp_max");
             this.values.get("lowest").put("hostname", "temp_min");
-            this.values.get("highest").put("systemLoad", new BigDecimal(Double.MIN_VALUE));
-            this.values.get("lowest").put("systemLoad", new BigDecimal(Double.MAX_VALUE));
+            this.values.get("highest")
+                .put("systemLoad", new BigDecimal(Double.MIN_VALUE));
+            this.values.get("lowest")
+                .put("systemLoad", new BigDecimal(Double.MAX_VALUE));
         }
     }
     // end::holderClass[]
