@@ -65,9 +65,9 @@ public class QueryServiceIT {
             + "\"systemLoad\" : 3.21"
         + "}";
     private static String testHost3 =
-        "{" 
-            + "\"hostname\" : \"testHost3\"," 
-            + "\"systemLoad\" : 2.13" 
+        "{"
+            + "\"hostname\" : \"testHost3\","
+            + "\"systemLoad\" : 2.13"
         + "}";
 
     private static ImageFromDockerfile queryImage

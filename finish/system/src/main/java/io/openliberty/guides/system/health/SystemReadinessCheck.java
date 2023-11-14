@@ -30,7 +30,7 @@ import org.eclipse.microprofile.health.Readiness;
 @ApplicationScoped
 public class SystemReadinessCheck implements HealthCheck {
 
-    private static Logger logger 
+    private static Logger logger
         = Logger.getLogger(SystemReadinessCheck.class.getName());
 
     @Inject
@@ -65,7 +65,7 @@ public class SystemReadinessCheck implements HealthCheck {
         KafkaFuture<Collection<TopicListing>> topicsFuture = topics.listings();
         try {
             Collection<TopicListing> topicList = topicsFuture.get();
-            for (TopicListing t : topicList){
+            for (TopicListing t : topicList) {
                 logger.info("topic: " + t.name());
             }
             return true;

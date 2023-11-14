@@ -31,7 +31,7 @@ import org.eclipse.microprofile.health.Readiness;
 @ApplicationScoped
 public class InventoryReadinessCheck implements HealthCheck {
 
-    private static Logger logger 
+    private static Logger logger
         = Logger.getLogger(InventoryReadinessCheck.class.getName());
 
     @Inject
@@ -45,12 +45,12 @@ public class InventoryReadinessCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         boolean up = isReady();
-        if (up){
-            return HealthCheckResponse.named
-                (this.getClass().getSimpleName()).up().build();
+        if (up) {
+            return HealthCheckResponse
+                .named(this.getClass().getSimpleName()).up().build();
         }
-        return HealthCheckResponse.named
-            (this.getClass().getSimpleName()).down().build();
+        return HealthCheckResponse
+            .named(this.getClass().getSimpleName()).down().build();
     }
 
     private boolean isReady() {
@@ -66,18 +66,18 @@ public class InventoryReadinessCheck implements HealthCheck {
     }
 
     private boolean checkIfBarConsumerGroupRegistered(AdminClient adminClient) {
-        ListConsumerGroupsResult groupsResult 
+        ListConsumerGroupsResult groupsResult
             = adminClient.listConsumerGroups();
-        KafkaFuture<Collection<ConsumerGroupListing>> 
+        KafkaFuture<Collection<ConsumerGroupListing>>
             consumerGroupsFuture = groupsResult.valid();
         try {
-            Collection<ConsumerGroupListing> consumerGroups 
+            Collection<ConsumerGroupListing> consumerGroups
                 = consumerGroupsFuture.get();
-            for (ConsumerGroupListing g : consumerGroups){
+            for (ConsumerGroupListing g : consumerGroups) {
                 logger.info("groupId: " + g.groupId());
             }
-            return consumerGroups.stream().anyMatch
-                (group -> group.groupId().equals(groupId));
+            return consumerGroups.stream()
+               .anyMatch(group -> group.groupId().equals(groupId));
         } catch (Exception e) {
             return false;
         }
