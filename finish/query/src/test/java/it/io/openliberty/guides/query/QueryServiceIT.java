@@ -11,7 +11,6 @@
 // end::copyright[]
 package it.io.openliberty.guides.query;
 
-import java.io.*;
 
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -36,16 +35,24 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
+// import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.glassfish.jersey.client.JerseyClient;
+
+// import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+// import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.glassfish.jersey.client.ClientConfig;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.UriBuilder;
+import org.glassfish.jersey.client.proxy.WebResourceFactory;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.glassfish.jersey.client.JerseyWebTarget;
 
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.glassfish.jersey.client.JerseyWebTarget;
-import org.glassfish.jersey.client.proxy.WebResourceFactory;
 
 
 public class QueryServiceIT {
@@ -102,11 +109,14 @@ public class QueryServiceIT {
             .withStartupTimeout(Duration.ofMinutes(3))
             .withLogConsumer(new Slf4jLogConsumer(logger))
             .dependsOn(kafkaContainer);
-            
+
     private static QueryResourceClient createJerseyClient(String urlPath) {
-        JerseyClientBuilder clientBuilder = new JerseyClientBuilder();
-        JerseyWebTarget target = clientBuilder.build().target(urlPath);
+        
+        ClientConfig config = new ClientConfig();
+        JerseyClient jerseyClient = JerseyClientBuilder.createClient(config);
+        JerseyWebTarget target = jerseyClient.target(urlPath);
         return WebResourceFactory.newResource(QueryResourceClient.class, target);
+
     }
 
     @BeforeAll
@@ -115,13 +125,11 @@ public class QueryServiceIT {
         mockClient = new MockServerClient(
             mockServer.getHost(),
             mockServer.getServerPort());
-        
-        System.out.println("server port of mock server: "+ MockServerContainer.PORT);
 
         kafkaContainer.start();
 
         queryContainer.withEnv(
-            "InventoryClient/mp-rest/uri", 
+            "INVENTORY_BASE_URI",
                 "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
 
@@ -192,5 +200,4 @@ public class QueryServiceIT {
         );
     }
     // end::testSystemLoad[]
-
 }
