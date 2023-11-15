@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/inventory")
 public interface InventoryResourceClient {
