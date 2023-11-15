@@ -17,10 +17,6 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
@@ -35,12 +31,6 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.proxy.WebResourceFactory;
-import org.glassfish.jersey.client.JerseyClient;
-import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.glassfish.jersey.client.JerseyWebTarget;
 
 private static Logger logger = LoggerFactory.getLogger(AppContainerConfig.class);
 
@@ -77,15 +67,6 @@ private static ImageFromDockerfile queryImage
             .withLogConsumer(new Slf4jLogConsumer(logger))
             .dependsOn(kafkaContainer);
 
-    private static QueryResourceClient createJerseyClient(String urlPath) {
-
-            ClientConfig config = new ClientConfig();
-            JerseyClient jerseyClient = JerseyClientBuilder.createClient(config);
-            JerseyWebTarget target = jerseyClient.target(urlPath);
-            return WebResourceFactory.newResource(QueryResourceClient.class, target);
-
-        }
-
     @Override
     public static void startContainers() {
         mockServer.start();
@@ -99,8 +80,4 @@ private static ImageFromDockerfile queryImage
             "INVENTORY_BASE_URI",
                 "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
-
-        client = createJerseyClient("http://"
-            + queryContainer.getHost()
-            + ":" + queryContainer.getFirstMappedPort());
     }
