@@ -39,7 +39,7 @@ public class InventoryClient {
                             .request()
                             .header(HttpHeaders.CONTENT_TYPE,
                                 MediaType.APPLICATION_JSON)
-                            .get(new GenericType<List<String>>() { } );
+                            .get(new GenericType<List<String>>(){ } );
     }
 
     // tag::getSystem[]
