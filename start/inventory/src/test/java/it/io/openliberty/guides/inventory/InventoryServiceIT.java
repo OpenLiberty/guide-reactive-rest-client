@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c)  2023 IBM Corporation and others.
+ * Copyright (c) 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import jakarta.ws.rs.core.UriBuilder;
-// import test.java.it.io.openliberty.guides.inventory.InventoryResourceClient;
 import jakarta.ws.rs.client.ClientBuilder;
 
 import org.slf4j.Logger;

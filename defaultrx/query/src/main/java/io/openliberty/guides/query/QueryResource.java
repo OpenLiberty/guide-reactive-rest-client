@@ -31,7 +31,7 @@ import io.openliberty.guides.query.client.InventoryClient;
 @ApplicationScoped
 @Path("/query")
 public class QueryResource {
-    
+
     @Inject
     private InventoryClient inventoryClient;
 

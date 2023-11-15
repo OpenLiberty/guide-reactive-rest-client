@@ -37,9 +37,9 @@ public class InventoryClient {
                             .target(baseUri)
                             .path("/inventory/systems")
                             .request()
-                            .header(HttpHeaders.CONTENT_TYPE, 
+                            .header(HttpHeaders.CONTENT_TYPE,
                                 MediaType.APPLICATION_JSON)
-                            .get(new GenericType<List<String>>() { } );
+                            .get(new GenericType<List<String>> () { } );
     }
 
     // tag::getSystem[]
@@ -49,7 +49,7 @@ public class InventoryClient {
                             .path("/inventory/systems")
                             .path(hostname)
                             .request()
-                            .header(HttpHeaders.CONTENT_TYPE, 
+                            .header(HttpHeaders.CONTENT_TYPE,
                                 MediaType.APPLICATION_JSON)
                             // tag::rx[]
                             .rx()
