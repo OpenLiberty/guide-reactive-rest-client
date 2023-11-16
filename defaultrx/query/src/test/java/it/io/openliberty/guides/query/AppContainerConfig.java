@@ -1,3 +1,4 @@
+// tag::copyright[]
 /*******************************************************************************
  * Copyright (c) 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
@@ -32,7 +33,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AppContainerConfig{
+public class AppContainerConfig {
 
 private static Logger logger = LoggerFactory.getLogger(AppContainerConfig.class);
 
