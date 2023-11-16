@@ -138,9 +138,7 @@ public class QueryServiceIT {
             + ":" + queryContainer.getFirstMappedPort());
     }
     @BeforeEach
-    public void setup() throws InterruptedException {
-        System.out.println("printing mockserver port");
-        System.out.println(mockServer.getServerPort());
+    public void setup() throws InterruptedException {\
         mockClient.when(HttpRequest.request()
                         .withMethod("GET")
                         .withPath("/inventory/systems"))
