@@ -107,7 +107,7 @@
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.9</version>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
             <version>2.16.0</version>
@@ -122,7 +122,7 @@
                     <artifactId>jackson-module-jaxb-annotations</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency> -->
 
         <!-- For tests -->
         <dependency>
