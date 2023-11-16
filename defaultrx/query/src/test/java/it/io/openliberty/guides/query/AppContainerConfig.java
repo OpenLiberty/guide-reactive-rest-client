@@ -32,6 +32,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+public class AppContainerConfig{
+
 private static Logger logger = LoggerFactory.getLogger(AppContainerConfig.class);
 
 private static Network network = Network.newNetwork();
@@ -81,3 +83,4 @@ private static ImageFromDockerfile queryImage
                 "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
     }
+}

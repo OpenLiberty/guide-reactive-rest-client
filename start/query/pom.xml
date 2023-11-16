@@ -165,9 +165,6 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <configuration><install><runtimeUrl>
-                https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/nightly/2023-10-30_1102/openliberty-all-23.0.0.11-cl231120231030-1102.zip
-                </runtimeUrl></install></configuration> 
                 <version>3.9</version>
             </plugin>
 
