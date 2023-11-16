@@ -47,6 +47,13 @@
             <scope>provided</scope>
         </dependency>
         <!-- Required dependencies -->
+        <!-- tag::jerseyClient[] -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>3.1.3</version>
+        </dependency>
+        <!-- end::jerseyClient[] -->
         <dependency>
             <groupId>io.openliberty.guides</groupId>
             <artifactId>models</artifactId>
