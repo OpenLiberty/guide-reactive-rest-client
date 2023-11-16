@@ -229,7 +229,9 @@ InventoryClient.java
 include::finish/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
-The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an `Observable` object instead of a `CompletionStage` interface. http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. In the [hotspot=getSystem file=1]`getSystem()` method,the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class,which means that the client can recognize the invoker provider.
+The return type of the [hotspot=getSystem file=1]`getSystem()` method is now an `Observable` object instead of a `CompletionStage` interface. http://reactivex.io/RxJava/javadoc/io/reactivex/Observable.html[Observable^] is a collection of data that waits to be subscribed to before it can release any data and is part of RxJava. The [hotspot=rx file=1]`rx()` method now needs to contain `RxObservableInvoker.class` as an argument. This argument calls the specific invoker, `RxObservableInvoker`, for the `Observable` class that's provided by Jersey. 
+
+In the [hotspot=getSystem file=1]`getSystem()` method, the [hotspot=register file=1]`register(RxObservableInvokerProvider)` method call registers the `RxObservableInvoker` class,which means that the client can recognize the invoker provider.
 
 In some scenarios, a producer might generate more data than the consumers can handle. JAX-RS can deal with cases like these by using the RxJava `Flowable` class with backpressure. To learn more about RxJava and backpressure, see https://openliberty.io/blog/2019/04/10/jaxrs-reactive-extensions.html[JAX-RS reactive extensions with RxJava backpressure^].
 

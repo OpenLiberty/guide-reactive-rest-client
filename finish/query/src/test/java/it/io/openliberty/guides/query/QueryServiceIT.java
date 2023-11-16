@@ -70,10 +70,9 @@ public class QueryServiceIT {
             + "\"systemLoad\" : 3.21"
         + "}";
     private static String testHost3 =
-        "{" + 
-            "\"hostname\" : \"testHost3\"," +
-            "\"systemLoad\" : 2.13" +
-        "}";
+        "{" + "\"hostname\" : \"testHost3\","
+            + "\"systemLoad\" : 2.13"
+        + "}";
 
     private static ImageFromDockerfile queryImage
     = new ImageFromDockerfile("query:1.0-SNAPSHOT")
@@ -105,7 +104,7 @@ public class QueryServiceIT {
             .dependsOn(kafkaContainer);
 
     private static QueryResourceClient createJerseyClient(String urlPath) {
-        
+
         ClientConfig config = new ClientConfig();
         JerseyClient jerseyClient = JerseyClientBuilder.createClient(config);
         JerseyWebTarget target = jerseyClient.target(urlPath);
