@@ -131,7 +131,7 @@ public class QueryServiceIT {
         mockClient.when(HttpRequest.request()
                         .withMethod("GET")
                         .withPath("/inventory/systems"))
-                    .respond(HttpResponse.response()
+                        .respond(HttpResponse.response()
                         .withStatusCode(200)
                         .withBody("[\"testHost1\","
                                 + "\"testHost2\","
