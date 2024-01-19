@@ -13,10 +13,10 @@
   </featureManager>
 
   <variable name="http.port" defaultValue="9080"/>
-  <variable name="default.https.port" defaultValue="9443"/>
+  <variable name="https.port" defaultValue="9443"/>
   
   <httpEndpoint host="*" httpPort="${http.port}"
-      httpsPort="${default.https.port}" id="defaultHttpEndpoint"/>
+      httpsPort="${https.port}" id="defaultHttpEndpoint"/>
 
   <webApplication location="query.war" contextRoot="/"/>
 </server>

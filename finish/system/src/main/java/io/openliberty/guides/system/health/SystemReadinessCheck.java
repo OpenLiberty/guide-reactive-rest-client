@@ -40,12 +40,8 @@ public class SystemReadinessCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         boolean up = isReady();
-        if (up) {
-            return HealthCheckResponse
-                .named(this.getClass().getSimpleName()).up().build();
-        }
-        return HealthCheckResponse
-            .named(this.getClass().getSimpleName()).down().build();
+        return HealthCheckResponse.named(
+            this.getClass().getSimpleName()).status(up).build();
     }
 
     private boolean isReady() {

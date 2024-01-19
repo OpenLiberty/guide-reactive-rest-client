@@ -28,11 +28,7 @@ public class InventoryLivenessCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         boolean up = isAlive();
-        if (up) {
-            return HealthCheckResponse
-                .named(this.getClass().getSimpleName()).up().build();
-        }
-        return HealthCheckResponse.
-            named(this.getClass().getSimpleName()).down().build();
+        return HealthCheckResponse.named(
+            this.getClass().getSimpleName()).status(up).build();
     }
 }
