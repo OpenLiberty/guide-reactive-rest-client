@@ -1,4 +1,4 @@
-// Copyright (c)  2020, 2024 IBM Corporation and others.
+// Copyright (c) 2020, 2024 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -84,7 +84,7 @@ Create an [hotspot file=0]`InventoryClient` class, which retrieves inventory dat
 InventoryClient.java
 [source, java, linenums, role='code_column hide_tags=copyright']
 ----
-include::defaultrx/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
+include::/query/src/main/java/io/openliberty/guides/query/client/InventoryClient.java[]
 ----
 
 The [hotspot=getSystem file=0]`getSystem()` method returns the `CompletionStage` interface. This interface represents a unit or stage of a computation. When the associated computation completes, the value can be retrieved. The [hotspot=rx file=0]`rx()` method calls the `CompletionStage` interface. It retrieves the `CompletionStageRxInvoker` class and allows these methods to function correctly with the `CompletionStage` interface return type.
