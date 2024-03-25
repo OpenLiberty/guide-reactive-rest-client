@@ -69,7 +69,7 @@ public class SystemServiceIT {
             .withStartupTimeout(Duration.ofMinutes(2))
             .withLogConsumer(new Slf4jLogConsumer(logger))
             .dependsOn(kafkaContainer);
-    
+
     private static boolean isServiceRunning(String host, int port) {
         try {
             Socket socket = new Socket(host, port);
@@ -107,7 +107,7 @@ public class SystemServiceIT {
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
-        
+
         consumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
             "system-load-status");
