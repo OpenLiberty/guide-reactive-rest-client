@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -52,23 +52,23 @@ public class SystemServiceIT {
 
     private static Network network = Network.newNetwork();
     public static KafkaConsumer<String, SystemLoad> consumer;
-    private static ImageFromDockerfile systemImage
-        = new ImageFromDockerfile("system:1.0-SNAPSHOT")
-              .withDockerfile(Paths.get("./Dockerfile"));
+    private static ImageFromDockerfile systemImage =
+        new ImageFromDockerfile("system:1.0-SNAPSHOT")
+            .withDockerfile(Paths.get("./Dockerfile"));
 
-    private static KafkaContainer kafkaContainer = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest"))
+    private static KafkaContainer kafkaContainer =
+        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
             .withListener(() -> "kafka:19092")
             .withNetwork(network);
 
     private static GenericContainer<?> systemContainer =
-    new GenericContainer(systemImage)
-        .withNetwork(network)
-        .withExposedPorts(9083)
-        .waitingFor(Wait.forHttp("/health/ready").forPort(9083))
-        .withStartupTimeout(Duration.ofMinutes(2))
-        .withLogConsumer(new Slf4jLogConsumer(logger))
-        .dependsOn(kafkaContainer);
+        new GenericContainer(systemImage)
+            .withNetwork(network)
+            .withExposedPorts(9083)
+            .waitingFor(Wait.forHttp("/health/ready").forPort(9083))
+            .withStartupTimeout(Duration.ofMinutes(2))
+            .withLogConsumer(new Slf4jLogConsumer(logger))
+            .dependsOn(kafkaContainer);
     
     private static boolean isServiceRunning(String host, int port) {
         try {
@@ -85,11 +85,12 @@ public class SystemServiceIT {
         if (isServiceRunning("localhost", 9083)) {
             System.out.println("Testing with mvn liberty:devc");
         } else {
+            System.out.println("Testing with mvn verify");
             kafkaContainer.start();
             systemContainer.withEnv(
-            "mp.messaging.connector.liberty-kafka.bootstrap.servers", "kafka:19092");
+                "mp.messaging.connector.liberty-kafka.bootstrap.servers",
+                "kafka:19092");
             systemContainer.start();
-            System.out.println("Testing with mvn verify");
         }
     }
 
@@ -99,26 +100,26 @@ public class SystemServiceIT {
 
         if (isServiceRunning("localhost", 9083)) {
             consumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "localhost:9094");
         } else {
             consumerProps.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 kafkaContainer.getBootstrapServers());
         }
         
         consumerProps.put(
             ConsumerConfig.GROUP_ID_CONFIG,
-                "system-load-status");
+            "system-load-status");
         consumerProps.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+            StringDeserializer.class.getName());
         consumerProps.put(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                SystemLoadDeserializer.class.getName());
+            SystemLoadDeserializer.class.getName());
         consumerProps.put(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                "earliest");
+            "earliest");
 
         consumer = new KafkaConsumer<String, SystemLoad>(consumerProps);
         consumer.subscribe(Collections.singletonList("system.load"));
@@ -140,7 +141,7 @@ public class SystemServiceIT {
     @Test
     public void testCpuStatus() {
         ConsumerRecords<String, SystemLoad> records =
-                consumer.poll(Duration.ofMillis(30 * 1000));
+            consumer.poll(Duration.ofMillis(30 * 1000));
         System.out.println("Polled " + records.count() + " records from Kafka:");
 
         for (ConsumerRecord<String, SystemLoad> record : records) {

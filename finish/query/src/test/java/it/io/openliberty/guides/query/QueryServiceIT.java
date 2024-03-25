@@ -1,6 +1,6 @@
 // tag::copyright[]
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -72,23 +72,24 @@ public class QueryServiceIT {
             + "\"systemLoad\" : 2.13"
         + "}";
 
-    private static ImageFromDockerfile queryImage
-    = new ImageFromDockerfile("query:1.0-SNAPSHOT")
+    private static ImageFromDockerfile queryImage =
+        new ImageFromDockerfile("query:1.0-SNAPSHOT")
             .withDockerfile(Paths.get("./Dockerfile"));
 
-    public static final DockerImageName MOCKSERVER_IMAGE = DockerImageName
-        .parse("mockserver/mockserver")
-        .withTag("mockserver-" + MockServerClient.class
-                .getPackage().getImplementationVersion());
+    public static final DockerImageName MOCKSERVER_IMAGE =
+        DockerImageName.parse("mockserver/mockserver")
+            .withTag("mockserver-" + MockServerClient.class
+                     .getPackage().getImplementationVersion());
 
     public static MockServerContainer mockServer =
-                new MockServerContainer(MOCKSERVER_IMAGE)
-                    .withNetworkAliases("mock-server")
-                    .withNetwork(network);
+        new MockServerContainer(MOCKSERVER_IMAGE)
+            .withNetworkAliases("mock-server")
+            .withNetwork(network);
+
     public static MockServerClient mockClient;
 
-    private static KafkaContainer kafkaContainer = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest"))
+    private static KafkaContainer kafkaContainer =
+        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
             .withListener(() -> "kafka:19092")
             .withNetwork(network);
 
@@ -121,7 +122,7 @@ public class QueryServiceIT {
 
         queryContainer.withEnv(
             "INVENTORY_BASE_URI",
-                "http://mock-server:" + MockServerContainer.PORT);
+            "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
 
         client = createJerseyClient("http://"
@@ -136,8 +137,8 @@ public class QueryServiceIT {
                     .respond(HttpResponse.response()
                         .withStatusCode(200)
                         .withBody("[\"testHost1\","
-                                + "\"testHost2\","
-                                + "\"testHost3\"]")
+                                  + "\"testHost2\","
+                                  + "\"testHost3\"]")
                         .withHeader("Content-Type", "application/json"));
 
         mockClient.when(HttpRequest.request()
