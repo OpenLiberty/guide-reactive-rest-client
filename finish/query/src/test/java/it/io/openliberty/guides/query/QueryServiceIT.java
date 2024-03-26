@@ -12,42 +12,35 @@
 package it.io.openliberty.guides.query;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.jupiter.api.Test;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.glassfish.jersey.client.JerseyWebTarget;
+import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
-
-import org.testcontainers.containers.Network;
-import org.testcontainers.containers.KafkaContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MockServerContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.client.proxy.WebResourceFactory;
-import org.glassfish.jersey.client.JerseyClient;
-import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.JerseyWebTarget;
 
 public class QueryServiceIT {
 
@@ -78,8 +71,8 @@ public class QueryServiceIT {
 
     public static final DockerImageName MOCKSERVER_IMAGE =
         DockerImageName.parse("mockserver/mockserver")
-            .withTag("mockserver-" + MockServerClient.class
-                     .getPackage().getImplementationVersion());
+            .withTag("mockserver-"
+                + MockServerClient.class.getPackage().getImplementationVersion());
 
     public static MockServerContainer mockServer =
         new MockServerContainer(MOCKSERVER_IMAGE)
@@ -97,18 +90,16 @@ public class QueryServiceIT {
         new GenericContainer(queryImage)
             .withNetwork(network)
             .withExposedPorts(9080)
-            .waitingFor(Wait.forHttp("/health/ready"))
+            .waitingFor(Wait.forLogMessage("^.*CWWKF0011I.*$", 1))
             .withStartupTimeout(Duration.ofMinutes(3))
             .withLogConsumer(new Slf4jLogConsumer(logger))
-            .dependsOn(kafkaContainer);
+            .dependsOn(mockServer, kafkaContainer);
 
-    private static QueryResourceClient createJerseyClient(String urlPath) {
-
+    private static QueryResourceClient createRestClient(String urlPath) {
         ClientConfig config = new ClientConfig();
         JerseyClient jerseyClient = JerseyClientBuilder.createClient(config);
         JerseyWebTarget target = jerseyClient.target(urlPath);
         return WebResourceFactory.newResource(QueryResourceClient.class, target);
-
     }
 
     @BeforeAll
@@ -125,10 +116,11 @@ public class QueryServiceIT {
             "http://mock-server:" + MockServerContainer.PORT);
         queryContainer.start();
 
-        client = createJerseyClient("http://"
-            + queryContainer.getHost()
-            + ":" + queryContainer.getFirstMappedPort());
+        client = createRestClient("http://"
+                 + queryContainer.getHost()
+                 + ":" + queryContainer.getFirstMappedPort());
     }
+
     @BeforeEach
     public void setup() throws InterruptedException {
         mockClient.when(HttpRequest.request()
