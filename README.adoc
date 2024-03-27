@@ -392,6 +392,8 @@ export TESTCONTAINERS_RYUK_DISABLED=true
 cd query
 mvn verify
 ```
+
+For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
 --
 
 When the tests succeed, you see output similar to the following example:
