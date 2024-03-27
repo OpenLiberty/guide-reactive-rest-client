@@ -129,7 +129,7 @@ public class QueryServiceIT {
                 }
             };
         } else {
-        	isServiceRunning = false;
+            isServiceRunning = false;
             return Network.newNetwork();
         }
     }
