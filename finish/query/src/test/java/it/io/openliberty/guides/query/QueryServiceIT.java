@@ -108,10 +108,10 @@ public class QueryServiceIT {
             return false;
         }
     }
-    
+
     private static Network createNetwork() {
         if (isServiceRunning("localhost", 9080)) {
-        	isServiceRunning = true;
+            isServiceRunning = true;
             return new Network() {
 
                 @Override
