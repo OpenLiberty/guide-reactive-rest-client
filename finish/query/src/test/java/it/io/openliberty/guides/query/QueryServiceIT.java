@@ -11,9 +11,9 @@
 // end::copyright[]
 package it.io.openliberty.guides.query;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.net.Socket;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
@@ -28,13 +28,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -48,7 +49,8 @@ public class QueryServiceIT {
 
     public static QueryResourceClient client;
 
-    private static Network network = Network.newNetwork();
+    private static boolean isServiceRunning;
+    private static Network network = createNetwork();
 
     private static String testHost1 =
         "{"
@@ -81,11 +83,6 @@ public class QueryServiceIT {
 
     public static MockServerClient mockClient;
 
-    private static KafkaContainer kafkaContainer =
-        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
-            .withListener(() -> "kafka:19092")
-            .withNetwork(network);
-
     private static GenericContainer<?> queryContainer =
         new GenericContainer(queryImage)
             .withNetwork(network)
@@ -93,7 +90,7 @@ public class QueryServiceIT {
             .waitingFor(Wait.forLogMessage("^.*CWWKF0011I.*$", 1))
             .withStartupTimeout(Duration.ofMinutes(3))
             .withLogConsumer(new Slf4jLogConsumer(logger))
-            .dependsOn(mockServer, kafkaContainer);
+            .dependsOn(mockServer);
 
     private static QueryResourceClient createRestClient(String urlPath) {
         ClientConfig config = new ClientConfig();
@@ -102,23 +99,64 @@ public class QueryServiceIT {
         return WebResourceFactory.newResource(QueryResourceClient.class, target);
     }
 
+    private static boolean isServiceRunning(String host, int port) {
+        try {
+            Socket socket = new Socket(host, port);
+            socket.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    private static Network createNetwork() {
+        if (isServiceRunning("localhost", 9080)) {
+        	isServiceRunning = true;
+            return new Network() {
+
+                @Override
+                public Statement apply(Statement base, Description description) {
+                    return null;
+                }
+
+                @Override
+                public String getId() {
+                    return "reactive-app";
+                }
+
+                @Override
+                public void close() {
+                }
+            };
+        } else {
+        	isServiceRunning = false;
+            return Network.newNetwork();
+        }
+    }
+
     @BeforeAll
     public static void startContainers() {
         mockServer.start();
         mockClient = new MockServerClient(
             mockServer.getHost(),
             mockServer.getServerPort());
+        String urlPath;
+        if (isServiceRunning) {
+            System.out.println("Testing with mvn liberty:devc");
+            urlPath = "http://localhost:9080";
+        } else {
+            System.out.println("Testing with mvn verify");
+            queryContainer.withEnv(
+                "INVENTORY_BASE_URI",
+                "http://mock-server:" + MockServerContainer.PORT);
+            queryContainer.start();
+            urlPath = "http://"
+                      + queryContainer.getHost()
+                      + ":" + queryContainer.getFirstMappedPort();
+        }
 
-        kafkaContainer.start();
-
-        queryContainer.withEnv(
-            "INVENTORY_BASE_URI",
-            "http://mock-server:" + MockServerContainer.PORT);
-        queryContainer.start();
-
-        client = createRestClient("http://"
-                 + queryContainer.getHost()
-                 + ":" + queryContainer.getFirstMappedPort());
+        System.out.println("Creating REST client with: " + urlPath);
+        client = createRestClient(urlPath);
     }
 
     @BeforeEach
@@ -160,8 +198,10 @@ public class QueryServiceIT {
 
     @AfterAll
     public static void stopContainers() {
-        queryContainer.stop();
-        kafkaContainer.stop();
+        if (!isServiceRunning) {
+            queryContainer.stop();
+        }
+        mockClient.close();
         mockServer.stop();
         network.close();
     }
