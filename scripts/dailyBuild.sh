@@ -15,10 +15,10 @@ echo "Testing daily build image"
 sed -i "\#</containerRunOpts>#a<install><runtimeUrl>https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/nightly/$DATE/$DRIVER</runtimeUrl></install>" system/pom.xml inventory/pom.xml query/pom.xml
 cat system/pom.xml inventory/pom.xml query/pom.xml
 
-sed -i "s;FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi;FROM $DOCKER_USERNAME/olguides:$BUILD;g" system/Dockerfile inventory/Dockerfile query/Dockerfile
-sed -i "s;RUN features.sh;#RUN features.sh;g" system/Dockerfile inventory/Dockerfile query/Dockerfile
-cat system/Dockerfile inventory/Dockerfile query/Dockerfile
-
-docker pull -q "$DOCKER_USERNAME""/olguides:""$BUILD"
+if [[ "$DOCKER_USERNAME" != "" ]]; then
+    sed -i "s;FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi;FROM $DOCKER_USERNAME/olguides:$BUILD;g" system/Dockerfile inventory/Dockerfile query/Dockerfile
+    sed -i "s;RUN features.sh;#RUN features.sh;g" system/Dockerfile inventory/Dockerfile query/Dockerfile
+    cat system/Dockerfile inventory/Dockerfile query/Dockerfile
+fi
 
 ../scripts/testApp.sh
