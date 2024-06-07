@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>3.1.5</version>
+            <version>3.1.7</version>
         </dependency>
         <!-- end::jerseyClient[] -->
         <!-- tag::jerseyRxjava[] -->
