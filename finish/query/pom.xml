@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava</artifactId>
-            <version>3.1.8</version>
+            <version>3.1.9</version>
         </dependency>
         <!-- end::jerseyRxjava[] -->
         <!-- tag::jerseyRxjava2[] -->
