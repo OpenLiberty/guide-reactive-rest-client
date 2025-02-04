@@ -57,21 +57,21 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
         </dependency>
         <!-- end::jerseyClient[] -->
         <!-- tag::jerseyRxjava[] -->
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
         </dependency>
         <!-- end::jerseyRxjava[] -->
         <!-- tag::jerseyRxjava2[] -->
         <dependency>
             <groupId>org.glassfish.jersey.ext.rx</groupId>
             <artifactId>jersey-rx-client-rxjava2</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
         </dependency>
         <!-- end::jerseyRxjava2[] -->
         <!-- For tests -->
@@ -102,19 +102,19 @@
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-proxy-client</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
                 <scope>test</scope>
         </dependency>
         <dependency>

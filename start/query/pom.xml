@@ -80,19 +80,19 @@
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-proxy-client</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
                 <scope>test</scope>
         </dependency>
         <dependency>
