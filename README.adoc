@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2024 IBM Corporation and others.
+// Copyright (c) 2020, 2025 IBM Corporation and others.
 // Licensed under Creative Commons Attribution-NoDerivatives
 // 4.0 International (CC BY-ND 4.0)
 //   https://creativecommons.org/licenses/by-nd/4.0/
@@ -142,7 +142,16 @@ include::{common-includes}/os-tabs.adoc[]
 .\scripts\startContainers.bat
 ```
 --
-[.tab_content.mac_section.linux_section]
+
+[.tab_content.mac_section]
+--
+[role='command']
+```
+./scripts/startContainers.sh
+```
+--
+
+[.tab_content.linux_section]
 --
 [role='command']
 ```
@@ -285,7 +294,16 @@ include::{common-includes}/os-tabs.adoc[]
 .\scripts\startQueryContainer.bat
 ```
 --
-[.tab_content.mac_section.linux_section]
+
+[.tab_content.mac_section]
+--
+[role='command']
+```
+./scripts/startQueryContainer.sh
+```
+--
+
+[.tab_content.linux_section]
 --
 [role='command']
 ```
@@ -384,7 +402,19 @@ mvn verify
 ```
 --
 
-[.tab_content.mac_section.linux_section]
+[.tab_content.mac_section]
+--
+[role='command']
+```
+export TESTCONTAINERS_RYUK_DISABLED=true
+cd query
+mvn verify
+```
+
+For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
+--
+
+[.tab_content.linux_section]
 --
 [role='command']
 ```
