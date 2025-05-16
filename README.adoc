@@ -114,12 +114,34 @@ Start your Docker environment.
 
 To build the application, run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.windows_section]
+--
 [role='command']
 ```
-mvn -pl models install
-mvn package
+mvnw.cmd -pl models install
+mvnw.cmd package
 ```
+--
 
+[.tab_content.mac_section]
+--
+[role='command']
+```
+./mvnw -pl models install
+./mvnw package
+```
+--
+
+[.tab_content.linux_section]
+--
+[role='command']
+```
+./mvnw -pl models install
+./mvnw package
+```
+--
 
 
 Run the following commands to containerize the microservices:
@@ -271,10 +293,31 @@ Instead of using the `thenAcceptAsync()` method, `Observable` uses the [hotspot=
 
 Run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.windows_section]
+--
 [role='command']
 ```
-mvn -pl query package
+mvnw.cmd -pl query package
 ```
+--
+
+[.tab_content.mac_section]
+--
+[role='command']
+```
+./mvnw -pl query package
+```
+--
+
+[.tab_content.linux_section]
+--
+[role='command']
+```
+./mvnw -pl query package
+```
+--
 
 Run the following command to containerize the `query` microservice:
 
@@ -398,7 +441,7 @@ include::{common-includes}/os-tabs.adoc[]
 [role='command']
 ```
 cd query
-mvn verify
+mvnw.cmd verify
 ```
 --
 
@@ -408,7 +451,7 @@ mvn verify
 ```
 export TESTCONTAINERS_RYUK_DISABLED=true
 cd query
-mvn verify
+./mvnw verify
 ```
 
 For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
@@ -420,7 +463,7 @@ For more information about disabling Ryuk, see the https://java.testcontainers.o
 ```
 export TESTCONTAINERS_RYUK_DISABLED=true
 cd query
-mvn verify
+./mvnw verify
 ```
 
 For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
