@@ -209,12 +209,12 @@ When the service is ready, you see an output similar to the following example. T
 ----
 { 
     "highest": {
-        "hostname":"30bec2b63a96",       
-        ”systemLoad": 6.1
+        "hostname": "30bec2b63a96",
+        "systemLoad": 6.1
     },     
     "lowest": { 
-        "hostname":"55ec2b63a96",    
-        ”systemLoad": 0.1
+        "hostname": "55ec2b63a96",
+        "systemLoad": 0.1
     }
 }
 ----
