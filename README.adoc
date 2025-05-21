@@ -432,7 +432,7 @@ The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that th
 
 === Running the tests
 
-Navigate to the `query` directory, then verify that the tests pass by running the Maven `verify` goal:
+Verify that the tests pass by running the Maven `verify` goal on the `query` service:
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -440,8 +440,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-cd query
-mvnw.cmd verify
+mvnw.cmd -pl query verify
 ```
 --
 
@@ -450,8 +449,7 @@ mvnw.cmd verify
 [role='command']
 ```
 export TESTCONTAINERS_RYUK_DISABLED=true
-cd query
-./mvnw verify
+./mvnw -pl query verify
 ```
 
 For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
@@ -462,8 +460,7 @@ For more information about disabling Ryuk, see the https://java.testcontainers.o
 [role='command']
 ```
 export TESTCONTAINERS_RYUK_DISABLED=true
-cd query
-./mvnw verify
+./mvnw -pl query verify
 ```
 
 For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
