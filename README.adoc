@@ -207,7 +207,7 @@ When the service is ready, you see an output similar to the following example. T
 
 [source, role='no_copy']
 ----
-{ 
+{
     "highest": {
         "hostname": "30bec2b63a96",
         "systemLoad": 6.1
