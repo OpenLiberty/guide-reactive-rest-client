@@ -114,12 +114,34 @@ Start your Docker environment.
 
 To build the application, run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.windows_section]
+--
 [role='command']
 ```
-mvn -pl models install
-mvn package
+mvnw.cmd -pl models install
+mvnw.cmd package
 ```
+--
 
+[.tab_content.mac_section]
+--
+[role='command']
+```
+./mvnw -pl models install
+./mvnw package
+```
+--
+
+[.tab_content.linux_section]
+--
+[role='command']
+```
+./mvnw -pl models install
+./mvnw package
+```
+--
 
 
 Run the following commands to containerize the microservices:
@@ -185,14 +207,14 @@ When the service is ready, you see an output similar to the following example. T
 
 [source, role='no_copy']
 ----
-{ 
+{
     "highest": {
-        "hostname":"30bec2b63a96",       
-        ”systemLoad": 6.1
+        "hostname": "30bec2b63a96",
+        "systemLoad": 6.1
     },     
     "lowest": { 
-        "hostname":"55ec2b63a96",    
-        ”systemLoad": 0.1
+        "hostname": "55ec2b63a96",
+        "systemLoad": 0.1
     }
 }
 ----
@@ -271,10 +293,31 @@ Instead of using the `thenAcceptAsync()` method, `Observable` uses the [hotspot=
 
 Run the Maven `install` and `package` goals from the command-line session in the `start` directory:
 
+include::{common-includes}/os-tabs.adoc[]
+
+[.tab_content.windows_section]
+--
 [role='command']
 ```
-mvn -pl query package
+mvnw.cmd -pl query package
 ```
+--
+
+[.tab_content.mac_section]
+--
+[role='command']
+```
+./mvnw -pl query package
+```
+--
+
+[.tab_content.linux_section]
+--
+[role='command']
+```
+./mvnw -pl query package
+```
+--
 
 Run the following command to containerize the `query` microservice:
 
@@ -389,7 +432,7 @@ The [hotspot=testSystemLoad file=0]`testSystemLoad()` test case verifies that th
 
 === Running the tests
 
-Navigate to the `query` directory, then verify that the tests pass by running the Maven `verify` goal:
+Verify that the tests pass by running the Maven `verify` goal on the `query` service:
 
 include::{common-includes}/os-tabs.adoc[]
 
@@ -397,8 +440,7 @@ include::{common-includes}/os-tabs.adoc[]
 --
 [role='command']
 ```
-cd query
-mvn verify
+mvnw.cmd -pl query verify
 ```
 --
 
@@ -407,8 +449,7 @@ mvn verify
 [role='command']
 ```
 export TESTCONTAINERS_RYUK_DISABLED=true
-cd query
-mvn verify
+./mvnw -pl query verify
 ```
 
 For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
@@ -419,8 +460,7 @@ For more information about disabling Ryuk, see the https://java.testcontainers.o
 [role='command']
 ```
 export TESTCONTAINERS_RYUK_DISABLED=true
-cd query
-mvn verify
+./mvnw -pl query verify
 ```
 
 For more information about disabling Ryuk, see the https://java.testcontainers.org/features/configuration/#disabling-ryuk[Testcontainers custom configuration^] document.
