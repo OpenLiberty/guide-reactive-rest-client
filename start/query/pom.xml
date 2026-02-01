@@ -131,7 +131,7 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.11.5</version>
+                <version>3.12.0</version>
                 <configuration>
                     <containerRunOpts>
                         -e INVENTORY_BASE_URI=http://mock-server:1080
